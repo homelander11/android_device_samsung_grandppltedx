@@ -1,0 +1,30 @@
+From: grandppltedx bring-up
+Subject: [PATCH] bt: allow devices to cap local extended feature pages
+
+diff --git a/internal_include/bt_target.h b/internal_include/bt_target.h
+--- a/internal_include/bt_target.h
++++ b/internal_include/bt_target.h
+@@ -473,6 +473,12 @@
+  *************************/
+ 
+ /* 4.1/4.2 secure connections feature */
++// Highest local extended-feature page to request. Some legacy controllers
++// advertise page 2 but reject it with HCI status 0x30.
++#ifndef BTM_MAX_LOCAL_FEATURES_PAGE
++#define BTM_MAX_LOCAL_FEATURES_PAGE (MAX_FEATURES_CLASSIC_PAGE_COUNT - 1)
++#endif
++
+ #ifndef SC_MODE_INCLUDED
+ #define SC_MODE_INCLUDED TRUE
+ #endif
+diff --git a/device/src/controller.cc b/device/src/controller.cc
+--- a/device/src/controller.cc
++++ b/device/src/controller.cc
+@@ -175,6 +175,7 @@
+   // Done telling the controller about what page 0 features we support
+   // Request the remaining feature pages
+   while (page_number <= last_features_classic_page_index &&
++         page_number <= BTM_MAX_LOCAL_FEATURES_PAGE &&
+          page_number < MAX_FEATURES_CLASSIC_PAGE_COUNT) {
+     response = AWAIT_COMMAND(
+         packet_factory->make_read_local_extended_features(page_number));

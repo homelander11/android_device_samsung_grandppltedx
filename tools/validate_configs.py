@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Low-memory configuration checks; these do not establish hardware functionality."""
 from pathlib import Path
+import re
 import sys
 import xml.etree.ElementTree as ET
 
@@ -10,6 +11,11 @@ DEVICE = Path(__file__).resolve().parents[1]
 
 def validate(device=DEVICE):
     errors = []
+    for name in ("BoardConfig.mk", "device.mk"):
+        source = (device / name).read_text(encoding="utf-8")
+        for relative in set(re.findall(r"\$\(DEVICE_PATH\)/([\w./-]+)", source)):
+            if not (device / relative).exists():
+                errors.append(f"{name}: missing device path: {relative}")
     xml_count = 0
     for path in sorted(device.rglob("*.xml")):
         try:
@@ -64,6 +70,6 @@ if __name__ == "__main__":
     errors, count = validate()
     for error in errors:
         print(f"FAIL: {error}")
-    print(f"Parsed {count} XML files; checked audio routes/channels and Wi-Fi configuration.")
+    print(f"Parsed {count} XML files; checked device paths, audio routes/channels and Wi-Fi.")
     print("Static checks only; hardware and Android build validation are separate.")
     sys.exit(bool(errors))

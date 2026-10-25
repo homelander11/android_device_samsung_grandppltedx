@@ -1,0 +1,23 @@
+# Access-only device probe
+
+`UidAccessProbe.java` uses Android's `Os.access()` after setting its real UID/GID.
+It never opens, reads, or writes the target file. Run only through an authorized
+root ADB session. Supplementary groups remain those of the launching process;
+the audit's ADB process did not have the legacy BT calibration group 3008.
+
+Compile with an existing Android SDK (API 30 or newer), convert the class with
+D8 using `--min-api 30`, and put `classes.dex` in a JAR. The audit used the
+already installed Java/Android SDK and built no Android system components.
+
+```sh
+adb push uid-probe.jar /data/local/tmp/j2prime-uid-probe.jar
+adb shell dalvikvm -cp /data/local/tmp/j2prime-uid-probe.jar \
+    UidAccessProbe 1002 1002 /data/nvram/APCFG/APRDEB/BT_Addr
+adb shell rm /data/local/tmp/j2prime-uid-probe.jar
+```
+
+The 2026-10-25 test temporarily applied the exact ownership/mode from
+`zz-grandppltedx-calibration.rc`, tested access, then restored the original
+metadata in a `finally` block. A before/after SHA-256 comparison confirmed the
+calibration bytes were unchanged. No calibration content or hash is published.
+This establishes the DAC fix, not successful Bluetooth pairing or audio.

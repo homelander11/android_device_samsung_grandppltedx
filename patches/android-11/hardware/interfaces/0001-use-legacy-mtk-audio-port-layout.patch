@@ -1,0 +1,53 @@
+From: grandppltedx bring-up
+Subject: [PATCH] audio: keep the legacy MTK port layout at the HAL boundary
+
+diff --git a/audio/common/all-versions/default/Android.bp b/audio/common/all-versions/default/Android.bp
+--- a/audio/common/all-versions/default/Android.bp
++++ b/audio/common/all-versions/default/Android.bp
+@@ -12,6 +12,25 @@
+ // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ // See the License for the specific language governing permissions and
+ // limitations under the License.
++
++// Keep the pre-Treble MTK HAL boundary free of framework-only port flags.
++// These defaults also apply when this non-Treble product selects system variants.
++soong_config_module_type {
++    name: "grandppltedx_audio_cc_defaults",
++    module_type: "cc_defaults",
++    config_namespace: "grandppltedx",
++    bool_variables: ["legacy_audio_port_layout"],
++    properties: ["cflags"],
++}
++
++grandppltedx_audio_cc_defaults {
++    name: "grandppltedx_audio_compat_defaults",
++    soong_config_variables: {
++        legacy_audio_port_layout: {
++            cflags: ["-DAUDIO_NO_SYSTEM_DECLARATIONS"],
++        },
++    },
++}
+ 
+ cc_library_shared {
+     name: "android.hardware.audio.common-util",
+@@ -41,7 +60,7 @@
+ 
+ cc_defaults {
+     name: "android.hardware.audio.common-util_default",
+-    defaults: ["hidl_defaults"],
++    defaults: ["hidl_defaults", "grandppltedx_audio_compat_defaults"],
+ 
+     vendor_available: true,
+     srcs: [
+diff --git a/audio/core/all-versions/default/Android.bp b/audio/core/all-versions/default/Android.bp
+--- a/audio/core/all-versions/default/Android.bp
++++ b/audio/core/all-versions/default/Android.bp
+@@ -14,7 +14,7 @@
+         "StreamOut.cpp",
+     ],
+ 
+-    defaults: ["hidl_defaults"],
++    defaults: ["hidl_defaults", "grandppltedx_audio_compat_defaults"],
+ 
+     export_include_dirs: ["include"],
+ 

@@ -171,6 +171,12 @@ USE_XML_AUDIO_POLICY_CONF := 1
 BOARD_USES_LEGACY_MTK_AV_BLOB := true
 SUPPRESS_MTK_AUDIO_BLOB_ERR_MSG := true
 
+# Apply patches/android-11 before building. The non-Treble product loads system
+# variants of the HIDL helpers, which otherwise include framework-only fields.
+SOONG_CONFIG_NAMESPACES += grandppltedx
+SOONG_CONFIG_grandppltedx += legacy_audio_port_layout
+SOONG_CONFIG_grandppltedx_legacy_audio_port_layout := true
+
 # Exclude AudioFx
 TARGET_EXCLUDES_AUDIOFX := true
 
@@ -201,7 +207,7 @@ TARGET_USES_OLD_MNC_FORMAT := true
 
 # Power HAL
 TARGET_POWERHAL_VARIANT := mtk
-TARGET_POWERHAL_SET_INTERACTIVE_EXT := $(DEVICE_PATH)/power/power.c
+# The device's complete power module is built from mtk/power/Android.mk.
 
 # Wifi
 BOARD_WLAN_DEVICE := MediaTek
@@ -221,7 +227,6 @@ WIFI_HIDL_FEATURE_DISABLE_AP_MAC_RANDOMIZATION := true
 WIFI_HIDL_UNIFIED_SUPPLICANT_SERVICE_RC_ENTRY := true
 
 # Camera
-USE_CAMERA_STUB := true
 TARGET_HAS_LEGACY_CAMERA_HAL1 := true
 TARGET_NEEDS_LEGACY_CAMERA_HAL1_DYN_NATIVE_HANDLE := true
 TARGET_USES_NON_TREBLE_CAMERA := true

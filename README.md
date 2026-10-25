@@ -7,6 +7,8 @@ CURRENTLY NOT WORKING / BUGGY:
 
 DEVELOPMENT IN PROGRESS, MAY EAT YOUR CAT.
 
+See [hardware bring-up notes](docs/HARDWARE_BRINGUP.md) for the Android 11 fixes,
+source-patch instructions, measured failures, and required device tests.
 
 SPECSHEET
 
@@ -18,5 +20,5 @@ RAM       | 1.5 GB
 Storage   | 8 GB, 16 GB
 Battery   | 2600 mAh
 Display   | 540 x 960, 16:9 ratio
-Rear Cam  | 13MP, Sony imx218
-Front Cam | 8MP, Samsung s5k5e3yx
+Rear Cam  | 8MP, Sony imx219 (selected kernel driver)
+Front Cam | 5MP, Samsung s5k5e3yx (selected kernel driver)

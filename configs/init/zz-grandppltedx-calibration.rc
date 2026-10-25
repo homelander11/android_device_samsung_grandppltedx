@@ -1,0 +1,11 @@
+# The legacy audio HAL writes its state here; audioserver does not own /data/vendor.
+on post-fs-data
+    mkdir /data/vendor/audiohal 0770 audioserver audio
+    mkdir /data/vendor/audiohal/audio_dump 0770 audioserver audio
+
+# nvram_daemon restores the legacy root:3008 ownership. Android 11's separate
+# Bluetooth HAL runs as bluetooth:bluetooth and needs this one calibration file.
+# Keep parent-directory and raw NVRAM block-device permissions unchanged.
+on property:vendor.service.nvram_init=Ready
+    chown bluetooth bluetooth /data/nvram/APCFG/APRDEB/BT_Addr
+    chmod 0660 /data/nvram/APCFG/APRDEB/BT_Addr

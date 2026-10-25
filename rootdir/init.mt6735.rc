@@ -1025,7 +1025,7 @@ service vendor.lpm /vendor/bin/lpm
     critical
 
 # Bring-up persistent logcat
-service bootlog /system/bin/logcat -b all -v threadtime -f /data/local/tmp/bootlog.txt
+service bootlog /system/bin/logcat -b all -v threadtime -f /data/local/tmp/bootlog.txt -r 1024 -n 3
     class core
     user root
     group root log system

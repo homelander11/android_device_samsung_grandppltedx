@@ -4,3 +4,5 @@
 /sepolicy/full-binary-list
 /sepolicy/full-SELx-list
 /openssl/
+__pycache__/
+*.py[cod]
