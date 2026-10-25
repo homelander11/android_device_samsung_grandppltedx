@@ -65,11 +65,19 @@ ROM's update-binary. It pins the input ROM/original shim hashes and checks the
 new ELF. On-device scripts require Android 11, the exact Lineage version and
 either known shim hash before writing. They replace only
 `/system/vendor/lib/libshim_gui.so`, preserve ownership/mode/SELinux label and
-verify the output SHA-1. Boot, userdata, calibration and Wi-Fi files are untouched.
+verify the output SHA-256. Boot, userdata, calibration and Wi-Fi files are untouched.
 
-Install `grandppltedx-20261025-display-fix.zip` in TWRP with ZIP signature
+The first ZIP was rejected before execution because Android 11's updater does
+not register `apply_patch_check` (nor `sha1_check`). Version 2 uses the supported
+`run_program` function to invoke a bundled SHA-256 verifier through TWRP's
+`/sbin/sh`. The exact updater successfully parses the complete v2 script in a
+test that aborts before all installation commands. RAM-only integration tests
+also verify `run_program` status handling, both known hashes and rejection of
+an incorrect hash. These tests do not constitute an actual installation.
+
+Install `grandppltedx-20261025-display-fix-v2.zip` in TWRP with ZIP signature
 verification off, then reboot System. No wipe is needed for this library update.
-`grandppltedx-20261025-display-undo.zip` restores the original library, including
+`grandppltedx-20261025-display-undo-v2.zip` restores the original library, including
 its loader bug. These unsigned development ZIPs target this exact base ROM.
 Reflashing the original complete ROM requires reapplying the fix afterwards.
 

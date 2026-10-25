@@ -21,6 +21,22 @@ BLOCK = "/dev/block/platform/mtk-msdc.0/11230000.msdc0/by-name/system"
 MOUNT = "/tmp/j2prime-display-system"
 LIBRARY = MOUNT + "/system/vendor/lib/libshim_gui.so"
 PREFIX = "META-INF/com/google/android/"
+VERIFY = "/tmp/j2prime-display-verify.sh"
+HASH_VERIFIER = b'''#!/sbin/sh
+set -eu
+file=$1
+shift
+actual=$(sha256sum "$file") || exit 1
+actual=${actual%% *}
+for expected do
+    if [ "$actual" = "$expected" ]; then
+        echo "GUI shim SHA-256 verified"
+        exit 0
+    fi
+done
+echo "Unexpected GUI shim SHA-256: $actual" >&2
+exit 1
+'''
 
 
 def sha(data, algorithm="sha256"):
@@ -28,22 +44,24 @@ def sha(data, algorithm="sha256"):
 
 
 def package(path, binary, payload, accepted):
-    hashes = ", ".join('"' + sha(data, "sha1") + '"' for data in accepted)
+    hashes = ", ".join('"' + sha(data) + '"' for data in accepted)
     script = f'''ui_print("J2 Prime Android 11 display compatibility update");
+assert(package_extract_file("verify-shim.sh", "{VERIFY}"));
 assert(!is_mounted("/system") && !is_mounted("/system_root"));
 assert(mount("ext4", "EMMC", "{BLOCK}", "{MOUNT}") != "");
 assert(file_getprop("{MOUNT}/system/build.prop", "ro.lineage.version") == "{VERSION}");
 assert(file_getprop("{MOUNT}/system/build.prop", "ro.build.version.sdk") == "30");
-assert(apply_patch_check("{LIBRARY}", {hashes}));
+assert(run_program("/sbin/sh", "{VERIFY}", "{LIBRARY}", {hashes}) == "0");
 assert(package_extract_file("libshim_gui.so", "{LIBRARY}"));
 set_metadata("{LIBRARY}", "uid", 0, "gid", 0, "mode", 0644, "selabel", "u:object_r:vendor_file:s0");
-assert(apply_patch_check("{LIBRARY}", "{sha(payload, 'sha1')}"));
+assert(run_program("/sbin/sh", "{VERIFY}", "{LIBRARY}", "{sha(payload)}") == "0");
 assert(unmount("{MOUNT}") != "");
 ui_print("Library verified. Boot and userdata were not changed.");
 '''
     with zipfile.ZipFile(path, "w", compression=zipfile.ZIP_DEFLATED) as archive:
         for name, data in ((PREFIX + "update-binary", binary),
                            (PREFIX + "updater-script", script.encode()),
+                           ("verify-shim.sh", HASH_VERIFIER),
                            ("libshim_gui.so", payload)):
             info = zipfile.ZipInfo(name, date_time=(2026, 10, 25, 0, 0, 0))
             info.create_system = 3
@@ -79,11 +97,11 @@ def main():
     args.out_dir.mkdir(parents=True, exist_ok=True)
     outputs = []
     for suffix, payload in (("fix", new), ("undo", old)):
-        path = args.out_dir / f"grandppltedx-20261025-display-{suffix}.zip"
+        path = args.out_dir / f"grandppltedx-20261025-display-{suffix}-v2.zip"
         package(path, binary, payload, (old, new))
         outputs.append(f"{sha(path.read_bytes())}  {path.name}\n")
         print(path, path.stat().st_size, "bytes")
-    (args.out_dir / "DISPLAY-FIX-SHA256SUMS").write_text("".join(outputs), encoding="ascii")
+    (args.out_dir / "DISPLAY-FIX-v2-SHA256SUMS").write_text("".join(outputs), encoding="ascii")
     return 0
 
 
