@@ -1,5 +1,12 @@
 # LineageOS 18.1 build validation — 2026-10-25
 
+Latest follow-up (October 26): display v2 and the Light fix now pass display
+startup. The next watchdog blocks in GNSS initialization. `GNSS_BOOT_FIX.md`
+documents a 14-byte vendor socket-path correction, verified GPS-UID permission
+probe and RAM recovery install/reinstall/undo checks. No new full build or VPS
+use was needed; the original ROM still requires all three follow-up updates.
+Normal boot and satellite positioning remain unverified.
+
 **Device follow-up:** the user subsequently flashed this ZIP; it stops at the
 fixed Samsung logo. Android logs identify an old GUI shim overwriting its
 source-built replacement and preventing the composer from loading. See

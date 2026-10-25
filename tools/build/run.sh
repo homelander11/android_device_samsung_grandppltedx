@@ -42,6 +42,7 @@ if not zipfile.is_zipfile(apk):
 PY
 python3 "$device/tools/validate_configs.py"
 python3 "$device/tools/validate_audio_nvram.py" vendor/samsung/grandppltedx/proprietary/vendor
+python3 "$device/tools/validate_gnss_socket.py" vendor/samsung/grandppltedx/proprietary/vendor --source
 python3 "$device/tools/apply_android11_patches.py" --source-root "$PWD" --apply
 source build/envsetup.sh
 lunch lineage_grandppltedx-userdebug
@@ -53,4 +54,7 @@ esac
 case "$target" in
     lights|bacon) python3 "$device/tools/verify_lights.py" out/target/product/grandppltedx ;;
 esac
+if [ "$target" = bacon ]; then
+    python3 "$device/tools/validate_gnss_socket.py" out/target/product/grandppltedx/system/vendor
+fi
 printf 'BUILD_DONE %s target=%s\n' "$(date -u --iso-8601=seconds)" "$target"

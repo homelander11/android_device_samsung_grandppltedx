@@ -1,5 +1,22 @@
 # Access-only device probe
 
+`make_gps_socket_probe.py OUTPUT` emits a static ARM EABI executable using the
+device kernel's Linux syscall numbers, requiring only host Python. Before
+running it as root in recovery, verify both paths below are absent. It drops
+to UID/GID 1021 and exactly the configured GNSS supplementary groups, then
+checks old-parent bind EACCES and new-parent bind/unlink success:
+
+```
+/data/misc/j2prime-gnss-bind-test.sock
+/data/gps_mnl/j2prime-gnss-bind-test.sock
+```
+
+It creates only these diagnostic sockets, closes them and removes a successful
+bind. It does not load the GPS HAL, start a daemon, request positioning or
+access calibration. It inherits the current SELinux domain; the measured test
+uses permissive recovery and establishes DAC, not enforcing-policy behavior.
+See `docs/GNSS_BOOT_FIX.md` for the native wait/error path and results.
+
 `light_probe.cpp`, built uninstalled by the `lights` target, loads the standard
 Light implementation, invokes its real legacy-driver factory and enumerates
 types. It does not call `setLight` or register a service. ELF constructors and

@@ -95,6 +95,12 @@ symbol isolation, and saves ARM conversion disassembly for inspection. In the
 mix-port branch, the framework handle must remain at `0xb4` and the private HAL
 handle must use `0xb0`. This supplements the C++ layout probe and device tests.
 
+The GPS worker socket correction needs no compilation. Source and full-image
+build checks run `validate_gnss_socket.py` to verify its pinned blob/init pair.
+`create_gnss_fix.py BASE_ROM PATCHED_HAL ORIGINAL_HAL --out-dir DIR` packages
+the fix and undo using the original updater, with version/hash prerequisites.
+See `docs/GNSS_BOOT_FIX.md`; preserve the earlier display and Light updates.
+
 ## Paid VM budget
 
 Set a wall-clock cutoff before starting a paid build, allowing time to copy

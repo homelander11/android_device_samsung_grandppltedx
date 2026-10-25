@@ -8,7 +8,11 @@ successful before/after loader tests and remaining normal-boot requirements.
 With display v2, the Lineage animation runs. Watchdog dumps show the display
 thread blocked on an unregistered/missing Light HAL. `LIGHTS_BOOT_FIX.md`
 documents the service/wrapper, unused driver dependency correction, backlight
-access and successful factory/RAM-installer checks. Normal boot remains untested.
+access and successful factory/RAM-installer checks. The user installed this fix;
+fresh logs now pass display initialization and block in legacy GPS initialization.
+`GNSS_BOOT_FIX.md` records the next correction: relocate the worker socket from
+unwritable `/data/misc` into its existing GPS-owned directory. The exact-UID
+socket probe and recovery install/reinstall/undo pass; normal boot remains pending.
 
 ## Scope and baseline (2026-10-25)
 
@@ -179,7 +183,7 @@ Checks performed:
 | Bluetooth | Repeated `parse_read_local_extended_features_response` aborts; HCI status `0x30`. `BT_Addr` access also fails with errno 13. | Feature-page handling, stable enable/disable, classic pairing, BLE, A2DP, SCO, persistent factory address. |
 | Audio | Primary MTK HAL is mapped and audio HIDL 4.0 is registered. `create_audio_patch` fails and logs `routing=10` even for speaker. Calibration access failures also appear. | Routing ABI, speaker/earpiece/headset, playback and microphone capture, calls. |
 | Camera | Zero enumerated cameras; the installed ROM lacks the provider service binary. The missing source-tree HAL is now restored, and the service is now packaged. | Check legacy camera/framework symbols and namespaces, preview, still capture, video and flash on both sensors. No end-to-end camera fix is claimed yet. |
-| GNSS | GNSS HIDL, `mnld`, and AGPS run; `gps.default.so` is mapped. AGPS successfully falls back to `/vendor/etc/agps_profiles_conf2.xml` after optional data files are absent. | Active request, satellite acquisition outdoors, NMEA, time/location injection and SUPL. No satellite fix or GPS functional repair was established. |
+| GNSS | Latest built-ROM watchdog blocks in legacy initialization. The worker cannot bind its codec socket in `/data/misc` and exits without signaling ready. A 14-byte path correction uses existing `/data/gps_mnl`; exact-UID bind and RAM recovery tests pass. See `GNSS_BOOT_FIX.md`. | Normal boot, GNSS service responsiveness, satellite acquisition outdoors, NMEA, time/location injection and SUPL. No satellite fix has been established. |
 | USB audio | `audio.usb.default.so` cannot resolve `profile_get_highest_sample_rate`. The old overwriting library is now excluded from packaging. | Verify the built library export; test USB playback/capture. |
 | Widevine | Legacy protobuf `empty_string_` symbol cannot resolve. | Check the existing v29 compatibility library mapping and encrypted playback. |
 | Security | Permissive kernel cmdline, ignored neverallows, insecure ADB defaults. | Dedicated SELinux bring-up before calling this a production-ready ROM. |

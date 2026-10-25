@@ -9,6 +9,9 @@ DEVELOPMENT IN PROGRESS, MAY EAT YOUR CAT.
 
 See [hardware bring-up notes](docs/HARDWARE_BRINGUP.md) for the Android 11 fixes,
 source-patch instructions, measured failures, and required device tests.
+The latest boot follow-up is the [GPS initialization fix](docs/GNSS_BOOT_FIX.md),
+after verified progress through display and Light initialization. Full boot
+and hardware operation remain under device testing.
 
 SPECSHEET
 

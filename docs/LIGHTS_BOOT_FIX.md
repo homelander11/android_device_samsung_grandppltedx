@@ -1,5 +1,11 @@
 # Lineage animation hang: missing Light HAL (October 25–26, 2026)
 
+Follow-up: the user installed this update successfully. Fresh logs pass display
+initialization and reach `boot_progress_enable_screen`; the missing-Light wait
+is resolved. Boot then blocks in legacy GNSS initialization. See
+`GNSS_BOOT_FIX.md` for the separate socket-path correction and pending reboot
+test. Brightness range, suspend/resume and full normal boot still need testing.
+
 After display fix v2, the Lineage animation runs but the launcher never starts.
 Boot logs and two watchdog dumps identify the next gate: `system_server`
 repeatedly dies during boot phase 100. The display thread holds DisplayManager's
