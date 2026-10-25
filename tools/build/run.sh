@@ -23,6 +23,16 @@ export GIT_TERMINAL_PROMPT=0
 export TZ=UTC
 
 device=device/samsung/grandppltedx
+python3 - <<'PY'
+from pathlib import Path
+import sys
+import zipfile
+apk = Path("external/chromium-webview/prebuilt/arm/webview.apk")
+if not zipfile.is_zipfile(apk):
+    sys.exit("WebView APK is missing/invalid (possibly a Git LFS pointer). "
+             "Initialize repo with --git-lfs and run git -C "
+             "external/chromium-webview/prebuilt/arm lfs pull.")
+PY
 python3 "$device/tools/validate_configs.py"
 python3 "$device/tools/validate_audio_nvram.py" vendor/samsung/grandppltedx/proprietary/vendor
 python3 "$device/tools/apply_android11_patches.py" --source-root "$PWD" --apply

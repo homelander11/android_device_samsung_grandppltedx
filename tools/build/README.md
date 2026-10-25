@@ -10,11 +10,17 @@ are required inside the container: all source repositories are public.
 
 ## Setup
 
-Initialize LineageOS 18.1 with a pinned `repo` launcher (v2.45 was used), shallow
-history and Linux projects. Add this device, vendor and kernel at reviewed
+Install and configure Git LFS **before** syncing. Initialize LineageOS 18.1 with
+a pinned `repo` launcher (v2.45 was used), `--git-lfs`, shallow history and Linux
+projects. Add this device, vendor and kernel at reviewed
 revisions to `.repo/local_manifests/`. Copy `android11-manifest.xml` there too,
 then sync. It pins the APN snapshot before a new Python/YAML dependency absent
 from the Android 11 manifest. Do not run the old `patches/install.sh`.
+
+If a checkout already contains a 133-byte WebView pointer instead of the APK,
+run `git -C external/chromium-webview/prebuilt/arm lfs pull`. The ARM prebuilt is
+its own Git project; its parent `external/chromium-webview` is not. The runner
+checks that the APK is a real ZIP before starting compilation.
 
 Use a workspace layout with `lineage/` for sources and `home/` for container
 user data. Both must be writable by UID/GID 1000. From that workspace:
