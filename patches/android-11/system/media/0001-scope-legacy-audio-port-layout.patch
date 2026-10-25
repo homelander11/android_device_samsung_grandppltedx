@@ -1,0 +1,35 @@
+From: grandppltedx bring-up
+Subject: [PATCH] audio: isolate legacy HAL port layout from framework enum visibility
+
+--- a/audio/include/system/audio.h
++++ b/audio/include/system/audio.h
+@@ -505,7 +505,8 @@
+     audio_channel_mask_t     channel_mask; /* channel mask if applicable */
+     audio_format_t           format;       /* format if applicable */
+     struct audio_gain_config gain;         /* gain to apply if applicable */
+-#ifndef AUDIO_NO_SYSTEM_DECLARATIONS
++#if !defined(AUDIO_NO_SYSTEM_DECLARATIONS) && \
++        !defined(GRANDPPLTEDX_LEGACY_AUDIO_PORT_LAYOUT)
+     union audio_io_flags     flags;        /* framework only: HW_AV_SYNC, DIRECT, ... */
+ #endif
+     union {
+@@ -530,7 +531,8 @@
+     audio_module_handle_t hw_module;    /* module the device is attached to */
+     audio_devices_t       type;         /* device type (e.g AUDIO_DEVICE_OUT_SPEAKER) */
+     char                  address[AUDIO_DEVICE_MAX_ADDRESS_LEN];
+-#ifndef AUDIO_NO_SYSTEM_DECLARATIONS
++#if !defined(AUDIO_NO_SYSTEM_DECLARATIONS) && \
++        !defined(GRANDPPLTEDX_LEGACY_AUDIO_PORT_LAYOUT)
+     uint32_t              encapsulation_modes;
+     uint32_t              encapsulation_metadata_types;
+ #endif
+@@ -1315,7 +1317,8 @@
+     return strdup(param);
+ }
+ 
+-#ifndef AUDIO_NO_SYSTEM_DECLARATIONS
++#if !defined(AUDIO_NO_SYSTEM_DECLARATIONS) && \
++        !defined(GRANDPPLTEDX_LEGACY_AUDIO_PORT_LAYOUT)
+ 
+ static inline bool audio_gain_config_are_equal(
+         const struct audio_gain_config *lhs, const struct audio_gain_config *rhs) {

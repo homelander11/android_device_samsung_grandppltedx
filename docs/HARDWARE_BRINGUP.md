@@ -22,6 +22,19 @@ The complete source graph exposed an invalid inherited camera module name:
 Packaging now uses `@2.4-impl`, which links the branch's `@2.4-legacy` HAL1
 provider, together with the 32-bit service.
 
+Compilation rejected the initial audio patch's broad
+`AUDIO_NO_SYSTEM_DECLARATIONS` switch because it also hides required framework
+enums. The revised patch uses a dedicated opt-in layout guard in `system/media`.
+A 32-bit C++ probe passes for both the MTK `0xb0` mix-handle offset and unchanged
+default `0xb4` offset, retaining framework stream/usage declarations in both.
+
+Vendor packaging now retains Android 11's `libalsautils` with its USB-audio
+HAL, removing the old copy that overwrote it and lacked a required symbol.
+The MTK primary HAL imports no symbols from that library. The `libion_mtk`
+Soong module also now references the actual ION blob instead of accidentally
+referencing `libdpframework.so`; only the ION blob exports `ion_custom_ioctl`.
+The updated build graph no longer reports overwrite rules for these modules.
+
 A root-authorized SM-G532G was available through ADB, running Android 11/API 30,
 LineageOS `18.1-20260827-UNOFFICIAL-grandppltedx`, with SELinux permissive.
 Logs contain both October 18 boot entries and October 25 reproductions. A short
@@ -48,8 +61,8 @@ The running image differs from these repositories: it contains
   widened. The daemon's legacy root:3008 ownership is incompatible with the
   separate Android 11 bluetooth:bluetooth HAL process.
 * Compile both audio HIDL conversion utilities and core implementation with the
-  vendor port layout through an opt-in Soong setting. See the required source
-  patch under `patches/android-11/hardware/interfaces`.
+  vendor port layout through an opt-in Soong setting. Apply the required source
+  patches under `patches/android-11/hardware/interfaces` and `system/media`.
 * Create `/data/vendor/audiohal` and `audio_dump` for the audioserver-owned HAL.
 * Package `android.hardware.camera.provider@2.4-service` for the already
   advertised hwbinder provider; remove the camera-stub flag. The vendor branch
@@ -94,27 +107,34 @@ Audio binary inspection confirmed that the running process loads
 HAL reads offset `0xb0`. The latter contains the module ID (10), explaining the
 observed `IOport = 10` and `routing=10`. Android 11's framework-only `flags`
 field creates this four-byte shift. The source patch removes that field at
-both sides of the HAL conversion boundary for this product. The resulting
-Android components have **not** been compiled or deployed in this session.
+both sides of the HAL conversion boundary for this product. Compilation is
+in progress on the authorized VM; the changes have not been deployed.
 
 Checks performed:
 
-* All 20 device XML files and 98 vendor XML files parse.
+* All device XML files (21 including the build manifest) and 98 vendor XML files parse.
 * Expanded audio policy passes the Android 11 audio 6.0 XSD with the matching
   standard includes. XInclude-generated `xml:base` metadata was removed only
   from the temporary validation tree. The older audio 4.0 XSD lacks Android
   11's standard assistant-stream entries and is not the full-policy schema.
 * Audio route references/channel directions and both Wi-Fi parameters pass the
   configuration validator.
-* Both platform patches apply to isolated copies of the pinned LineageOS 18.1
+* The scoped platform patches apply to the pinned LineageOS 18.1
   sources and are recognized as already applied on a repeat run.
 * Four patch-installer regression tests pass: read-only preflight/idempotence,
   refusal to partially apply when another component fails preflight, rollback
   on an apply failure, and rejection of misleading parent Git repositories.
 * The restored camera ELF is ARM32, exports `HMI`, and matches its recorded Git
   object and SHA-256. A camera provider/component build remains necessary.
-* No Android system component, kernel, or ROM was built; only the small Java/D8
-  UID-access probe was compiled with the existing SDK. No ROM was flashed.
+* The small Java/D8 UID-access probe was compiled with the existing SDK. The
+  subsequent VM build is compiling Android components; a finished ROM remains
+  pending. No ROM was flashed.
+* A read-only boot partition capture matches the configured load addresses,
+  2 KiB page size, Samsung board ID and exact prebuilt DT bytes. Its legacy
+  payload SHA-1 validates. `tools/verify_boot_image.py` repeats these checks;
+  five tests reject corrupted/truncated payloads, wrong DTs and wrong addresses.
+  A Samsung marker found later in the partition is not at the current payload
+  end, so it does not establish that a fresh image needs an added trailer.
 
 ## Observed blockers and investigation
 
@@ -124,7 +144,7 @@ Checks performed:
 | Audio | Primary MTK HAL is mapped and audio HIDL 4.0 is registered. `create_audio_patch` fails and logs `routing=10` even for speaker. Calibration access failures also appear. | Routing ABI, speaker/earpiece/headset, playback and microphone capture, calls. |
 | Camera | Zero enumerated cameras; the installed ROM lacks the provider service binary. The missing source-tree HAL is now restored, and the service is now packaged. | Check legacy camera/framework symbols and namespaces, preview, still capture, video and flash on both sensors. No end-to-end camera fix is claimed yet. |
 | GNSS | GNSS HIDL, `mnld`, and AGPS run; `gps.default.so` is mapped. AGPS successfully falls back to `/vendor/etc/agps_profiles_conf2.xml` after optional data files are absent. | Active request, satellite acquisition outdoors, NMEA, time/location injection and SUPL. No satellite fix or GPS functional repair was established. |
-| USB audio | `audio.usb.default.so` cannot resolve `profile_get_highest_sample_rate`. | Audit `libalsautils` installation and exports; test a USB audio device. |
+| USB audio | `audio.usb.default.so` cannot resolve `profile_get_highest_sample_rate`. The old overwriting library is now excluded from packaging. | Verify the built library export; test USB playback/capture. |
 | Widevine | Legacy protobuf `empty_string_` symbol cannot resolve. | Check the existing v29 compatibility library mapping and encrypted playback. |
 | Security | Permissive kernel cmdline, ignored neverallows, insecure ADB defaults. | Dedicated SELinux bring-up before calling this a production-ready ROM. |
 | Power/memtrack | Packaged passthrough implementations lacked declarations; device power hints/interactive callbacks are empty. | Verify discovery, display sleep, suspend current, wake reliability, thermal limits and memory accounting. |

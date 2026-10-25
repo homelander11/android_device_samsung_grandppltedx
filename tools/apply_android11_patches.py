@@ -8,6 +8,7 @@ import sys
 
 DEVICE = Path(__file__).resolve().parents[1]
 PATCHES = DEVICE / "patches/android-11"
+COMPONENTS = ("hardware/interfaces", "system/bt", "system/media")
 
 
 def run(repo, *args):
@@ -24,7 +25,7 @@ def main():
     args = parser.parse_args()
     pending = []
     failures = []
-    for component in ("hardware/interfaces", "system/bt"):
+    for component in COMPONENTS:
         repo = (args.source_root / component).resolve()
         # A parent Git checkout would silently skip these component-relative
         # paths. Require the actual component root before checking either way.

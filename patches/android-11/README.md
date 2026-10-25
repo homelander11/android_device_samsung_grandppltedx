@@ -17,12 +17,19 @@ replace the remaining platform/graphics compatibility work required by this port
   `bdroid_buildcfg.h` sets the limit to 1. Captured MT6737T HCI responses show
   pages 0 and 1 succeed; page 2 returns status `0x30` and aborts the stack.
   Other products keep the previous default limit.
-* `hardware/interfaces`: apply `AUDIO_NO_SYSTEM_DECLARATIONS` to both audio HIDL
-  utility and implementation compilation when the device's Soong option is set.
+* `hardware/interfaces` and `system/media`: select
+  `GRANDPPLTEDX_LEGACY_AUDIO_PORT_LAYOUT` for both audio HIDL utility and
+  implementation compilation when the device's Soong option is set.
   The non-Treble image loads system variants of these libraries. Their default
   `audio_port_config` contains an extra framework-only flags field that shifts
   the vendor HAL's mix handle/device type by four bytes. No VNDK level change or
-  downgrade of the HAL version is needed.
+  downgrade of the HAL version is needed. The dedicated header guard retains
+  framework enum declarations; defining `AUDIO_NO_SYSTEM_DECLARATIONS` directly
+  breaks Android 11 HIDL compilation by hiding required stream/usage values.
+
+If an earlier revision of the audio patch was already applied, reverse that
+revision's `hardware/interfaces` patch before updating this device tree. Then
+run the installer again. Do not force a new patch onto partially modified files.
 
 Preflight and ABI/HCI evidence do not substitute for compiling these components
 and testing speaker/microphone routes and Bluetooth on a newly built image.

@@ -23,7 +23,7 @@ diff --git a/audio/common/all-versions/default/Android.bp b/audio/common/all-ver
 +    name: "grandppltedx_audio_compat_defaults",
 +    soong_config_variables: {
 +        legacy_audio_port_layout: {
-+            cflags: ["-DAUDIO_NO_SYSTEM_DECLARATIONS"],
++            cflags: ["-DGRANDPPLTEDX_LEGACY_AUDIO_PORT_LAYOUT"],
 +        },
 +    },
 +}

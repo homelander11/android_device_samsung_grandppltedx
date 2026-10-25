@@ -40,6 +40,21 @@ Save a pinned `repo manifest -r` and all platform patch files with the result.
 Build completion is separate from boot, Wi-Fi and hardware validation on a
 physical device. Do not flash merely because compilation succeeds.
 
+Check a built boot image with
+`python3 device/samsung/grandppltedx/tools/verify_boot_image.py out/target/product/grandppltedx/boot.img`.
+This validates the legacy header, load addresses, exact DT and payload checksum;
+it does not establish successful boot.
+
+The audio layout probe can be checked in the container from the Android root:
+
+```sh
+for layout in '' '-DGRANDPPLTEDX_LEGACY_AUDIO_PORT_LAYOUT'; do
+  g++ -m32 -std=c++17 $layout -Isystem/media/audio/include \
+    -Isystem/core/libcutils/include -fsyntax-only \
+    device/samsung/grandppltedx/tools/build/audio_port_layout_probe.cpp || exit
+done
+```
+
 ## Paid VM budget
 
 Set a wall-clock cutoff before starting a paid build, allowing time to copy

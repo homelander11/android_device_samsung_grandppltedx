@@ -24,7 +24,7 @@ class PatchInstallerTest(unittest.TestCase):
         self.root = Path(self.temp.name)
         self.sources = self.root / "sources"
         self.patches = self.root / "patches"
-        self.components = ("hardware/interfaces", "system/bt")
+        self.components = installer.COMPONENTS
         for component in self.components:
             repo = self.sources / component
             repo.mkdir(parents=True)
@@ -49,16 +49,16 @@ class PatchInstallerTest(unittest.TestCase):
 
     def test_check_is_read_only_and_apply_is_idempotent(self):
         self.assertEqual(self.invoke("--check"), 0)
-        self.assertEqual(self.contents(), ["old\n", "old\n"])
+        self.assertEqual(self.contents(), ["old\n"] * len(self.components))
         self.assertEqual(self.invoke("--apply"), 0)
-        self.assertEqual(self.contents(), ["new\n", "new\n"])
+        self.assertEqual(self.contents(), ["new\n"] * len(self.components))
         self.assertEqual(self.invoke("--apply"), 0)
-        self.assertEqual(self.contents(), ["new\n", "new\n"])
+        self.assertEqual(self.contents(), ["new\n"] * len(self.components))
 
     def test_one_bad_component_prevents_all_mutations(self):
         (self.sources / "system/bt/sample.txt").write_text("user changes\n")
         self.assertEqual(self.invoke("--apply"), 1)
-        self.assertEqual(self.contents(), ["old\n", "user changes\n"])
+        self.assertEqual(self.contents(), ["old\n", "user changes\n", "old\n"])
 
     def test_apply_failure_reverses_only_this_runs_patches(self):
         real_run = installer.run
@@ -70,7 +70,7 @@ class PatchInstallerTest(unittest.TestCase):
 
         with patch.object(installer, "run", side_effect=fail_second_apply):
             self.assertEqual(self.invoke("--apply"), 1)
-        self.assertEqual(self.contents(), ["old\n", "old\n"])
+        self.assertEqual(self.contents(), ["old\n"] * len(self.components))
 
     def test_parent_repository_cannot_silently_skip_component_paths(self):
         # Give the component an ordinary directory inside a parent checkout.
