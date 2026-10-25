@@ -29,7 +29,8 @@ docker run --init --rm --name j2prime-build --user 1000:1000 \
 ```
 
 `nothing` checks the complete build graph. Replace it with `bacon` for the ROM,
-or `bootimage` / `recoveryimage` for those images. The runner validates device
+`audio` for the framework conversion and 4.0 HAL implementation, or
+`bootimage` / `recoveryimage` for those images. The runner validates device
 configuration, applies the scoped Android 11 patches idempotently, and selects
 `lineage_grandppltedx-userdebug`. It disables ccache for the initial build to
 limit disk use. Preserve `out/` for subsequent incremental builds; changing a
@@ -54,6 +55,12 @@ for layout in '' '-DGRANDPPLTEDX_LEGACY_AUDIO_PORT_LAYOUT'; do
     device/samsung/grandppltedx/tools/build/audio_port_layout_probe.cpp || exit
 done
 ```
+
+After an `audio` build, run `bash device/samsung/grandppltedx/tools/build/verify_audio_symbols.sh`.
+It rejects a HAL still linked to the normal conversion library, checks private
+symbol isolation, and saves ARM conversion disassembly for inspection. In the
+mix-port branch, the framework handle must remain at `0xb4` and the private HAL
+handle must use `0xb0`. This supplements the C++ layout probe and device tests.
 
 ## Paid VM budget
 

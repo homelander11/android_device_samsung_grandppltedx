@@ -18,14 +18,16 @@ replace the remaining platform/graphics compatibility work required by this port
   pages 0 and 1 succeed; page 2 returns status `0x30` and aborts the stack.
   Other products keep the previous default limit.
 * `hardware/interfaces` and `system/media`: select
-  `GRANDPPLTEDX_LEGACY_AUDIO_PORT_LAYOUT` for both audio HIDL utility and
-  implementation compilation when the device's Soong option is set.
-  The non-Treble image loads system variants of these libraries. Their default
-  `audio_port_config` contains an extra framework-only flags field that shifts
-  the vendor HAL's mix handle/device type by four bytes. No VNDK level change or
-  downgrade of the HAL version is needed. The dedicated header guard retains
-  framework enum declarations; defining `AUDIO_NO_SYSTEM_DECLARATIONS` directly
-  breaks Android 11 HIDL compilation by hiding required stream/usage values.
+  `GRANDPPLTEDX_LEGACY_AUDIO_PORT_LAYOUT` inside the 4.0 HAL implementation and
+  its private static conversion utility when the device's Soong option is set.
+  The normal shared conversion library remains unchanged for framework clients.
+  The private copy uses a distinct `GrandppltedxHidlUtils` C++ class and hidden
+  symbols to prevent interposition with the normal utility. Its legacy
+  `audio_port_config` omits the framework-only flags field that shifts the MTK
+  HAL's mix handle/device type by four bytes. No VNDK level change or HAL
+  downgrade is needed. The dedicated header guard retains framework enums;
+  defining `AUDIO_NO_SYSTEM_DECLARATIONS` directly hides required stream/usage
+  values and breaks Android 11 HIDL compilation.
 
 If an earlier revision of the audio patch was already applied, reverse that
 revision's `hardware/interfaces` patch before updating this device tree. Then

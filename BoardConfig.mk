@@ -171,8 +171,8 @@ USE_XML_AUDIO_POLICY_CONF := 1
 BOARD_USES_LEGACY_MTK_AV_BLOB := true
 SUPPRESS_MTK_AUDIO_BLOB_ERR_MSG := true
 
-# Apply patches/android-11 before building. The non-Treble product loads system
-# variants of the HIDL helpers, which otherwise include framework-only fields.
+# Apply patches/android-11 before building. Keep the legacy port layout inside
+# the 4.0 HAL server; framework clients retain their normal shared conversion.
 SOONG_CONFIG_NAMESPACES += grandppltedx
 SOONG_CONFIG_grandppltedx += legacy_audio_port_layout
 SOONG_CONFIG_grandppltedx_legacy_audio_port_layout := true

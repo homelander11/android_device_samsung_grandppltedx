@@ -27,6 +27,16 @@ Compilation rejected the initial audio patch's broad
 enums. The revised patch uses a dedicated opt-in layout guard in `system/media`.
 A 32-bit C++ probe passes for both the MTK `0xb0` mix-handle offset and unchanged
 default `0xb4` offset, retaining framework stream/usage declarations in both.
+Source review also confirmed that framework `DeviceHalHidl` uses the shared
+conversion utility. The final patch therefore keeps that utility normal and
+links a private, separately named conversion class into only the 4.0 HAL
+implementation. Changing the shared utility globally would shift the mismatch
+to the framework client. The targeted audio component build passed, including
+the normal shared utility and HAL implementation. Binary inspection confirms
+the HAL has no dependency on the normal 4.0 conversion library, and its private
+conversion symbols are hidden. In the ARM mix-port conversion branch, the
+framework writes the handle at `0xb4`; the private HAL conversion writes it at
+`0xb0`, matching the vendor's measured read. Speaker/mic tests remain pending.
 
 Vendor packaging now retains Android 11's `libalsautils` with its USB-audio
 HAL, removing the old copy that overwrote it and lacked a required symbol.
@@ -60,9 +70,10 @@ The running image differs from these repositories: it contains
   NVRAM initialization. Parent directories and raw block permissions are not
   widened. The daemon's legacy root:3008 ownership is incompatible with the
   separate Android 11 bluetooth:bluetooth HAL process.
-* Compile both audio HIDL conversion utilities and core implementation with the
-  vendor port layout through an opt-in Soong setting. Apply the required source
-  patches under `patches/android-11/hardware/interfaces` and `system/media`.
+* Compile the audio 4.0 HAL implementation and its private conversion utility
+  with the vendor port layout through an opt-in Soong setting. Keep the shared
+  framework utility unchanged. Apply the required source patches under
+  `patches/android-11/hardware/interfaces` and `system/media`.
 * Create `/data/vendor/audiohal` and `audio_dump` for the audioserver-owned HAL.
 * Package `android.hardware.camera.provider@2.4-service` for the already
   advertised hwbinder provider; remove the camera-stub flag. The vendor branch
@@ -106,9 +117,10 @@ Audio binary inspection confirmed that the running process loads
 `audioPortConfigToHal` writes the mix handle at offset `0xb4`, while the MTK
 HAL reads offset `0xb0`. The latter contains the module ID (10), explaining the
 observed `IOport = 10` and `routing=10`. Android 11's framework-only `flags`
-field creates this four-byte shift. The source patch removes that field at
-both sides of the HAL conversion boundary for this product. Compilation is
-in progress on the authorized VM; the changes have not been deployed.
+field creates this four-byte shift. The source patch removes that field only
+inside the HAL server and its private conversion class. The framework keeps
+its normal layout and shared conversion utility. Both audio components compile
+and link on the authorized VM; the changes have not been deployed.
 
 Checks performed:
 

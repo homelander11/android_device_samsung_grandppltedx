@@ -1,22 +1,23 @@
 From: grandppltedx bring-up
-Subject: [PATCH] audio: keep the legacy MTK port layout at the HAL boundary
+Subject: [PATCH] audio: isolate the legacy MTK layout inside the 4.0 HAL server
 
 diff --git a/audio/common/all-versions/default/Android.bp b/audio/common/all-versions/default/Android.bp
 --- a/audio/common/all-versions/default/Android.bp
 +++ b/audio/common/all-versions/default/Android.bp
-@@ -12,6 +12,25 @@
+@@ -12,6 +12,41 @@
  // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  // See the License for the specific language governing permissions and
  // limitations under the License.
 +
-+// Keep the pre-Treble MTK HAL boundary free of framework-only port flags.
-+// These defaults also apply when this non-Treble product selects system variants.
++// Only the server-side 4.0 implementation uses the legacy MTK port layout.
++// The framework keeps the normal shared HidlUtils library. Give the private
++// conversion copy a distinct C++ class name to prevent symbol interposition.
 +soong_config_module_type {
 +    name: "grandppltedx_audio_cc_defaults",
 +    module_type: "cc_defaults",
 +    config_namespace: "grandppltedx",
 +    bool_variables: ["legacy_audio_port_layout"],
-+    properties: ["cflags"],
++    properties: ["cflags", "exclude_shared_libs", "whole_static_libs"],
 +}
 +
 +grandppltedx_audio_cc_defaults {
@@ -24,30 +25,62 @@ diff --git a/audio/common/all-versions/default/Android.bp b/audio/common/all-ver
 +    soong_config_variables: {
 +        legacy_audio_port_layout: {
 +            cflags: ["-DGRANDPPLTEDX_LEGACY_AUDIO_PORT_LAYOUT"],
++            exclude_shared_libs: ["android.hardware.audio.common@4.0-util"],
++            whole_static_libs: ["grandppltedx_audio4_legacy_utils"],
 +        },
 +    },
++}
++
++cc_library_static {
++    name: "grandppltedx_audio4_legacy_utils",
++    defaults: ["android.hardware.audio.common-util_default"],
++    shared_libs: ["android.hardware.audio.common@4.0"],
++    cflags: [
++        "-DMAJOR_VERSION=4",
++        "-DMINOR_VERSION=0",
++        "-include common/all-versions/VersionMacro.h",
++        "-DGRANDPPLTEDX_LEGACY_AUDIO_PORT_LAYOUT",
++        "-fvisibility=hidden",
++    ],
 +}
  
  cc_library_shared {
      name: "android.hardware.audio.common-util",
-@@ -41,7 +60,7 @@
- 
- cc_defaults {
-     name: "android.hardware.audio.common-util_default",
--    defaults: ["hidl_defaults"],
-+    defaults: ["hidl_defaults", "grandppltedx_audio_compat_defaults"],
- 
-     vendor_available: true,
-     srcs: [
 diff --git a/audio/core/all-versions/default/Android.bp b/audio/core/all-versions/default/Android.bp
 --- a/audio/core/all-versions/default/Android.bp
 +++ b/audio/core/all-versions/default/Android.bp
-@@ -14,7 +14,7 @@
-         "StreamOut.cpp",
-     ],
+@@ -60,7 +60,7 @@
  
--    defaults: ["hidl_defaults"],
-+    defaults: ["hidl_defaults", "grandppltedx_audio_compat_defaults"],
+ cc_library_shared {
+     name: "android.hardware.audio@4.0-impl",
+-    defaults: ["android.hardware.audio-impl_default"],
++    defaults: ["android.hardware.audio-impl_default", "grandppltedx_audio_compat_defaults"],
  
-     export_include_dirs: ["include"],
+     shared_libs: [
+         "android.hardware.audio@4.0",
+diff --git a/audio/common/all-versions/default/HidlUtils.h b/audio/common/all-versions/default/HidlUtils.h
+--- a/audio/common/all-versions/default/HidlUtils.h
++++ b/audio/common/all-versions/default/HidlUtils.h
+@@ -34,7 +34,11 @@
  
+ using namespace ::android::hardware::audio::common::CPP_VERSION;
+ 
++#ifdef GRANDPPLTEDX_LEGACY_AUDIO_PORT_LAYOUT
++class GrandppltedxHidlUtils {
++#else
+ class HidlUtils {
++#endif
+   public:
+     // A failure here indicates a platform config that is incompatible with
+     // the compiled HIDL interface version.
+@@ -70,6 +74,10 @@
+     static void uuidToHal(const Uuid& uuid, audio_uuid_t* halUuid);
+ };
+ 
++#ifdef GRANDPPLTEDX_LEGACY_AUDIO_PORT_LAYOUT
++using HidlUtils = GrandppltedxHidlUtils;
++#endif
++
+ }  // namespace implementation
+ }  // namespace CPP_VERSION
+ }  // namespace common
