@@ -5,6 +5,11 @@ logo. Saved Android logs exposed an old GUI shim overwriting the source-built
 one, blocking composer loading. See `DISPLAY_BOOT_FIX.md` for the correction,
 successful before/after loader tests and remaining normal-boot requirements.
 
+With display v2, the Lineage animation runs. Watchdog dumps show the display
+thread blocked on an unregistered/missing Light HAL. `LIGHTS_BOOT_FIX.md`
+documents the service/wrapper, unused driver dependency correction, backlight
+access and successful factory/RAM-installer checks. Normal boot remains untested.
+
 ## Scope and baseline (2026-10-25)
 
 Sources audited: device `cf62bac`, vendor `d3a6207`, kernel `a75b32e2` on

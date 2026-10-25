@@ -7,6 +7,10 @@ target=${1:-nothing}
 jobs=${BUILD_JOBS:-16}
 case "$target" in
     audio) targets=(android.hardware.audio.common@4.0-util android.hardware.audio@4.0-impl) ;;
+    lights) targets=(android.hardware.light@2.0-service android.hardware.light@2.0-impl
+        out/target/product/grandppltedx/system/vendor/lib/hw/lights.mt6735.so
+        out/target/product/grandppltedx/system/vendor/etc/init/zz-grandppltedx-lights.rc
+        out/soong/.intermediates/device/samsung/grandppltedx/tools/device-probe/grandppltedx_light_probe/android_arm_armv8-a/grandppltedx_light_probe) ;;
     # Uninstalled Soong binaries have no named Make target. Request its output.
     graphics) targets=(libshim_gui
         out/soong/.intermediates/device/samsung/grandppltedx/tools/device-probe/grandppltedx_hal_link_probe/android_arm_armv8-a/grandppltedx_hal_link_probe) ;;
@@ -45,5 +49,8 @@ printf 'BUILD_START %s target=%s jobs=%s\n' "$(date -u --iso-8601=seconds)" "$ta
 m -j"$jobs" "${targets[@]}"
 case "$target" in
     graphics|bacon) python3 "$device/tools/verify_graphics_shim.py" out/target/product/grandppltedx ;;
+esac
+case "$target" in
+    lights|bacon) python3 "$device/tools/verify_lights.py" out/target/product/grandppltedx ;;
 esac
 printf 'BUILD_DONE %s target=%s\n' "$(date -u --iso-8601=seconds)" "$target"

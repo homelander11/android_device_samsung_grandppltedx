@@ -1,5 +1,11 @@
 # Access-only device probe
 
+`light_probe.cpp`, built uninstalled by the `lights` target, loads the standard
+Light implementation, invokes its real legacy-driver factory and enumerates
+types. It does not call `setLight` or register a service. ELF constructors and
+legacy module open functions run. Use matching Android libraries; see
+`docs/LIGHTS_BOOT_FIX.md` for the measured missing-service/dependency errors.
+
 `hal_link_probe.c` is a separate Android linker diagnostic built by the
 `graphics` build target, with `installable: false`. It runs `dlopen(RTLD_NOW)`
 and ELF constructors, but does not call HAL open/enumeration/EGL initialization.

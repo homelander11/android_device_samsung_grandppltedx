@@ -1,5 +1,9 @@
 # Fixed Samsung logo: display loader failure (2026-10-25)
 
+The user installed v2 and reached the Lineage animation. The next failure is a
+missing Light HAL blocking brightness initialization; see `LIGHTS_BOOT_FIX.md`.
+Reaching the animation does not yet establish full boot.
+
 The user flashed `lineage-18.1-20261025-UNOFFICIAL-grandppltedx.zip`; the fixed
 Samsung J2 Ace logo never changed to the Lineage animation. TWRP's saved install
 log reports exit 0. A read-only capture confirms the flashed boot payload is

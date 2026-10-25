@@ -267,8 +267,11 @@ PRODUCT_PACKAGES += \
     android.hardware.drm@1.0-service
 
 # Lights
+# Wrap the bundled MTK lights HAL. The Samsung-only service was referenced but
+# absent from the Android checkout/image, blocking DisplayManager at boot.
 PRODUCT_PACKAGES += \
-	android.hardware.light@2.0-service.samsung
+    android.hardware.light@2.0-service \
+    android.hardware.light@2.0-impl
 
 # Gatekeeper
 PRODUCT_PACKAGES += \

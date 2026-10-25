@@ -7,3 +7,17 @@ cc_binary {
     installable: false,
     cflags: ["-Wall", "-Wextra", "-Werror"],
 }
+
+cc_binary {
+    name: "grandppltedx_light_probe",
+    srcs: ["light_probe.cpp"],
+    shared_libs: [
+        "android.hardware.light@2.0",
+        "libdl",
+        "libhidlbase",
+        "libutils",
+    ],
+    compile_multilib: "32",
+    installable: false,
+    cflags: ["-Wall", "-Wextra", "-Werror"],
+}

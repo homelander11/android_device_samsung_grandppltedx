@@ -57,6 +57,19 @@ python3 device/samsung/grandppltedx/tools/build/create_display_fix.py \
 ```
 
 Capture each invocation's output in a separate log and record its exit status.
+
+The `lights` target builds the standard 2.0 service/wrapper, copies the corrected
+legacy driver and backlight init rule, builds an uninstalled enumeration probe,
+and checks the packaged service/init/VINTF. It needs the matching vendor fix
+for the driver's unused RIL-client dependency. `docs/LIGHTS_BOOT_FIX.md` records
+the animation-hang diagnosis and normal-boot test requirements.
+
+`create_lights_fix.py BASE_ROM PRODUCT --original-driver ORIGINAL_HAL --out-dir DIR`
+packages the targeted recovery fix and undo. Obtain ORIGINAL_HAL from the pinned
+vendor revision in `lights-dependency-provenance.json`; the generator verifies
+its exact hash. The local/remote product staging directory must contain the
+service, wrapper, original interface library, corrected driver, both init files
+and merged VINTF manifest. No full ROM rebuild is needed for this update.
 Save a pinned `repo manifest -r` and all platform patch files with the result.
 Build completion is separate from boot, Wi-Fi and hardware validation on a
 physical device. Do not flash merely because compilation succeeds.
