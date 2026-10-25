@@ -24,6 +24,7 @@ export TZ=UTC
 
 device=device/samsung/grandppltedx
 python3 "$device/tools/validate_configs.py"
+python3 "$device/tools/validate_audio_nvram.py" vendor/samsung/grandppltedx/proprietary/vendor
 python3 "$device/tools/apply_android11_patches.py" --source-root "$PWD" --apply
 source build/envsetup.sh
 lunch lineage_grandppltedx-userdebug

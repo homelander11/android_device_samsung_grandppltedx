@@ -45,6 +45,15 @@ Soong module also now references the actual ION blob instead of accidentally
 referencing `libdpframework.so`; only the ION blob exports `ion_custom_ioctl`.
 The updated build graph no longer reports overwrite rules for these modules.
 
+The bundled audio compensation library also had NVRAM IDs biased by +2
+relative to `libcustom_nvram.so`. Its getter/setter defaulted to LID 53 (Wi-Fi,
+512 bytes), while the expected audio compensation record is LID 51 (1260
+bytes). This matches the phone's audio-thread Wi-Fi-record access failure and
+filter fallback. The vendor branch corrects eight constant bytes, with pinned
+input/output hashes and a reproducer. `validate_audio_nvram.py` independently
+matches all seven selections to audio record names/sizes and rejects the
+original blob. No live calibration bytes or permissions were changed.
+
 A root-authorized SM-G532G was available through ADB, running Android 11/API 30,
 LineageOS `18.1-20260827-UNOFFICIAL-grandppltedx`, with SELinux permissive.
 Logs contain both October 18 boot entries and October 25 reproductions. A short
@@ -75,6 +84,10 @@ The running image differs from these repositories: it contains
   framework utility unchanged. Apply the required source patches under
   `patches/android-11/hardware/interfaces` and `system/media`.
 * Create `/data/vendor/audiohal` and `audio_dump` for the audioserver-owned HAL.
+* Correct the compensation library's NVRAM record IDs in the vendor branch.
+  Keep audio-file permissions unchanged; the existing files already grant the
+  HAL's primary `audio` group access. Never grant it Wi-Fi-record access as a
+  workaround for the wrong ID.
 * Package `android.hardware.camera.provider@2.4-service` for the already
   advertised hwbinder provider; remove the camera-stub flag. The vendor branch
   restores the missing camera module with pinned provenance. Its bytes match
