@@ -1,5 +1,10 @@
 # GPS initialization blocks Android startup (October 26, 2026)
 
+Follow-up: the user installed this correction and confirms normal boot.
+`sys.boot_completed=1` verifies startup passed the GNSS initialization gate.
+Wi-Fi and speaker playback work. Satellite positioning is still unverified.
+See `BACKLIGHT_WAKE_FIX.md` for the next, independently tested wake correction.
+
 The Light fix installed successfully according to TWRP's saved log. The next
 boot passes display initialization and logs `boot_progress_enable_screen`.
 The remaining animation hang has a different watchdog stack: LocationManager
@@ -91,9 +96,8 @@ This ZIP contains no boot image, Wi-Fi change, process-UID change, directory
 permission change, NVRAM or userdata operation. The undo ZIP restores the old
 GPS module and its original initialization failure.
 
-Normal boot and GPS operation are **unverified until the user installs/tests**.
-Check that the animation finishes, `sys.boot_completed=1`, GNSS service requests
-return, no recurring GNSS/watchdog deadlock occurs, and Wi-Fi still connects.
+Normal boot and Wi-Fi are confirmed after the user installed this update.
+Check continued GNSS service responsiveness and absence of recurring watchdogs.
 Then test outdoor cold/warm satellite fixes, NMEA, stopping/restarting location,
 time/location injection, SUPL and suspend/resume. A successful boot alone does
 not establish working positioning. Camera's separately observed vendor Skia

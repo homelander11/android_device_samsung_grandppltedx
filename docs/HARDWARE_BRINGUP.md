@@ -1,5 +1,13 @@
 # LineageOS 18.1 hardware bring-up
 
+Latest tests (October 26): the user confirms normal boot, Wi-Fi and speaker
+playback; ADB reports `sys.boot_completed=1`. The GPS socket update unblocked
+startup. A separate Light-driver color/brightness bug left the resumed panel
+dark. Its one-byte correction passes live brightness and three sleep/wake
+cycles, and the user confirms power/home work. See `BACKLIGHT_WAKE_FIX.md` for
+the persistent update and pending reboot test. Recording starts but is silent;
+phone-call audio has not been tested.
+
 The first VM build was flashed by the user and stopped at the fixed Samsung
 logo. Saved Android logs exposed an old GUI shim overwriting the source-built
 one, blocking composer loading. See `DISPLAY_BOOT_FIX.md` for the correction,
@@ -181,9 +189,9 @@ Checks performed:
 | Area | Evidence from attached device | Required validation |
 | --- | --- | --- |
 | Bluetooth | Repeated `parse_read_local_extended_features_response` aborts; HCI status `0x30`. `BT_Addr` access also fails with errno 13. | Feature-page handling, stable enable/disable, classic pairing, BLE, A2DP, SCO, persistent factory address. |
-| Audio | Primary MTK HAL is mapped and audio HIDL 4.0 is registered. `create_audio_patch` fails and logs `routing=10` even for speaker. Calibration access failures also appear. | Routing ABI, speaker/earpiece/headset, playback and microphone capture, calls. |
+| Audio | Speaker playback works after the ABI/calibration corrections. Fresh mic recording opens built-in-mic PCM capture without a crash and mute state is false, but playback/level meter are silent. | Resolve capture; test earpiece/headset, microphone levels and calls; regression-test speaker playback. Calls remain untested. |
 | Camera | Zero enumerated cameras; the installed ROM lacks the provider service binary. The missing source-tree HAL is now restored, and the service is now packaged. | Check legacy camera/framework symbols and namespaces, preview, still capture, video and flash on both sensors. No end-to-end camera fix is claimed yet. |
-| GNSS | Latest built-ROM watchdog blocks in legacy initialization. The worker cannot bind its codec socket in `/data/misc` and exits without signaling ready. A 14-byte path correction uses existing `/data/gps_mnl`; exact-UID bind and RAM recovery tests pass. See `GNSS_BOOT_FIX.md`. | Normal boot, GNSS service responsiveness, satellite acquisition outdoors, NMEA, time/location injection and SUPL. No satellite fix has been established. |
+| GNSS | The socket correction resolved the initialization boot gate; the user confirms normal boot and `sys.boot_completed=1`. See `GNSS_BOOT_FIX.md`. | Satellite acquisition outdoors, NMEA, time/location injection and SUPL. No satellite fix has been established. |
 | USB audio | `audio.usb.default.so` cannot resolve `profile_get_highest_sample_rate`. The old overwriting library is now excluded from packaging. | Verify the built library export; test USB playback/capture. |
 | Widevine | Legacy protobuf `empty_string_` symbol cannot resolve. | Check the existing v29 compatibility library mapping and encrypted playback. |
 | Security | Permissive kernel cmdline, ignored neverallows, insecure ADB defaults. | Dedicated SELinux bring-up before calling this a production-ready ROM. |

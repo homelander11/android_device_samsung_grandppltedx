@@ -52,7 +52,7 @@ case "$target" in
     graphics|bacon) python3 "$device/tools/verify_graphics_shim.py" out/target/product/grandppltedx ;;
 esac
 case "$target" in
-    lights|bacon) python3 "$device/tools/verify_lights.py" out/target/product/grandppltedx ;;
+    lights|bacon) python3 "$device/tools/verify_lights.py" out/target/product/grandppltedx --require-brightness-fix ;;
 esac
 if [ "$target" = bacon ]; then
     python3 "$device/tools/validate_gnss_socket.py" out/target/product/grandppltedx/system/vendor

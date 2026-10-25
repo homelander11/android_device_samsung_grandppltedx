@@ -1,5 +1,10 @@
 # Lineage animation hang: missing Light HAL (October 25–26, 2026)
 
+Latest status: the GPS update now permits normal boot. The first Light update
+also exposed a distinct BACKLIGHT packed-color conversion bug on wake. See
+`BACKLIGHT_WAKE_FIX.md` for the one-byte correction, live tests and user
+confirmation that power/home wake works. Its persistent ZIP is still pending.
+
 Follow-up: the user installed this update successfully. Fresh logs pass display
 initialization and reach `boot_progress_enable_screen`; the missing-Light wait
 is resolved. Boot then blocks in legacy GNSS initialization. See

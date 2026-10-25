@@ -1,5 +1,11 @@
 # LineageOS 18.1 build validation — 2026-10-25
 
+Latest test status (October 26): normal boot, Wi-Fi and speaker playback are
+confirmed. `sys.boot_completed=1` after the GPS correction. The separately
+tested `BACKLIGHT_WAKE_FIX.md` update resolves power/home wake in live tests
+and the user's confirmation; persistent install/reboot remains pending.
+Microphone recording is silent, and phone calls have not been tested.
+
 Latest follow-up (October 26): display v2 and the Light fix now pass display
 startup. The next watchdog blocks in GNSS initialization. `GNSS_BOOT_FIX.md`
 documents a 14-byte vendor socket-path correction, verified GPS-UID permission

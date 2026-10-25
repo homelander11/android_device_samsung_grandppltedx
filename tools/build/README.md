@@ -101,6 +101,12 @@ build checks run `validate_gnss_socket.py` to verify its pinned blob/init pair.
 the fix and undo using the original updater, with version/hash prerequisites.
 See `docs/GNSS_BOOT_FIX.md`; preserve the earlier display and Light updates.
 
+The separately tested backlight conversion needs no build either.
+`create_backlight_fix.py BASE_ROM PATCHED_HAL PREVIOUS_LIGHT_HAL --out-dir DIR`
+packages its single-byte driver fix and undo after the three boot updates.
+New `lights`/`bacon` runs require the corrected driver. See
+`docs/BACKLIGHT_WAKE_FIX.md` for live wake tests and installer validation.
+
 ## Paid VM budget
 
 Set a wall-clock cutoff before starting a paid build, allowing time to copy

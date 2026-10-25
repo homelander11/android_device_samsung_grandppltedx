@@ -5,6 +5,7 @@ This rejects the missing-service condition observed in the watchdog traces.
 Successful registration, backlight control and boot still need device tests.
 """
 import argparse
+import hashlib
 from pathlib import Path
 import sys
 import xml.etree.ElementTree as ET
@@ -12,7 +13,7 @@ import xml.etree.ElementTree as ET
 from elf32 import Elf32
 
 
-def validate(product):
+def validate(product, require_brightness_fix=False):
     vendor = product / "system/vendor"
     service = Elf32(vendor / "bin/hw/android.hardware.light@2.0-service")
     wrapper = Elf32(vendor / "lib/hw/android.hardware.light@2.0-impl.so")
@@ -26,6 +27,9 @@ def validate(product):
         raise ValueError("missing HIDL factory or legacy lights module export")
     if "libsecril-client.so" in driver.needed:
         raise ValueError("legacy lights HAL still requires the missing, unused Samsung RIL client")
+    if require_brightness_fix and hashlib.sha256(driver.data).hexdigest() != (
+            "9d2a8737e6ee146cdf7e74b0233fc38efd614d0a9e6d79832688a2cce2b81b75"):
+        raise ValueError("legacy BACKLIGHT callback still writes packed ARGB instead of brightness")
     access = (vendor / "etc/init/zz-grandppltedx-lights.rc").read_text()
     if "chown system system /sys/class/leds/lcd-backlight/brightness" not in access:
         raise ValueError("missing system-UID access to the MTK backlight node")
@@ -49,9 +53,10 @@ def validate(product):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("product", type=Path)
+    parser.add_argument("--require-brightness-fix", action="store_true")
     args = parser.parse_args()
     try:
-        validate(args.product)
+        validate(args.product, require_brightness_fix=args.require_brightness_fix)
     except (OSError, ValueError, ET.ParseError) as error:
         print("FAIL:", error, file=sys.stderr)
         return 1
