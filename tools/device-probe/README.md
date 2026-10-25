@@ -1,5 +1,12 @@
 # Access-only device probe
 
+`hal_link_probe.c` is a separate Android linker diagnostic built by the
+`graphics` build target, with `installable: false`. It runs `dlopen(RTLD_NOW)`
+and ELF constructors, but does not call HAL open/enumeration/EGL initialization.
+It exits without unloading legacy DSOs, matching HAL service lifetime. Use
+matching Android userspace, not recovery's older libraries. A successful load
+does not establish hardware function. See `docs/DISPLAY_BOOT_FIX.md`.
+
 `UidAccessProbe.java` uses Android's `Os.access()` after setting its real UID/GID.
 It never opens, reads, or writes the target file. Run only through an authorized
 root ADB session. Supplementary groups remain those of the launching process;

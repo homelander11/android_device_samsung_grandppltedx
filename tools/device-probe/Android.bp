@@ -1,0 +1,9 @@
+// Diagnostic only; never installed in the ROM.
+cc_binary {
+    name: "grandppltedx_hal_link_probe",
+    srcs: ["hal_link_probe.c"],
+    shared_libs: ["libdl"],
+    compile_multilib: "32",
+    installable: false,
+    cflags: ["-Wall", "-Wextra", "-Werror"],
+}

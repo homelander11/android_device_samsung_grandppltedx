@@ -1,5 +1,10 @@
 # LineageOS 18.1 hardware bring-up
 
+The first VM build was flashed by the user and stopped at the fixed Samsung
+logo. Saved Android logs exposed an old GUI shim overwriting the source-built
+one, blocking composer loading. See `DISPLAY_BOOT_FIX.md` for the correction,
+successful before/after loader tests and remaining normal-boot requirements.
+
 ## Scope and baseline (2026-10-25)
 
 Sources audited: device `cf62bac`, vendor `d3a6207`, kernel `a75b32e2` on

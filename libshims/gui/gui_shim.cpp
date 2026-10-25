@@ -1,5 +1,6 @@
 #define LOG_TAG "HW_GUI"
 
+#include <ui/GraphicBuffer.h>
 #include <ui/GraphicBufferMapper.h>
 #include <ui/PixelFormat.h>
 #include <ui/Rect.h>
@@ -11,6 +12,16 @@
 #include <string>
 
 extern "C" {
+
+    // MTK camera libraries use the pre-Android-11 lock ABI. Preserve the
+    // implicit this pointer and omit the two optional layout output pointers.
+    android::status_t _ZN7android13GraphicBuffer4lockEjPPv(
+            android::GraphicBuffer* buffer, uint32_t usage, void** vaddr) {
+        if (buffer == nullptr || vaddr == nullptr) {
+            return android::BAD_VALUE;
+        }
+        return buffer->lock(usage, vaddr, nullptr, nullptr);
+    }
 
     /*
      * ---------------------------------------------------------------------------

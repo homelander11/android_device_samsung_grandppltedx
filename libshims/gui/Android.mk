@@ -17,6 +17,7 @@ LOCAL_SHARED_LIBRARIES := \
 	libui \
 	libgui \
 	libdpframework \
+    libutilscallstack \
     liblog
 
 LOCAL_STATIC_LIBRARIES := \

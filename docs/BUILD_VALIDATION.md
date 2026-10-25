@@ -1,5 +1,11 @@
 # LineageOS 18.1 build validation — 2026-10-25
 
+**Device follow-up:** the user subsequently flashed this ZIP; it stops at the
+fixed Samsung logo. Android logs identify an old GUI shim overwriting its
+source-built replacement and preventing the composer from loading. See
+`DISPLAY_BOOT_FIX.md` for the correction, loader tests and small recovery ZIP.
+The original ROM ZIP below remains unchanged and requires that follow-up fix.
+
 `lineage-18.1-20261025-UNOFFICIAL-grandppltedx.zip` built successfully with
 `m -j16 bacon` on a Linux VM. The final invocation completed at 14:12 UTC with
 exit status 0. This is an Android 11/API 30 userdebug bring-up build for

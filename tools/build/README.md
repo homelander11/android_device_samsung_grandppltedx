@@ -42,6 +42,20 @@ configuration, applies the scoped Android 11 patches idempotently, and selects
 limit disk use. Preserve `out/` for subsequent incremental builds; changing a
 configuration or source file does not normally require a clean build.
 
+`graphics` builds only the GUI shim and an uninstalled HAL linker diagnostic.
+The `graphics` and `bacon` targets then verify that the installed shim is the
+source-built file and supplies the required Android 11 compatibility symbols.
+See `docs/DISPLAY_BOOT_FIX.md` for the first flashed build's display-loader
+failure and a reproducible single-library recovery update:
+
+```sh
+python3 device/samsung/grandppltedx/tools/build/create_display_fix.py \
+  /path/to/original-20261025-rom.zip \
+  out/target/product/grandppltedx/system/vendor/lib/libshim_gui.so \
+  vendor/samsung/grandppltedx/proprietary/vendor/lib/libshim_gui.so \
+  --out-dir /path/to/artifacts
+```
+
 Capture each invocation's output in a separate log and record its exit status.
 Save a pinned `repo manifest -r` and all platform patch files with the result.
 Build completion is separate from boot, Wi-Fi and hardware validation on a

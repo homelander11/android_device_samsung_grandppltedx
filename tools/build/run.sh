@@ -7,6 +7,9 @@ target=${1:-nothing}
 jobs=${BUILD_JOBS:-16}
 case "$target" in
     audio) targets=(android.hardware.audio.common@4.0-util android.hardware.audio@4.0-impl) ;;
+    # Uninstalled Soong binaries have no named Make target. Request its output.
+    graphics) targets=(libshim_gui
+        out/soong/.intermediates/device/samsung/grandppltedx/tools/device-probe/grandppltedx_hal_link_probe/android_arm_armv8-a/grandppltedx_hal_link_probe) ;;
     nothing|bacon|bootimage|recoveryimage) targets=("$target") ;;
     *) echo "Unsupported build target: $target" >&2; exit 2 ;;
 esac
@@ -40,4 +43,7 @@ source build/envsetup.sh
 lunch lineage_grandppltedx-userdebug
 printf 'BUILD_START %s target=%s jobs=%s\n' "$(date -u --iso-8601=seconds)" "$target" "$jobs"
 m -j"$jobs" "${targets[@]}"
+case "$target" in
+    graphics|bacon) python3 "$device/tools/verify_graphics_shim.py" out/target/product/grandppltedx ;;
+esac
 printf 'BUILD_DONE %s target=%s\n' "$(date -u --iso-8601=seconds)" "$target"
