@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest>
+  <!-- The subsequent make-apns Python/YAML conversion needs dependencies
+       absent from the LineageOS 18.1 manifest. Keep the same-day APN snapshot. -->
+  <extend-project name="LineageOS/android_vendor_apn" path="vendor/apn"
+                  revision="cfcbd9d61d6c22e5b60b2f10274d6cd1ff460f5e"
+                  upstream="main" />
+</manifest>

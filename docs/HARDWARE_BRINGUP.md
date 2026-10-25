@@ -5,8 +5,22 @@
 Sources audited: device `cf62bac`, vendor `d3a6207`, kernel `a75b32e2` on
 `lineage-18.1`. Development branch: `codex/lineage-18.1-hardware-fixes`.
 The project contains the three component trees, not a full Android checkout.
-No ROM build or flash was performed. Windows checkouts are not suitable for an
-Android build; the kernel also has reserved filenames and case collisions.
+At the initial audit, no ROM build or flash was performed. Windows checkouts
+are not suitable for an Android build; the kernel also has reserved filenames
+and case collisions.
+
+### Remote build follow-up
+
+The user subsequently authorized a paid Linux VM build. The complete pinned
+LineageOS 18.1 checkout and Ubuntu 20.04 container passed `m nothing` on
+2026-10-25; the first ROM compilation is in progress. Build instructions and
+the APN manifest compatibility pin are in `tools/build/README.md`. The audit's
+hardware observations below precede this build and remain device-test gates.
+
+The complete source graph exposed an invalid inherited camera module name:
+`android.hardware.camera.provider@2.4-impl-legacy` does not exist in this branch.
+Packaging now uses `@2.4-impl`, which links the branch's `@2.4-legacy` HAL1
+provider, together with the 32-bit service.
 
 A root-authorized SM-G532G was available through ADB, running Android 11/API 30,
 LineageOS `18.1-20260827-UNOFFICIAL-grandppltedx`, with SELinux permissive.
