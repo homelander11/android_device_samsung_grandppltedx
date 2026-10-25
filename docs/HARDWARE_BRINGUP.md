@@ -12,8 +12,9 @@ and case collisions.
 ### Remote build follow-up
 
 The user subsequently authorized a paid Linux VM build. The complete pinned
-LineageOS 18.1 checkout and Ubuntu 20.04 container passed `m nothing` on
-2026-10-25; the first ROM compilation is in progress. Build instructions and
+LineageOS 18.1 checkout and Ubuntu 20.04 container passed `m nothing` and a full
+`m -j16 bacon` build on 2026-10-25. See `BUILD_VALIDATION.md` for exact source
+revisions, artifact hashes, image/OTA checks and remaining tests. Build instructions and
 the APN manifest compatibility pin are in `tools/build/README.md`. The audit's
 hardware observations below precede this build and remain device-test gates.
 
@@ -61,8 +62,8 @@ Bluetooth reproduction restored the previous OFF state and logging property.
 A temporary calibration ownership test restored its exact original metadata;
 the file's contents were unchanged. No firmware file was replaced, and the
 compiled access-only probe was removed. Raw logs and calibration stay local.
-The running image differs from these repositories: it contains
-`camera.mt6735.so`, which is absent from this vendor branch.
+The running image differed from the audited vendor baseline: it already
+contained `camera.mt6735.so`, which the original `lineage-18.1` snapshot omitted.
 
 ## Implemented changes
 
@@ -152,8 +153,8 @@ Checks performed:
 * The restored camera ELF is ARM32, exports `HMI`, and matches its recorded Git
   object and SHA-256. A camera provider/component build remains necessary.
 * The small Java/D8 UID-access probe was compiled with the existing SDK. The
-  subsequent VM build is compiling Android components; a finished ROM remains
-  pending. No ROM was flashed.
+  subsequent VM build completed the full ROM and passed package/image checks.
+  No ROM was flashed; functional hardware validation remains pending.
 * A read-only boot partition capture matches the configured load addresses,
   2 KiB page size, Samsung board ID and exact prebuilt DT bytes. Its legacy
   payload SHA-1 validates. `tools/verify_boot_image.py` repeats these checks;
