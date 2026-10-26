@@ -115,6 +115,13 @@ packages a single-library fix and undo for the tested ROM. See
 `docs/MICROPHONE_RECORDING_FIX.md` for the user-confirmed foreground recording
 test and recovery update. Keep the separate backlight correction as well.
 
+The source patch installer also includes `system/core` for the Samsung
+plain-recovery reboot compatibility flag. Sync the matching device tree before
+using the runner; the installed old init will not acquire that change from the
+microphone/backlight ZIPs. The init patch is preflighted against the pinned source
+but not yet compiled/boot-tested. Current-build recovery access is restored by
+the RAM-only helper documented in `docs/RECOVERY_REBOOT_FIX.md`.
+
 ## Paid VM budget
 
 Set a wall-clock cutoff before starting a paid build, allowing time to copy

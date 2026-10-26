@@ -11,6 +11,10 @@ VENDOR_PATH := vendor/samsung/grandppltedx
 # Properties
 BLOCK_BASED_OTA := true
 
+# Samsung's sec_reboot selects recovery from the kernel reboot reason; no misc.
+# Requires the scoped system/core init patch in patches/android-11.
+PRODUCT_VENDOR_PROPERTIES += ro.vendor.recovery.skip_bcb=true
+
 # Device is a phone
 PRODUCT_CHARACTERISTICS := phone
 

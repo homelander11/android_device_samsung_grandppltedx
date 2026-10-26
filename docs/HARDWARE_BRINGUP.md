@@ -1,5 +1,12 @@
 # LineageOS 18.1 hardware bring-up
 
+Recovery reboot follow-up: the existing TWRP image is intact. Android 11 refused
+software recovery requests because the active fstab has no `/misc` entry. A
+RAM-only boot-message/fstab workaround now reaches TWRP through normal init
+shutdown, with the recovery partition hash unchanged. A device-gated init source
+patch is prepared for future builds and still needs compilation/boot testing.
+See `RECOVERY_REBOOT_FIX.md`; no recovery reflash or full build was needed.
+
 Latest tests (October 26): the user confirms normal boot, Wi-Fi and speaker
 playback; ADB reports `sys.boot_completed=1`. The GPS socket update unblocked
 startup. A separate Light-driver color/brightness bug left the resumed panel

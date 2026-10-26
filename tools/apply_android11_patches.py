@@ -8,7 +8,7 @@ import sys
 
 DEVICE = Path(__file__).resolve().parents[1]
 PATCHES = DEVICE / "patches/android-11"
-COMPONENTS = ("hardware/interfaces", "system/bt", "system/media")
+COMPONENTS = ("hardware/interfaces", "system/bt", "system/media", "system/core")
 
 
 def run(repo, *args):

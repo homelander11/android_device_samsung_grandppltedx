@@ -1,0 +1,20 @@
+From: Chloe <chloeq231@gmail.com>
+Subject: [PATCH] init: allow opted-in recovery reboot without a misc partition
+
+Samsung grandppltedx selects recovery using sec_reboot's reason, not a BCB.
+The Android 11 mandatory BCB write otherwise aborts the reboot before shutdown.
+Default to the existing BCB behavior; skip only for an explicit device property
+and the plain recovery target. Other targets and BCB failure handling stay intact.
+
+--- a/init/reboot.cpp
++++ b/init/reboot.cpp
+@@ -990,7 +990,8 @@
+                                   "bootloader_message: "
+                                << err;
+                 }
+-            } else if (reboot_target == "recovery") {
++            } else if (reboot_target == "recovery" &&
++                       !GetBoolProperty("ro.vendor.recovery.skip_bcb", false)) {
+                 bootloader_message boot = {};
+                 if (std::string err; !read_bootloader_message(&boot, &err)) {
+                     LOG(ERROR) << "Failed to read bootloader message: " << err;

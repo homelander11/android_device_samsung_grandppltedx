@@ -17,6 +17,13 @@ replace the remaining platform/graphics compatibility work required by this port
   `bdroid_buildcfg.h` sets the limit to 1. Captured MT6737T HCI responses show
   pages 0 and 1 succeed; page 2 returns status `0x30` and aborts the stack.
   Other products keep the previous default limit.
+* `system/core`: allow this Samsung device's plain recovery reboot to use its
+  kernel reboot reason without a BCB. `ro.vendor.recovery.skip_bcb=true` opts
+  this device in; other products retain the original behavior. The stock init
+  otherwise refuses the request because the device has no `/misc` entry.
+  The patch applies to the exact built init revision but still needs compilation
+  and a boot test. The temporary RAM-only workaround is verified; see
+  `docs/RECOVERY_REBOOT_FIX.md` for the distinction and current-build access.
 * `hardware/interfaces` and `system/media`: select
   `GRANDPPLTEDX_LEGACY_AUDIO_PORT_LAYOUT` inside the 4.0 HAL implementation and
   its private static conversion utility when the device's Soong option is set.

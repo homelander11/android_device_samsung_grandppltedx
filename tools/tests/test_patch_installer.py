@@ -58,7 +58,8 @@ class PatchInstallerTest(unittest.TestCase):
     def test_one_bad_component_prevents_all_mutations(self):
         (self.sources / "system/bt/sample.txt").write_text("user changes\n")
         self.assertEqual(self.invoke("--apply"), 1)
-        self.assertEqual(self.contents(), ["old\n", "user changes\n", "old\n"])
+        self.assertEqual(self.contents(), ["user changes\n" if name == "system/bt" else "old\n"
+                                           for name in self.components])
 
     def test_apply_failure_reverses_only_this_runs_patches(self):
         real_run = installer.run
