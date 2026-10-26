@@ -1,0 +1,20 @@
+From: Chloe <chloeq231@gmail.com>
+Subject: [PATCH] gnss: copy length-delimited legacy NMEA buffers
+
+The MTK callback does not guarantee a trailing NUL at nmea[length]. Borrowing
+it with setToExternal aborts in HIDL's terminator check. Use the existing owned
+length constructor so transport receives a terminated copy of the same bytes.
+
+--- a/gnss/1.0/default/Gnss.cpp
++++ b/gnss/1.0/default/Gnss.cpp
+@@ -260,8 +260,8 @@
+         return;
+     }
+ 
+-    android::hardware::hidl_string nmeaString;
+-    nmeaString.setToExternal(nmea, length);
++    // Legacy HAL callbacks provide a length-delimited buffer, not a HIDL string.
++    android::hardware::hidl_string nmeaString(nmea, length);
+     auto ret = sGnssCbIface->gnssNmeaCb(timestamp, nmeaString);
+     if (!ret.isOk()) {
+         ALOGE("%s: Unable to invoke callback", __func__);
