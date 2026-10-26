@@ -491,7 +491,9 @@ on post-fs-data
     # device info /proc interface
     #mknod /dev/devmap c 196 0;
     chmod 0440 /dev/devmap
-    chown root system /dev/devmap
+    # The separate Android 11 camera provider reads chip/device information.
+    # Preserve the existing read-only mode and system-group access.
+    chown cameraserver system /dev/devmap
 
     # bluetooth
     mkdir /data/@btmtk 0770 bluetooth net_bt
@@ -561,7 +563,8 @@ on post-fs-data
 
     # SMI
     chmod 0660 /dev/MTK_SMI
-    chown media media /dev/MTK_SMI
+    # Retain mediaserver ownership while allowing the separate camera HAL.
+    chown media camera /dev/MTK_SMI
 
 
    #change partition permission

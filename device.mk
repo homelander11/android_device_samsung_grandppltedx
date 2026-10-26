@@ -186,6 +186,7 @@ PRODUCT_PACKAGES += \
 	libshim_unwindstack \
 	libshim_xlog \
 	libshim_gui \
+	libcamcx \
 	libshim_region \
 	libshim_ssl \
 	libutilscallstack

@@ -1,0 +1,45 @@
+// SPDX-License-Identifier: Apache-2.0
+cc_library_shared {
+    name: "libcamcx",
+    vendor: true,
+    compile_multilib: "32",
+    srcs: ["memory_context.c", "preview_window.c", "thread_name.c"],
+    header_libs: ["libhardware_headers"],
+    shared_libs: ["libdl", "liblog", "libutils"],
+    stl: "none",
+    cflags: ["-Wall", "-Wextra", "-Werror"],
+    // Interpose only the pinned camera classes in their HAL process.
+    ldflags: ["-Wl,-z,global"],
+    sanitize: { cfi: false },
+}
+
+// Explicitly built isolated contract tests; not installed by the product.
+cc_test {
+    name: "grandppltedx_camera_context_test",
+    vendor: true,
+    compile_multilib: "32",
+    gtest: false,
+    srcs: ["memory_context.c", "thread_name.c", "tests/context_test.c"],
+    stl: "none",
+    cflags: ["-Wall", "-Wextra", "-Werror", "-Wno-unused-parameter"],
+    ldflags: [
+        "-Wl,--wrap=dlopen", "-Wl,--wrap=dlsym",
+        "-Wl,--wrap=__android_log_print",
+    ],
+}
+
+cc_test {
+    name: "grandppltedx_camera_preview_test",
+    vendor: true,
+    compile_multilib: "32",
+    gtest: false,
+    srcs: ["preview_window.c", "tests/preview_test.c"],
+    header_libs: ["libhardware_headers"],
+    stl: "none",
+    cflags: ["-Wall", "-Wextra", "-Werror", "-Wno-unused-parameter"],
+    ldflags: [
+        "-Wl,--wrap=calloc", "-Wl,--wrap=free", "-Wl,--wrap=memset",
+        "-Wl,--wrap=dlopen", "-Wl,--wrap=dlsym",
+        "-Wl,--wrap=__android_log_print",
+    ],
+}
