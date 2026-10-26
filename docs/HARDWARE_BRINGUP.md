@@ -5,8 +5,10 @@ playback; ADB reports `sys.boot_completed=1`. The GPS socket update unblocked
 startup. A separate Light-driver color/brightness bug left the resumed panel
 dark. Its one-byte correction passes live brightness and three sleep/wake
 cycles, and the user confirms power/home work. See `BACKLIGHT_WAKE_FIX.md` for
-the persistent update and pending reboot test. Recording starts but is silent;
-phone-call audio has not been tested.
+the persistent update and pending reboot test. Correcting four HD-recording
+NVRAM selectors also restores microphone recording: the user confirms a moving
+meter and audible voice. See `MICROPHONE_RECORDING_FIX.md` for the temporary
+live test, small recovery update and remaining persistence/call tests.
 
 The first VM build was flashed by the user and stopped at the fixed Samsung
 logo. Saved Android logs exposed an old GUI shim overwriting the source-built
@@ -20,7 +22,8 @@ access and successful factory/RAM-installer checks. The user installed this fix;
 fresh logs now pass display initialization and block in legacy GPS initialization.
 `GNSS_BOOT_FIX.md` records the next correction: relocate the worker socket from
 unwritable `/data/misc` into its existing GPS-owned directory. The exact-UID
-socket probe and recovery install/reinstall/undo pass; normal boot remains pending.
+socket probe and recovery install/reinstall/undo pass; the user subsequently
+confirmed normal boot. Satellite positioning remains untested.
 
 ## Scope and baseline (2026-10-25)
 

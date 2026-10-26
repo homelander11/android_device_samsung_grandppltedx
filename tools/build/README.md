@@ -107,6 +107,14 @@ packages its single-byte driver fix and undo after the three boot updates.
 New `lights`/`bacon` runs require the corrected driver. See
 `docs/BACKLIGHT_WAKE_FIX.md` for live wake tests and installer validation.
 
+HD recording selectors also need no compilation. Run
+`python device/samsung/grandppltedx/tools/validate_recording_nvram.py vendor/samsung/grandppltedx/proprietary/vendor`
+from the Android root. The runner checks both source and installed full-build output.
+`create_recording_fix.py BASE_ROM PATCHED_LIBRARY ORIGINAL_LIBRARY --out-dir DIR`
+packages a single-library fix and undo for the tested ROM. See
+`docs/MICROPHONE_RECORDING_FIX.md` for the user-confirmed foreground recording
+test and recovery update. Keep the separate backlight correction as well.
+
 ## Paid VM budget
 
 Set a wall-clock cutoff before starting a paid build, allowing time to copy

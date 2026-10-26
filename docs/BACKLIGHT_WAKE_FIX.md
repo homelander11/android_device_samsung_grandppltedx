@@ -74,8 +74,9 @@ update first if those older development packages are needed.
 
 Persistent install/reboot is pending. Afterward test power/home repeatedly,
 brightness slider/dimming, screen timeout, suspend/resume and charging.
-Microphone recording remains silent; calls, GNSS positioning, Bluetooth pairing
-and camera operation remain unverified.
+The subsequent recording-selector fix restores microphone recording in a live
+foreground test; see `MICROPHONE_RECORDING_FIX.md`. Its persistence, calls,
+GNSS positioning, Bluetooth pairing and camera operation remain unverified.
 
 References: [Android 11 grayscale encoding](https://github.com/LineageOS/android_frameworks_base/blob/lineage-18.1/services/core/java/com/android/server/lights/LightsService.java),
 [JNI service lookup](https://github.com/LineageOS/android_frameworks_base/blob/lineage-18.1/services/core/jni/com_android_server_lights_LightsService.cpp),
