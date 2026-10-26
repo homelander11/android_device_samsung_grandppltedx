@@ -31,6 +31,7 @@ public final class MainActivity extends Activity {
     private boolean running, userStopped;
     private long started, elapsed, lastProgress;
     private int seen, used, peakSeen, fixes, mocks, nmea, ttff = -1;
+    private int nmeaSatellites = -1, nmeaFixMode = -1;
     private float strongest, accuracy = -1;
     private String event = "Ready";
 
@@ -48,7 +49,18 @@ public final class MainActivity extends Activity {
             report("SATELLITES");
         }
     };
-    private final OnNmeaMessageListener sentences = (message, timestamp) -> nmea++;
+    private final OnNmeaMessageListener sentences = (message, timestamp) -> {
+        nmea++;
+        // Read only GSV satellite totals and GSA fix mode, never coordinate fields.
+        if (message.length() < 7 || message.charAt(0) != '$') return;
+        if (message.startsWith("GSV,", 3)) {
+            int count = numericField(message, 3);
+            if (count >= 0 && count <= 256) nmeaSatellites = Math.max(nmeaSatellites, count);
+        } else if (message.startsWith("GSA,", 3)) {
+            int mode = numericField(message, 2);
+            if (mode >= 1 && mode <= 3) nmeaFixMode = Math.max(nmeaFixMode, mode);
+        }
+    };
     private final LocationListener positions = new LocationListener() {
         @Override public void onLocationChanged(Location location) {
             if (location.isFromMockProvider()) { mocks++; report("MOCK_EXCLUDED"); return; }
@@ -112,6 +124,7 @@ public final class MainActivity extends Activity {
         if (running) return;
         seen = used = peakSeen = fixes = mocks = nmea = 0;
         strongest = 0; accuracy = -1; ttff = -1; elapsed = 0;
+        nmeaSatellites = nmeaFixMode = -1;
         started = SystemClock.elapsedRealtime(); lastProgress = started;
         running = true; userStopped = false;
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -140,9 +153,12 @@ public final class MainActivity extends Activity {
     }
 
     private void report(String kind) {
-        Log.i(TAG, kind + " SEEN=" + seen + " USED=" + used + " PEAK_SEEN=" + peakSeen
+        long duration = running ? SystemClock.elapsedRealtime() - started : elapsed;
+        Log.i(TAG, kind + " ELAPSED_MS=" + duration
+                + " SEEN=" + seen + " USED=" + used + " PEAK_SEEN=" + peakSeen
                 + " MAX_CN0=" + strongest + " FIXES=" + fixes + " ACCURACY_M=" + accuracy
-                + " TTFF_MS=" + ttff + " NMEA=" + nmea + " MOCKS=" + mocks);
+                + " TTFF_MS=" + ttff + " NMEA=" + nmea + " MOCKS=" + mocks
+                + " NMEA_SATS=" + nmeaSatellites + " NMEA_FIX_MODE=" + nmeaFixMode);
         render();
     }
 
@@ -152,11 +168,27 @@ public final class MainActivity extends Activity {
                 "J2 Prime GPS test\n\n%s\nElapsed: %d seconds\n\nSatellites seen: %d (peak %d)"
                 + "\nUsed in fix: %d\nStrongest signal: %.1f dB-Hz\n\nGPS fixes: %d"
                 + "\nAccuracy: %.1f metres\nFirst fix: %d ms\nNMEA messages: %d"
+                + "\nPeak NMEA satellite count: %d\nBest NMEA fix mode: %d (1=no fix, 2=2D, 3=3D)"
                 + "\n\nKeep this screen open with a clear view of the sky."
                 + "\nThe test stops after ten minutes.\nCoordinates are not displayed or saved.",
-                event, seconds, seen, peakSeen, used, strongest, fixes, accuracy, ttff, nmea));
+                event, seconds, seen, peakSeen, used, strongest, fixes, accuracy, ttff, nmea,
+                nmeaSatellites, nmeaFixMode));
         toggle.setText(running ? "Stop GPS test" : "Start GPS test");
     }
 
     @Override public void onPause() { stop("Paused"); super.onPause(); }
+
+    private static int numericField(String sentence, int field) {
+        int start = 0;
+        for (int i = 0; i < field; i++) {
+            start = sentence.indexOf(',', start);
+            if (start < 0) return -1;
+            start++;
+        }
+        int end = sentence.indexOf(',', start);
+        if (end < 0) end = sentence.indexOf('*', start);
+        if (end < 0) return -1;
+        try { return Integer.parseInt(sentence.substring(start, end)); }
+        catch (NumberFormatException ignored) { return -1; }
+    }
 }
