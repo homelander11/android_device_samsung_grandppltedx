@@ -1,13 +1,19 @@
 # Camera compatibility investigation (updated 2026-10-27)
 
-The user now confirms **rear/front live preview and photo saving** with the
-temporary v15 candidate. The user also confirms video recording, playback and sound with the further
-raw-frame candidate. Front-video playback is unreliable: the user reports frozen video and
-intermittent sound, despite encoded AVC/AAC tracks. Release is held. Flash, repeated reopen and reboot persistence
-remain separate test requirements. This branch records the compatibility work;
-it is not yet a permanent camera release. No camera update has been flashed.
-The original camera files are restored after each live test. Keep the stable
-hardware-fixes branch and the paused GPS experiments separate from this work.
+The user confirms **rear/front live preview and photo saving** with the
+temporary camera candidate. The raw-frame fallback enables video recording.
+Its later frozen/silent playback is resolved in the combined live test by
+correcting the primary audio HAL's missing deep-buffer PCM name; new rear/front
+clips play with sound and Camera closes/reopens normally. Default codecs and
+normal hardware composition remain active. See `AUDIO_DEEP_BUFFER_FIX.md`.
+
+A combined camera/audio fix and exact undo are ready for recovery/device
+testing. The real ROM updater passes install, reinstall, exact undo, metadata
+and rejection checks on a disposable RAM fixture. Actual TWRP installation,
+production dependency names during a full camera session, reboot persistence,
+flash and extended lifecycle testing remain pending. No permanent camera/audio
+update has been flashed. Original files are restored after each live test.
+Keep the stable hardware-fixes branch and paused GPS experiments separate.
 
 ## Confirmed failures
 
@@ -180,26 +186,29 @@ Remaining device tests: repeated open/close and switching, video/audio recording
 background/resume, reboot persistence, memory lifetime and performance. Recheck
 Wi-Fi, microphone recording and power/home wake before releasing a fix ZIP.
 
-## System-only package (candidate; release held)
+## System-only package (ready for recovery/device testing)
 
 `tools/build/create_camera_fix.py` generates a fix and exact undo for the pinned
 20261025 ROM with its existing display, Light/backlight and microphone updates.
-It checks every camera/dependency hash before replacing anything, accepts
+It checks every camera/audio/dependency hash before replacing anything, accepts
 reinstallation, rejects symlink destinations and unknown libraries, and requires
-the helper's ARM ABI exports and `DF_1_GLOBAL`. Ten camera libraries are replaced;
+the helper's ARM ABI exports and `DF_1_GLOBAL`. Ten camera libraries and the
+primary audio HAL's pinned deep-buffer name are replaced;
 four private runtime libraries, the ICU license and a node-ownership init file
-are added. The original global vendor/framework Skia/ICU, audio, Wi-Fi,
+are added. The original global vendor/framework Skia/ICU, microphone selectors, Wi-Fi,
 calibration, boot, recovery and userdata are not modified.
 
-The unchanged updater/payload passed install, reinstall, exact-original undo,
-root ownership, file modes, SELinux labels and unknown-input rejection before
-any camera replacement on a disposable 64 MiB ext4 RAM image. Only its block
+The combined updater/payload passed install, reinstall, exact-original undo,
+root ownership, file modes, SELinux labels, unknown camera/audio input and
+symlink rejection before any payload replacement on a disposable 64 MiB ext4
+RAM image. Only its block
 path, mount/verification paths and shell were redirected for this fixture.
 This is not an installation of the final ZIP in TWRP. The currently packaged
 helper hash is `6ded15f2623a57e8ed748b86100d492fdc775825828839e9053c4f31986ef355`.
-Do not release this candidate until the reopen dialog and unreliable
-front-video playback are resolved. Production-name end-to-end and reboot
-validation remain required after that.
+The combined live test now passes rear/front video playback with sound and
+Camera reopening. Production-name end-to-end and reboot validation remain
+required after installing the development update. It is not a fully validated
+release for other users/devices.
 
 ## Playback graphics failure and recovery
 

@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
-"""Package the pinned Android 11 camera candidate and an exact undo for TWRP.
+"""Package the pinned Android 11 camera/audio candidate and exact undo for TWRP.
 
-Uses the diagnosed ROM's updater. Replaces only ten camera libraries and adds
+Uses the diagnosed ROM's updater. Replaces ten camera libraries, the primary
+audio HAL's deep-buffer PCM name, and adds
 private camera runtime files, a license and node-ownership init commands.
-No boot, recovery, userdata, calibration, audio, Wi-Fi or global Skia/ICU writes.
+No boot, recovery, userdata, calibration, microphone, Wi-Fi or global Skia/ICU writes.
 """
 import argparse
 import json
@@ -18,6 +19,7 @@ TOOLS = Path(__file__).resolve().parents[1]
 DEVICE = TOOLS.parent
 META = json.loads((TOOLS / "camera/android11-metadata.json").read_text())
 SENSOR = json.loads((TOOLS / "camera/sensor-startup.json").read_text())
+AUDIO = json.loads((TOOLS / "audio/deep-buffer-pcm.json").read_text())
 MOUNT = "/tmp/j2prime-camera-system"
 VERIFY = "/tmp/j2prime-camera-verify.sh"
 NEW_FILES = ("lib/libcamcx.so", "lib/libicu60.so", "lib/libicui60.so",
@@ -49,6 +51,8 @@ def check(path, *hashes):
 def package(path, updater, original, modified, added, undo):
     vendor = MOUNT + "/system/vendor/"
     checks = dict(recording.CHECKS)
+    # This formerly pinned dependency is now an explicitly checked payload.
+    checks.pop("lib/hw/audio.primary.mt6737t.so")
     checks.update({
         "lib/hw/lights.mt6735.so": recording.backlight.NEW,
         "lib/libaudiocustparam_vendor.so": recording.NEW,
@@ -59,7 +63,7 @@ def package(path, updater, original, modified, added, undo):
         "lib/libcam.utils.sensorlistener.so": SENSOR["listener_sha256"],
     })
     lines = [
-        'ui_print("J2 Prime Android 11 camera compatibility candidate");',
+        'ui_print("J2 Prime Android 11 camera and deep-buffer audio update");',
         f'assert(package_extract_file("verify-camera.sh", "{VERIFY}"));',
         'assert(!is_mounted("/system") && !is_mounted("/system_root"));',
         f'assert(mount("ext4", "EMMC", "{base.BLOCK}", "{MOUNT}") != "");',
@@ -85,7 +89,7 @@ def package(path, updater, original, modified, added, undo):
             lines.append(f'delete("{vendor}{name}");')
             lines.append(check(vendor + name, "ABSENT"))
     lines += [f'assert(unmount("{MOUNT}") != "");',
-              'ui_print("Camera files verified. Reboot System without wiping.");']
+              'ui_print("Camera/audio files verified. Reboot System without wiping.");']
     entries = {base.PREFIX + "update-binary": updater,
                base.PREFIX + "updater-script": ("\n".join(lines) + "\n").encode(),
                "verify-camera.sh": VERIFIER,
@@ -149,12 +153,24 @@ def main():
         added["etc/licenses/ICU-60.txt"] = (args.vendor_lib.parent / "etc/licenses/ICU-60.txt").read_bytes()
         if set(added) != set(NEW_FILES):
             raise ValueError("unexpected camera update scope")
+        audio_name = "lib/hw/audio.primary.mt6737t.so"
+        audio = (args.vendor_lib / "hw/audio.primary.mt6737t.so").read_bytes()
+        if base.sha(audio) != AUDIO["patched_sha256"] or len(audio) != AUDIO["size"]:
+            raise ValueError("unexpected corrected primary audio HAL")
+        offset = AUDIO["offset"]
+        old, new = bytes.fromhex(AUDIO["original"]), bytes.fromhex(AUDIO["patched"])
+        if len(old) != len(new) or audio[offset:offset + len(new)] != new:
+            raise ValueError("unexpected deep-buffer PCM literal")
+        before = audio[:offset] + old + audio[offset + len(new):]
+        if base.sha(before) != AUDIO["original_sha256"]:
+            raise ValueError("unexpected original primary audio HAL")
+        original[audio_name], modified[audio_name] = before, audio
         with zipfile.ZipFile(args.rom_zip) as archive:
             updater = archive.read(base.PREFIX + "update-binary")
         args.out_dir.mkdir(parents=True, exist_ok=True)
         sums = []
         for suffix, undo in (("fix", False), ("undo", True)):
-            path = args.out_dir / f"grandppltedx-20261027-camera-{suffix}.zip"
+            path = args.out_dir / f"grandppltedx-20261027-camera-audio-{suffix}.zip"
             package(path, updater, original, modified, added, undo)
             sums.append(f"{base.sha(path.read_bytes())}  {path.name}\n")
             print(path, path.stat().st_size, "bytes")

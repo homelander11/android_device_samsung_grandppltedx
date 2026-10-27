@@ -58,3 +58,18 @@ Bluetooth audio and telephone calls remain to be tested. A nonfatal
 `setInterruptRate` -22 diagnostic still occurs; successful short playback does
 not establish every power/rate transition. No persistent GPU/codec workaround
 is justified by these tests. GPS investigation remains paused.
+
+## Recovery update
+
+`tools/build/create_camera_fix.py` now includes this exact primary-HAL
+correction in the combined `grandppltedx-20261027-camera-audio-fix.zip` and
+restores the original HAL in its paired undo. The camera package's old
+original-only audio dependency check becomes a payload preflight accepting
+only the pinned original/corrected hashes. All preflight checks precede writes.
+
+The unchanged updater binary and payloads pass install/reinstall/exact undo,
+ownership/mode/SELinux labels, unknown camera-library rejection, unknown
+primary-HAL rejection and symlink rejection on a 64 MiB ext4 RAM fixture.
+Only block/mount/verifier/shell paths differ in that fixture. The actual
+system partition has not been written by these tests. TWRP installation and
+post-reboot camera/audio operation remain pending.
