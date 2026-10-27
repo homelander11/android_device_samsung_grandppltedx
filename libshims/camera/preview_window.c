@@ -173,7 +173,10 @@ static int configure(Ops *ops, int operation, int a, int b, int c) {
     Window *w = (Window *)ops;
     pthread_mutex_lock(&w->lock);
     Ops *real = w->original;
-    if (!real || busy(w)) { pthread_mutex_unlock(&w->lock); return -16; }
+    if (!real || busy(w)) {
+        __android_log_print(5, "J2PrimeCamWin", "preview reconfiguration busy (operation %d)", operation);
+        pthread_mutex_unlock(&w->lock); return -16;
+    }
     w->changing = 1;
     clear_buffers(w);
     pthread_mutex_unlock(&w->lock);
@@ -227,7 +230,11 @@ int camera_set_preview(void *device, Ops *ops) {
     if (id > 1) return setter(device, ops);
     Window *w = &windows[id];
     pthread_mutex_lock(&w->lock);
-    if (busy(w)) { pthread_mutex_unlock(&w->lock); return -16; }
+    if (busy(w)) {
+        __android_log_print(5, "J2PrimeCamWin", "preview window busy for camera %u (same=%d, null=%d)",
+                            id, ops == w->original, ops == 0);
+        pthread_mutex_unlock(&w->lock); return -16;
+    }
     clear_buffers(w);
     w->original = ops;
     w->width = w->height = w->format = w->usage = 0;

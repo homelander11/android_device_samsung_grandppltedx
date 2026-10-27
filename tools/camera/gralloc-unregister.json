@@ -1,0 +1,10 @@
+{
+  "original_sha256": "1b8bb21c0673859e690191d68bf58af840a094df6fd6fdfb3ca738bf63f79532",
+  "patched_sha256": "970af7638d3e12d116c9171eae78a590ff9246169b30308ccfd2179cebb8c4cc",
+  "rva": 15470,
+  "offset": 15470,
+  "original": "fdf7c4ef",
+  "patched": "00f042b8",
+  "status": "ARM-emulation and isolated on-device fault-injection verified; no vendor activation or display-service test",
+  "note": "Return after the existing module-lookup error log; valid-module cleanup and other flags are unchanged. Does not fix ION import/blit errors."
+}

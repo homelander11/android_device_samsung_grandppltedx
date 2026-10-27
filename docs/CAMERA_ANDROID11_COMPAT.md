@@ -1,8 +1,9 @@
 # Camera compatibility investigation (updated 2026-10-27)
 
 The user now confirms **rear/front live preview and photo saving** with the
-temporary v15 candidate. A further raw-frame candidate starts video recording and saves an MP4 with
-encoded AVC and AAC tracks. User verification of picture/sound is pending. Flash, repeated reopen and reboot persistence
+temporary v15 candidate. The user also confirms video recording, playback and sound with the further
+raw-frame candidate. Front-video playback is unreliable: the user reports frozen video and
+intermittent sound, despite encoded AVC/AAC tracks. Release is held. Flash, repeated reopen and reboot persistence
 remain separate test requirements. This branch records the compatibility work;
 it is not yet a permanent camera release. No camera update has been flashed.
 The original camera files are restored after each live test. Keep the stable
@@ -97,8 +98,10 @@ hardware-fixes branch and the paused GPS experiments separate from this work.
     status for both cameras. A live candidate successfully starts and stops:
     MPEG4Writer reports 509 encoded video frames and 1481 encoded audio
     frames, both tracks stop with status zero, and the MP4 index is written.
-    Picture/sound quality, both-camera coverage and performance still need
-    user checks. This software encoder need not sustain 30 fps at 720p.
+    The first video playback/sound test passes, but subsequent front-video
+    tests freeze on a frame with intermittent sound. These are not passing
+    end-to-end front-video results. Software encoding is roughly 15 fps in
+    the sampled recordings; both performance and playback remain open. This software encoder need not sustain 30 fps at 720p.
 
 The framework rejects the legacy metadata in
 [CCodec](https://github.com/LineageOS/android_frameworks_av/blob/lineage-18.1/media/codec2/sfplugin/CCodec.cpp),
@@ -167,8 +170,71 @@ write, NVRAM/calibration change, or GPS test was needed. Private diagnostics are
 not included in these repositories.
 
 User-confirmed in the combined temporary trial: rear/front preview and a saved
-photo from each camera. The raw-frame video candidate additionally passes
-encoder startup and MP4 finalization, with visual/audible playback unverified.
+photo from each camera, plus video recording/playback with sound after the
+raw-frame correction. A later lifecycle trial returned normally from its
+service checks, but the app UI displayed "Can't connect" after background/resume
+and force-stop/reopen. Do not count service responsiveness as a passing reopen
+test. Preview buffer diagnostics now report rejected busy transitions; no
+unsafe reference dropping or forced buffer release was added.
 Remaining device tests: repeated open/close and switching, video/audio recording, flash,
 background/resume, reboot persistence, memory lifetime and performance. Recheck
 Wi-Fi, microphone recording and power/home wake before releasing a fix ZIP.
+
+## System-only package (candidate; release held)
+
+`tools/build/create_camera_fix.py` generates a fix and exact undo for the pinned
+20261025 ROM with its existing display, Light/backlight and microphone updates.
+It checks every camera/dependency hash before replacing anything, accepts
+reinstallation, rejects symlink destinations and unknown libraries, and requires
+the helper's ARM ABI exports and `DF_1_GLOBAL`. Ten camera libraries are replaced;
+four private runtime libraries, the ICU license and a node-ownership init file
+are added. The original global vendor/framework Skia/ICU, audio, Wi-Fi,
+calibration, boot, recovery and userdata are not modified.
+
+The unchanged updater/payload passed install, reinstall, exact-original undo,
+root ownership, file modes, SELinux labels and unknown-input rejection before
+any camera replacement on a disposable 64 MiB ext4 RAM image. Only its block
+path, mount/verification paths and shell were redirected for this fixture.
+This is not an installation of the final ZIP in TWRP. The currently packaged
+helper hash is `6ded15f2623a57e8ed748b86100d492fdc775825828839e9053c4f31986ef355`.
+Do not release this candidate until the reopen dialog and unreliable
+front-video playback are resolved. Production-name end-to-end and reboot
+validation remain required after that.
+
+## Playback graphics failure and recovery
+
+The v21 front-camera tests save AVC/AAC tracks (54, 82 and 188 encoded video
+frames in sampled clips), but the user reports a frozen playback frame and
+intermittent sound. During playback, MediaTek MDP logs ION physical-address
+lookup failures and blit error -6. The graphics composer then crashes at
+`gralloc_backend_unregister+182`, RVA `0x3caa`, dereferencing a null module at
+offset `0xc8`. Both register and unregister logged failed `hw_get_module`
+lookups immediately beforehand. This restarted Android's framework; the
+camera guard restored every camera file and original device-node ownership.
+A normal reboot subsequently returned Android to the launcher. The persistent
+microphone, wake and original gralloc hashes remain unchanged.
+
+`tools/fix_gralloc_unregister.py ORIGINAL --output CANDIDATE` prepares a
+**separate, unactivated** four-byte cleanup guard. It returns through the
+existing epilogue after the existing failed-lookup error log. It never invents
+a module pointer or frees an ION handle with an unknown client. Successful
+lookup/cleanup, including the munmap-error path, remains instruction-for-
+instruction unchanged. In the error case resources cannot be released through
+a missing module; the guard prevents the null dereference rather than claiming
+to repair that underlying lookup/import failure.
+
+ARM emulation compares normal cleanup, a non-ION handle, munmap failure and
+two module-lookup failures. The old error path reproduces the invalid read;
+the guarded version returns with saved registers and stack intact. An isolated
+on-device process also passes forced lookup failure with the guarded DSO and
+the original legacy shims preloaded. No installed graphics file or display
+service was changed. A conventional source probe is provided as
+`grandppltedx_gralloc_cleanup_probe`; its normal Soong build remains pending.
+Use `LD_PRELOAD=/vendor/lib/libshim_bionic.so:/system/lib/libutilscallstack.so`
+and the vendor/system library search paths for this renamed diagnostic DSO.
+The original gralloc path receives those shims through the ROM's loader map;
+both /vendor and /system/vendor aliases pass isolated loading. No alias-map
+change is justified by the observed failure.
+
+The guard is not in the vendor tree or camera ZIP. It requires further graphics
+validation; playback still needs an actual ION/composition investigation.

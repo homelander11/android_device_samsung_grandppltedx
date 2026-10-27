@@ -1,0 +1,5 @@
+# Same access as init.mt6735.rc, also usable by the system-only camera update.
+# Retain read-only chip-info access and mediaserver ownership of the SMI node.
+on post-fs-data
+    chown cameraserver system /dev/devmap
+    chown media camera /dev/MTK_SMI

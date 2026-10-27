@@ -21,3 +21,13 @@ cc_binary {
     installable: false,
     cflags: ["-Wall", "-Wextra", "-Werror"],
 }
+
+cc_binary {
+    name: "grandppltedx_gralloc_cleanup_probe",
+    srcs: ["gralloc_cleanup_probe.c"],
+    shared_libs: ["libdl"],
+    compile_multilib: "32",
+    installable: false,
+    ldflags: ["-Wl,--export-dynamic"],
+    cflags: ["-Wall", "-Wextra", "-Werror"],
+}
