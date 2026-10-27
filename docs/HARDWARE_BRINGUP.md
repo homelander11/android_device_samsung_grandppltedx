@@ -233,7 +233,7 @@ Checks performed:
 | Security | Permissive kernel cmdline, ignored neverallows, insecure ADB defaults. | Dedicated SELinux bring-up before calling this a production-ready ROM. |
 | Power/memtrack | Packaged passthrough implementations lacked declarations; device power hints/interactive callbacks are empty. | Verify discovery, display sleep, suspend current, wake reliability, thermal limits and memory accounting. |
 | Modem/RIL | Both root and vendor init files declare CCCI daemons with different names; only the unprefixed services are running on the sampled phone. | Audit duplicate startup before changing it; test both SIMs, calls/SMS/data and in-call audio. No modem behavior was changed here. |
-| Sensors | Sensor HAL is registered; the tree advertises gyroscope/step features without a capability inventory from stock. | Match feature declarations to actual sensor enumeration and test rotation/proximity. Registration alone is not validation. |
+| Sensors | BMA254 accelerometer and STK3013 proximity enumerate, but the standard HIDL service lacks input group and has no evdev descriptors. Exact-credential probes reproduce access denial; adding input permits access, and an isolated unchanged HAL delivers valid acceleration events. Source override and reversible recovery update are prepared and installer-fixture tested; see `SENSOR_INPUT_UPDATE.md`. | Installation/reboot, effective service groups, framework rotation and physical proximity need testing. Current ROM is permissive; enforcing policy and gyroscope/step feature declarations remain unvalidated. |
 
 Do not enable `CONFIG_BT` merely because it is disabled: this MTK stack uses
 `/dev/stpbt` in userspace, and `CONFIG_MTK_COMBO_BT=y` is already selected.

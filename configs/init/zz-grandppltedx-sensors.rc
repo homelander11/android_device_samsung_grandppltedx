@@ -1,0 +1,11 @@
+# SPDX-License-Identifier: Apache-2.0
+# Samsung input-based HAL needs evdev reads and sensor poll_delay writes.
+# Loaded after the standard service; retain its UID, capabilities and limits.
+service vendor.sensors-hal-1-0 /vendor/bin/hw/android.hardware.sensors@1.0-service
+    override
+    interface android.hardware.sensors@1.0::ISensors default
+    class hal
+    user system
+    group system wakelock uhid context_hub input
+    capabilities BLOCK_SUSPEND
+    rlimit rtprio 10 10

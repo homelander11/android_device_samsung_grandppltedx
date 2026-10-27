@@ -1,0 +1,31 @@
+{
+  "scope": "SM-G532G/grandppltedx LineageOS 18.1; existing permissive build",
+  "target": "etc/init/zz-grandppltedx-sensors.rc",
+  "original_target": "ABSENT",
+  "patched_sha256": "161baa747239acd22bb8a2d375d7e96223c8d5590055b7f8bccc74b0dd337ea8",
+  "checks": {
+    "lib/hw/sensors.mt6735.so": "d792f3871eed2c747100a41ff3b1cd56c736aba6a97db09d69d752fa6d098f5d",
+    "bin/hw/android.hardware.sensors@1.0-service": "3087d8a57188552bab23d22104b6ea9b501226303dc9b664012900c9cfe8e855",
+    "etc/init/android.hardware.sensors@1.0-service.rc": "6f65242d34d0528c23e5dd216e92821ba1c66dc653b60506cf05083e10c7ecf2"
+  },
+  "reason": "The stock HIDL service has no supplementary input group, but Samsung accelerometer/proximity evdev nodes and accelerometer poll_delay require it. Both input descriptors are absent from the running HAL.",
+  "change": "Override only the service definition, adding supplementary input. Preserve system UID/GID, standard groups, interface, class, capabilities and rtprio. No device node mode/owner or sensor HAL binary changes.",
+  "validation": {
+    "credential_probe": "PASS exact original service UID/GID/groups denies accelerometer/proximity evdev and poll_delay; adding input opens all. Open/close only, no writes.",
+    "actual_hal_probe": "PASS isolated original HAL with input group: at least three acceleration events with gravity units and increasing timestamps. Running HAL and system_server unchanged.",
+    "control_restore": "PASS original enable=0 and delay=200ms verified; cleanup accounts for BMA254 millisecond read/nanosecond write ABI. No calibration write.",
+    "framework_rotation": "Pending recovery installation/reboot and user rotation/proximity tests",
+    "selinux": "Current project explicitly boots permissive. Enforcing-mode sensor/input/sysfs rules remain unvalidated.",
+    "installer_fixture": "PASS real ROM updater on 64 MiB RAM ext4: install/reinstall/undo/repeat-undo, all 33 baseline files unchanged, uid/gid0 mode0644 vendor_configs_file, unknown target/dependencies and symlink rejection for fix/undo"
+  },
+  "source_rc": "https://github.com/LineageOS/android_hardware_interfaces/blob/lineage-18.1/sensors/1.0/default/android.hardware.sensors@1.0-service.rc",
+  "unchanged": [
+    "original HIDL service file and binary",
+    "sensors.mt6735.so",
+    "kernel and boot/recovery",
+    "input/sysfs ownership and modes",
+    "calibration",
+    "camera/audio/microphone/wake files",
+    "Wi-Fi force_connect setting"
+  ]
+}
