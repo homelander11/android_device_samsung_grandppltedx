@@ -34,9 +34,13 @@ ownership/mode/SELinux label, unchanged other seeded files, unknown input and
 dependency rejection, and symlink rejection pass using the real ROM updater
 on a disposable 64 MiB ext4 RAM image. No phone partition is written by that test.
 
-**Normal display-service, installation and reboot tests remain pending.** The
-vendor source blob and installed graphics driver are still original. This is
-a device-test candidate, not a claim that the Play Store camera is fixed.
+The user installed the guard in TWRP and rebooted successfully. The installed
+driver matches the guarded hash, normal Android display works, and the composer
+has stayed running through normal use. The user confirms the built-in camera's
+live preview and photo capture work. The matching vendor tree now includes this
+exact four-byte guard; `gralloc-unregister-provenance.json` records its input and
+validation. Wider media/Wi-Fi/wake regression checks remain pending. The Play
+Store camera still fails; this guard does not fix its preview/session problem.
 
 | File | SHA-256 |
 | --- | --- |

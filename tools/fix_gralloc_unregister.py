@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Prepare a null-module cleanup guard for the pinned legacy gralloc.
 
-Candidate only: not activated in the vendor tree or camera update. A failed
-hw_get_module lookup currently falls through and dereferences a null module.
+Activated in the matching vendor tree after installation/reboot testing. A failed
+hw_get_module lookup previously fell through and dereferenced a null module.
 Return after the existing error log. Successful module lookup is unchanged.
 This does not correct the preceding ION import/blit failures.
 """
@@ -45,7 +45,7 @@ def main():
     except (OSError, ValueError) as error:
         print("FAIL:", error, file=sys.stderr)
         return 1
-    print("Candidate only:", MANIFEST["patched_sha256"])
+    print("Verified graphics cleanup guard:", MANIFEST["patched_sha256"])
     return 0
 
 

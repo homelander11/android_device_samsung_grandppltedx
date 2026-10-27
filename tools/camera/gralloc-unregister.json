@@ -5,6 +5,6 @@
   "offset": 15470,
   "original": "fdf7c4ef",
   "patched": "00f042b8",
-  "status": "ARM-emulation and isolated on-device fault-injection verified; no vendor activation or display-service test",
+  "status": "ARM-emulation, isolated native failure path, TWRP installation/reboot, normal display and built-in preview/photo verified; vendor source activated. Wider regression and third-party camera remain pending.",
   "note": "Return after the existing module-lookup error log; valid-module cleanup and other flags are unchanged. Does not fix ION import/blit errors."
 }
