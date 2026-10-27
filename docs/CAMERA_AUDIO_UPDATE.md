@@ -11,9 +11,10 @@ The user confirms both cameras' preview/photos, fresh rear/front video with
 moving playback and sound, and Camera close/reopen in the temporary combined
 trial. Default codecs and normal hardware composition are retained. The user
 subsequently installed the package in TWRP and booted Android. Library hashes
-and camera node ownership match after reboot. Both cameras record, but video
-has a red/blue colour inversion while photos look normal. See
-`VIDEO_COLOUR_INVESTIGATION.md`; this remains a development update.
+and camera node ownership match after reboot. This package alone left a video
+colour inversion; the subsequent helper-only colour update corrects it and
+is also user-confirmed working after reboot. Install the pair for the current
+ROM. See `CAMERA_COLOUR_UPDATE.md`; extended testing remains pending.
 
 ## Files and installation
 

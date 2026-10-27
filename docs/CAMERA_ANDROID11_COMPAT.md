@@ -1,11 +1,11 @@
 # Camera compatibility investigation (updated 2026-10-27)
 
-Installation follow-up: the user installed the combined update in TWRP and
-booted Android. Production library hashes and node ownership match after
-reboot. Both cameras record, but video colours are inverted (red becomes blue),
-including thumbnails, while photos look normal. The colour fix remains in
-temporary testing; see `VIDEO_COLOUR_INVESTIGATION.md`. Earlier pending-install
-notes below record the preceding trial/package stage.
+Installation follow-up: both the combined camera/audio update and subsequent
+video-colour update are installed. The user confirms normal boot and working
+camera after the colour update. Its pinned helper is mapped from the system
+partition, with no temporary bind; production dependencies and node ownership
+match. See `CAMERA_COLOUR_UPDATE.md` for current verification. Earlier trial
+and pending-install notes below describe the preceding investigation stages.
 
 The user confirms **rear/front live preview and photo saving** with the
 temporary camera candidate. The raw-frame fallback enables video recording.

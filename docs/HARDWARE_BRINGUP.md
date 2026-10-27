@@ -1,17 +1,18 @@
 # LineageOS 18.1 hardware bring-up
 
-Latest camera follow-up: TWRP installation and normal boot of the combined
-camera/audio update are user-confirmed, and installed hashes/node ownership
-match after reboot. Video works but has a red/blue colour inversion on both
-cameras; photos look normal. See `VIDEO_COLOUR_INVESTIGATION.md`. Earlier
-pending-install notes below describe the preceding stage of bring-up.
+Latest camera follow-up: combined camera/audio and video-colour updates are
+installed and user-confirmed working after reboot. The corrected helper is
+mapped from the system partition without a temporary bind. Audio, microphone
+and wake hashes, Wi-Fi connection configuration and node ownership match the
+working versions. See `CAMERA_COLOUR_UPDATE.md`. Earlier pending-install notes
+below describe preceding stages of bring-up.
 
 October 27 playback follow-up: the primary audio HAL requests a nonexistent
 deep-buffer PCM name and opens device -1. A pinned string correction selects
 the kernel's existing DL2/device 24. Temporary tests now pass synthetic video
 with tone, previously frozen clips, and fresh rear/front camera recordings
-with sound and Camera reopening. See `AUDIO_DEEP_BUFFER_FIX.md`. Persistent
-installation/reboot and other audio routes remain pending; GPU and codec
+with sound and Camera reopening. Persistent installation/reboot is verified;
+other audio routes remain pending. See `AUDIO_DEEP_BUFFER_FIX.md`. GPU and codec
 experiments are inactive.
 
 Recovery reboot follow-up: the existing TWRP image is intact. Android 11 refused
@@ -213,8 +214,8 @@ Checks performed:
 | Area | Evidence from attached device | Required validation |
 | --- | --- | --- |
 | Bluetooth | Repeated `parse_read_local_extended_features_response` aborts; HCI status `0x30`. `BT_Addr` access also fails with errno 13. | Feature-page handling, stable enable/disable, classic pairing, BLE, A2DP, SCO, persistent factory address. |
-| Audio | Speaker and Recorder microphone work after ABI/calibration and recording-selector fixes (user confirmed). Correcting the missing deep-buffer PCM name also restores moving video playback with sound in the temporary test; see `AUDIO_DEEP_BUFFER_FIX.md`. | Install/reboot-test the combined update; test earpiece/headset, longer playback, rate/power transitions and calls. Calls remain untested. |
-| Camera | User confirms rear/front preview, saved photos and new videos with moving playback/sound, plus Camera close/reopen in the combined camera/audio trial. Source/vendor changes are on `codex/camera-android11-compat`; see `CAMERA_ANDROID11_COMPAT.md`. | Combined fix/undo passes the RAM installer fixture and is ready for actual recovery/device testing. Production-name full-session/reboot persistence, flash and extended lifecycle/performance remain pending. A separate gralloc error-path crash is still unresolved. |
+| Audio | Speaker and Recorder microphone work after ABI/calibration and recording-selector fixes (user confirmed). Deep-buffer correction restores moving video with sound, and the installed primary HAL hash is verified after reboot; see `AUDIO_DEEP_BUFFER_FIX.md`. | Test earpiece/headset, longer playback, rate/power transitions and calls. Calls remain untested. |
+| Camera | Rear/front preview/photos and video colours/sound pass live tests. Combined and colour updates are installed; the user confirms the colour fix works after reboot and the corrected helper mapping is verified. See `CAMERA_COLOUR_UPDATE.md`. | Other recording profiles, flash, long recordings, extended lifecycle/performance and normal Soong compilation remain pending. A separate gralloc error-path crash remains unresolved. |
 | GNSS | The socket correction resolved the initialization boot gate; the user confirms normal boot and `sys.boot_completed=1`. See `GNSS_BOOT_FIX.md`. | Satellite acquisition outdoors, NMEA, time/location injection and SUPL. No satellite fix has been established. |
 | USB audio | `audio.usb.default.so` cannot resolve `profile_get_highest_sample_rate`. The old overwriting library is now excluded from packaging. | Verify the built library export; test USB playback/capture. |
 | Widevine | Legacy protobuf `empty_string_` symbol cannot resolve. | Check the existing v29 compatibility library mapping and encrypted playback. |

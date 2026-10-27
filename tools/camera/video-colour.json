@@ -4,13 +4,25 @@
   "patched_sha256": "16938d52548fad5101abcb016f00e162a8f0c075b0b2fd3855e91525f3d81176",
   "raw_video_layout": "YV12 (Y/V/U) to advertised I420 (Y/U/V)",
   "video_message": 32,
-  "accepted_frame_bytes": [1382400, 460800, 115200, 41472, 38016],
-  "device_verified_frame_bytes": [1382400, 115200],
+  "accepted_frame_bytes": [
+    1382400,
+    460800,
+    115200,
+    41472,
+    38016
+  ],
+  "device_verified_frame_bytes": [
+    1382400,
+    115200
+  ],
   "validation": {
     "isolated_arm_contract": "PASS: copied descriptors, explicit raw fallback, heap/index bounds, untouched Y/callback arguments, duplicates and skipped non-video/unknown heaps",
-    "live_camera_ids": [0, 1],
+    "live_camera_ids": [
+      0,
+      1
+    ],
     "user": "PASS: red remains red, both cameras' video and sound, normal photo colours; lower-resolution rear clip also passes",
     "normal_soong_build": "PENDING",
-    "permanent_colour_update_and_reboot": "PENDING"
+    "permanent_colour_update_and_reboot": "PASS: user installed colour fix in TWRP, booted Android and confirms it works; corrected helper SHA-256 and system-partition mapping verified, with no temporary file bind"
   }
 }

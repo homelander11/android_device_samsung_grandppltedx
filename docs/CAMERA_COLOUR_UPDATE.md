@@ -6,6 +6,13 @@ video. It retains the existing camera/audio, microphone and wake fixes.
 The corresponding source change is in the device tree for future ROM builds.
 No full ROM build or VPS use was required.
 
+Permanent installation is verified: the user installed the colour ZIP, booted
+Android and confirms it works. ADB reports completed boot, the corrected helper
+hash and its mapping from the system partition, with no temporary helper bind.
+The primary-audio, recording and wake driver hashes and Wi-Fi connection setting
+still match their working versions. This verifies persistence of the update;
+it does not replace physical tests of every audio route or recording profile.
+
 | File | SHA-256 |
 | --- | --- |
 | `grandppltedx-20261027-camera-colour-fix.zip` | `6fb74b0cba81ced171594b821a197e9bc61b67ecd7fb99ae8adce2d6c0875c6a` |
@@ -36,10 +43,9 @@ unknown audio dependency and helper symlinks are rejected before replacement.
 Only block/mount/verifier/shell paths differ in that fixture. No phone partition
 is written by the test.
 
-Permanent colour installation/reboot, longer recordings, other profiles,
-repeated lifecycle/performance and normal Soong compilation remain pending.
-After reboot, test both cameras' video colours/sound, photos and reopening;
-recheck Recorder microphone, Wi-Fi and power/home wake. The update changes no
+Longer recordings, other profiles, repeated lifecycle/performance and normal
+Soong compilation remain pending. Continue checking Recorder microphone,
+Wi-Fi and power/home wake during ordinary use. The update changes no
 calibration, codec/display settings, boot/recovery or other vendor library.
 
 Reproduce the packages with `tools/build/create_camera_colour_fix.py` using

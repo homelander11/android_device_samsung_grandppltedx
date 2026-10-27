@@ -1,26 +1,29 @@
 # Video colour inversion (2026-10-27)
 
-The correction now passes temporary device tests. The camera provider's mapped
+The correction passes temporary tests and permanent installation/reboot. The
+user confirms the installed update works after boot. ADB verifies its pinned
+helper hash and system-partition mapping, with no temporary helper bind mount.
+During the earlier trials, the camera provider's mapped
 helper inode is verified, and logs confirm YV12-to-I420 conversion for camera
 IDs 0 and 1. The user confirms correct red, moving video and sound on both
 cameras, normal photo colours and a lower-resolution rear clip. Actual tested
 buffers are 1382400 bytes (1280x720) and 115200 bytes (320x240); the latter was
 reported by the UI test as a lower-quality option. Do not claim a device-verified
-640x480 test from that result. Permanent colour installation/reboot, other
-sizes, longer recording and normal Soong compilation remain pending.
+640x480 test from that result. Other sizes, longer recording and normal Soong
+compilation remain pending.
 
-The user installed the combined camera/audio update in TWRP and booted Android.
+Initially, the user installed the combined camera/audio update in TWRP and booted Android.
 Installed helper, camera client, private Skia and primary-audio hashes match the
-package; camera node ownership also survives reboot. Both cameras record video,
-but colours are blue and a red test object becomes blue. Photos look normal;
-video thumbnails are affected too. This remains an open video bug.
+package; camera node ownership also survived reboot. Both cameras recorded
+video, but red became blue while photos looked normal. Video thumbnails were
+affected too. The subsequent helper-only colour update corrects this bug.
 
 Parameters advertise `video-frame-format=yuv420p`, no effect and automatic white
 balance. Android maps that format to I420 and its AVC encoder expects Y/U/V:
 [CameraSource](https://github.com/LineageOS/android_frameworks_av/blob/lineage-18.1/media/libstagefright/CameraSource.cpp),
 [C2SoftAvcEnc](https://github.com/LineageOS/android_frameworks_av/blob/lineage-18.1/media/codec2/components/avc/C2SoftAvcEnc.cpp).
 The red-to-blue inversion supports a chroma-order mismatch rather than proving
-defective hardware. No permanent colour correction has been installed.
+defective hardware. The permanent correction is documented in `CAMERA_COLOUR_UPDATE.md`.
 
 ## Read-only probe
 
@@ -39,7 +42,7 @@ measures Y=41/U=240/V=110. The red-object recording instead has central-region
 U around 163 and V around 114. Missing input returns an explicit error. Earlier
 missing-reference runs exited through Android's exception handler, not a proven OOM.
 
-## Pending correction
+## Trial development
 
 Limit conversion to validated raw-video buffers, preserving luminance,
 callback ownership/index/time, preview/photos and audio. The pinned `RecImgBuf`
@@ -53,7 +56,7 @@ U/V correction. Further temporary testing has an independent rollback timer.
 Require a conversion log and fresh correct-colour videos from both cameras,
 then preview/photo/audio and resolution/lifecycle checks before packaging.
 The earlier combined camera/audio ZIP lacks this colour correction. The
-helper-only update will retain that installed update and replace only libcamcx.
+helper-only update retains that installed update and replaces only libcamcx.
 
 ## Verified implementation
 
