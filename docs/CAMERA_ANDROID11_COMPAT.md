@@ -1,4 +1,4 @@
-# Camera compatibility investigation (2026-10-26)
+# Camera compatibility investigation (updated 2026-10-27)
 
 The user now confirms **rear/front live preview and photo saving** with the
 temporary v15 candidate. Video currently fails with "could not start media recorder" in the app; its
@@ -101,8 +101,9 @@ The legacy buffer layout is in [the Android 6 window header](https://github.com/
 `libshims/camera/Android.bp` builds the 32-bit vendor-only `libcamcx` module.
 `-z global` is required for the pinned Cam1 vtable relocations to resolve the
 callback and CPU-controller adapters. Only the camera dependency graph should
-load it. Vendor activation still requires guarded dependency/import changes;
-merely packaging this module does not fix preview.
+load it. Use the matching vendor camera branch, which now contains the guarded
+dependency/import changes and private ICU/Skia libraries. The device helper
+and matching vendor changes must be built together.
 
 A small ARM build using the installed SDK compiler, LLVM and linker passed
 on-device isolated tests for null/non-null thread names, return values and
@@ -121,14 +122,27 @@ the combined EIS/AF guards without editing the input. `--apply` is an explicit
 in-place option. It pins both the feature library and the deliberately-null
 SensorListener implementation, rejects other pairs, and is idempotent. Exact
 regions, before/after hashes and assembly are under `tools/camera/`. These
-guards are not yet applied to the production vendor tree. Activating the source
-module also requires the private ICU and scoped camera import changes described
-above; merely rebuilding this checkpoint does not produce a working camera.
+guards are now applied to the matching vendor camera branch.
+
+`tools/prepare_camera_android11.py VENDOR_LIB --icuuc ORIGINAL_ICU60 --output EMPTY_DIR`
+reproduces the dependency/import changes with LIEF 0.16.6. Every input/output is
+pinned in `tools/camera/android11-metadata.json`; unknown inputs are rejected.
+The original vendor Skia and ICU libraries remain unchanged. Camera adapter
+imports use a private `libskic.so`, `libicui60.so`, `libicu60.so` pair, and only
+the camera dependency graph loads `libcamcx.so`. Protected code/data sections
+and their addresses remain byte-for-byte unchanged for metadata-only edits.
+The full camera-platform dependency graph passes an isolated on-device
+`RTLD_NOW` check with these production names. End-to-end testing of these
+names and a normal Soong build remain pending. Vendor provenance is in
+`camera-android11-compat.json`; the ICU license is packaged in vendor/etc/licenses.
 
 Live trials bind temporary files and use an independent deadline/process monitor
-to restore original camera files on failure. The last trial restarted camera
-and media services after the preview-buffer crash; system_server stayed running
-and Android remained booted. No full ROM build, VPS use, kernel/boot/recovery
+to restore original camera files on failure. The fresh v17 diagnostic trial later stalled after about four minutes; its
+monitor captured a provider trace and restored all original files/permissions.
+No new recorder-start error was retained in that trial. This stability issue
+needs diagnosis before a permanent update is released; the successful photo
+tests alone do not establish long-running or close/reopen reliability.
+System_server stayed running and Android remained booted. No full ROM build, VPS use, kernel/boot/recovery
 write, NVRAM/calibration change, or GPS test was needed. Private diagnostics are
 not included in these repositories.
 

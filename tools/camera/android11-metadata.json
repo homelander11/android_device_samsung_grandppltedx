@@ -1,0 +1,100 @@
+{
+  "format": 1,
+  "helper": "libcamcx.so",
+  "entries": [
+    {
+      "name": "libicu60.so",
+      "source_name": "vendor_xiaomi_cactus-libicuuc.so",
+      "size": 1281176,
+      "original_sha256": "1fd361dee19d5e0a837238895b30e6d392fcc7a359a2a17a5b38d0eb36321a58",
+      "patched_sha256": "71a623e1f1bedf22b7d4569b28eecbbfaf66daceb2c9baf9093f614eaa990304"
+    },
+    {
+      "name": "libicui60.so",
+      "source_name": "libicui18n.so",
+      "size": 2133772,
+      "original_sha256": "aa5aae4dc189a93f25818d93a4ab09be1c1fe23ca214cf9eee8b95f79ddaee93",
+      "patched_sha256": "4c440e5abe0f17832ec9c12db2ced6f679f56f399ded822b4e1f4dd58fc0b6e7"
+    },
+    {
+      "name": "libskic.so",
+      "source_name": "libskia.so",
+      "size": 6675704,
+      "original_sha256": "2d67b1706e835c14cb2174570eac2b992eb84a50dac26e1c3f30dff452d18fc2",
+      "patched_sha256": "486e2ef1a940fd15d688dff0904c29924e729692484e0536222ccab398d01d5c"
+    },
+    {
+      "name": "libcam.camadapter.so",
+      "source_name": "libcam.camadapter.so",
+      "size": 456368,
+      "original_sha256": "d9979ae6e0260043ee8c44d561e451c33e465abb89c7f4c0e4250e6f948356e0",
+      "patched_sha256": "db5f9acd14b061cbe3a381bc68b8d59651ae8ef222117fd1897e6725ea77a15f",
+      "thread_adapter": true
+    },
+    {
+      "name": "libcam.camnode.so",
+      "source_name": "libcam.camnode.so",
+      "size": 308856,
+      "original_sha256": "0a5aa9b39f953b85a0b2f6e9576d5eef30a117ac07343efb6c31c3894de53352",
+      "patched_sha256": "ab366b15f15fa939e9a171186641841257ae5c67fced630dcd566a0a49012c01",
+      "thread_adapter": true
+    },
+    {
+      "name": "libcam.client.so",
+      "source_name": "libcam.client.so",
+      "size": 198208,
+      "original_sha256": "e37c7bf64af68ae97186a9ed6e11c3ca1f8a609c1ea25c6bb9348ed71b5d816f",
+      "patched_sha256": "e66b218faa748603f0ee2ff3c93271f99bbde0e2d57bdeecc3257303690390d4",
+      "thread_adapter": true
+    },
+    {
+      "name": "libcam.sdkclient.so",
+      "source_name": "libcam.sdkclient.so",
+      "size": 58928,
+      "original_sha256": "4c5c8dcf6188b396a28518c3a96d011b7a2e2de51f005945d3870ac3e4455041",
+      "patched_sha256": "ea66b8ed7739609de34ea6059d56642dfa81e6acb5e560471b2fd46b496d7718",
+      "thread_adapter": true
+    },
+    {
+      "name": "libcam3_app.so",
+      "source_name": "libcam3_app.so",
+      "size": 161380,
+      "original_sha256": "2e14887a1894c1d6b4b57cb718598bc58538a7d6345073f5e200939ca8429330",
+      "patched_sha256": "6e8a1e07fe6a7a64f5ace66da15b796498a53b733da61eaf421a78ae47c4654a",
+      "thread_adapter": true
+    },
+    {
+      "name": "libcam3_hwnode.so",
+      "source_name": "libcam3_hwnode.so",
+      "size": 190060,
+      "original_sha256": "c397e9de27b1fd0fa84db5d8a16a91e7f3155585bbc10fbc60115a82269cf5e6",
+      "patched_sha256": "a8525bb6c99ae09dbf47837d146a3702c3b96be058e273f2ebc9d8f19d149ff0",
+      "thread_adapter": true
+    },
+    {
+      "name": "libcam3_hwpipeline.so",
+      "source_name": "libcam3_hwpipeline.so",
+      "size": 132664,
+      "original_sha256": "516c61185bab484fe162cf4d5ad463ee9521b6b524c531e371470f11a299a92f",
+      "patched_sha256": "e0ab3ccc4a1cd1552306229d0f710a7528aed1abbb627a7ca304f924aabe982f",
+      "thread_adapter": true
+    },
+    {
+      "name": "libcam3_utils.so",
+      "source_name": "libcam3_utils.so",
+      "size": 144944,
+      "original_sha256": "84d584ed0add161bd4812c16678c5b592b6aa16606e4807f6ac1a54a93f8cf6a",
+      "patched_sha256": "d5d012aa6885f142db618c9c4c981ac5c4f4dd5127180d82d478775e9d5f15f1",
+      "thread_adapter": true
+    },
+    {
+      "name": "libcam.device1.so",
+      "source_name": "libcam.device1.so",
+      "size": 79416,
+      "original_sha256": "4339d71fde7bd754a2bfbefc2af3928d72859bda28bf0b52e6e9ea3eedaa12d8",
+      "patched_sha256": "c543fd1f9fcad2070921b2c415178b5ff8574b3256519ad05dd8b0abd745e1af",
+      "thread_adapter": false
+    }
+  ],
+  "lief_version": "0.16.6"
+}
