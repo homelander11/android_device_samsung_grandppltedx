@@ -5,7 +5,8 @@ video preview, and an AF-move flag correction breaks the captured callback lock
 cycle on return from playback. The user confirms recording and returning to
 preview twice, with stable camera/media/composer services. The combined helper
 also passes built-in rear/front preview, photo and video/colour/sound checks.
-Permanent installation/reboot remains pending; see
+Permanent installation/reboot, mapped system helper and corrected AF dispatch
+are verified; post-reboot user camera checks remain pending. See
 `CAMERA_SESSION_UPDATE.md` and `THIRD_PARTY_CAMERA.md`. The separately installed
 and reboot-tested gralloc cleanup guard is now activated in the vendor tree.
 
