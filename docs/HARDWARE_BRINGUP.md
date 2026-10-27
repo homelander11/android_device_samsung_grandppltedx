@@ -1,5 +1,11 @@
 # LineageOS 18.1 hardware bring-up
 
+Third-party follow-up: `com.photo.android.camera` video preview can remain black
+and leave the default camera unavailable; a provider restart restores access.
+Compatibility is still unresolved. A temporary session experiment was withdrawn
+after the separate known gralloc cleanup crash recurred. No experimental camera
+helper is installed. See `THIRD_PARTY_CAMERA.md` and `GRALLOC_CRASH_GUARD.md`.
+
 Latest camera follow-up: combined camera/audio and video-colour updates are
 installed and user-confirmed working after reboot. The corrected helper is
 mapped from the system partition without a temporary bind. Audio, microphone
