@@ -51,3 +51,23 @@ The 2026-10-25 test temporarily applied the exact ownership/mode from
 metadata in a `finally` block. A before/after SHA-256 comparison confirmed the
 calibration bytes were unchanged. No calibration content or hash is published.
 This establishes the DAC fix, not successful Bluetooth pairing or audio.
+
+`MediaTrackProbe.java` analyzes an existing saved clip on the device. Build it
+with the installed Android SDK and D8 (`--min-api 30`), package classes.dex in a
+JAR, then run `CLASSPATH=PROBE_JAR app_process /system/bin MediaTrackProbe CLIP`.
+It prints packet/timestamp statistics and aggregate decoded AAC levels. An
+optional codec name, e.g. `OMX.google.h264.decoder`, replaces audio analysis
+with a bounded 16-frame byte-buffer decode/diversity check. No decoded media
+is saved. Use app_process rather than bare dalvikvm for framework media JNI.
+A decodable non-silent file does not prove normal display/speaker playback.
+
+`grandppltedx_gralloc_cleanup_probe` is a separate-process fault-injection
+target, not installed in the product. Prepare the exact candidate with
+`fix_gralloc_unregister.py`, verify its pinned hash, and put it at
+`/data/local/tmp/j2prime-gralloc-unregister-candidate.so`. The renamed DSO needs
+`LD_PRELOAD=/vendor/lib/libshim_bionic.so:/system/lib/libutilscallstack.so` and
+`LD_LIBRARY_PATH=/vendor/lib:/system/lib`, since it does not use the installed
+gralloc path's automatic shim injection. The probe exports a failed module
+lookup and checks safe return. Its conventional Soong build is pending; an
+equivalent locally built constructor harness passes on the phone. Do not load
+the fault-injection harness into any graphics service.

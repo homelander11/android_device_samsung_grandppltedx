@@ -1,0 +1,23 @@
+# UNACTIVATED EXPERIMENT: the combined camera test still failed with this mode.
+# The legacy MDP/ION path fails for decoded video buffers. GPU composition
+# restores playback; it can increase GPU load/power. No graphics blob changes.
+# Reapply only after boot completion, including a later SurfaceFlinger restart.
+service vendor.j2prime-composition /system/bin/sh /vendor/bin/j2prime-composition-compat.sh
+    class late_start
+    user system
+    group graphics
+    seclabel u:r:shell:s0
+    disabled
+    oneshot
+
+on property:sys.boot_completed=1
+    start vendor.j2prime-composition
+
+on property:init.svc.surfaceflinger=running && property:sys.boot_completed=1
+    start vendor.j2prime-composition
+
+on property:persist.vendor.j2prime.gpu_composition=0 && property:sys.boot_completed=1
+    start vendor.j2prime-composition
+
+on property:persist.vendor.j2prime.gpu_composition=1 && property:sys.boot_completed=1
+    start vendor.j2prime-composition

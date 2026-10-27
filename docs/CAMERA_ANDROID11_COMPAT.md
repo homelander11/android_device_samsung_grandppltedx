@@ -238,3 +238,37 @@ change is justified by the observed failure.
 
 The guard is not in the vendor tree or camera ZIP. It requires further graphics
 validation; playback still needs an actual ION/composition investigation.
+
+## Further playback isolation
+
+A temporary SurfaceFlinger GPU-composition test plays an existing clip normally
+(user confirmed), but a subsequent combined camera/GPU trial still produces
+frozen playback and missing sound. Logs verify that GPU composition remained
+enabled during that failed trial. It is not a validated playback fix. The
+experimental boot service/script are retained only under
+`tools/camera/composition/`; they are not installed by the product or ZIP.
+
+Read-only on-device analysis of a failing saved clip finds monotonic AVC/AAC
+packet timestamps, non-silent decoded PCM and 16 distinct decoded video frames
+through `OMX.google.h264.decoder`. This establishes useful recorded content,
+not working surface playback. `MediaTrackProbe.java` reports aggregate counts
+without copying recordings or retaining decoded pixels/audio. Run through
+`app_process`, which initializes the framework runtime; bare `dalvikvm` is not
+a valid launcher for this probe's media JNI.
+
+The next temporary test sets `debug.stagefright.ccodec=0` and restarts only
+mediaserver to refresh its cached codec list. The log confirms selection of
+`OMX.google.h264.decoder` for normal surface playback. User validation and
+combined camera/codec tests are pending. No persistent codec change is active
+in the source or ZIP yet. The supported property is documented in
+[LineageOS Codec2InfoBuilder](https://github.com/LineageOS/android_frameworks_av/blob/lineage-18.1/media/codec2/sfplugin/Codec2InfoBuilder.cpp).
+
+The failing stereo clip also has equal, positively correlated channels; its
+mono downmix retains the same nonzero RMS level. Stereo phase cancellation is
+not supported by these measurements. Do not alter the working microphone
+selectors on the strength of a silent video-player result. Three synthetic
+moving-pattern/tone clips (QVGA, VGA and 720p) are prepared for an independent
+playback comparison. Their generation uses the installed PC FFmpeg, without
+any Android/VPS build or user media export. The temporary codec test has
+automatically restored its original property and restarted only mediaserver.
+Its user-visible playback result remains pending.
