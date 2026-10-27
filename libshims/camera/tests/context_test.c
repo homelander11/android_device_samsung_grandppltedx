@@ -19,6 +19,11 @@ static NotifyFn registered_notify[2];
 static int notify_count[2],notify_message[2],notify_ext1[2],notify_ext2[2],capture_bad,nest_test,in_nested;
 static void *notify_cookie[2];
 extern int call_take(void*) __asm__("_ZN7android14Cam1DeviceBase11takePictureEv");
+extern int call_metadata(void*,_Bool) __asm__("_ZN7android14Cam1DeviceBase22storeMetaDataInBuffersEb");
+static int metadata_calls,metadata_status;
+static void *metadata_device;
+static _Bool metadata_enabled;
+static int real_metadata(void *device,_Bool enable){metadata_calls++;metadata_device=device;metadata_enabled=enable;return metadata_status;}
 static void *registered_user[2],*seen_user;
 static int seen_fd,flags_ok=1;
 static unsigned seen_size,seen_count;
@@ -59,7 +64,9 @@ void *mock_open(const char *name,int flags) __asm__("__wrap_dlopen");
 void *mock_open(const char *name,int flags){if(flags!=4)flags_ok=0;return (void*)1;}
 void *mock_sym(void *handle,const char *name) __asm__("__wrap_dlsym");
 void *mock_sym(void *handle,const char *name){if(same(name,"_ZN7android6Thread3runEPKcij"))return(void*)&thread_original;
- if(same(name,"_ZN7android14Cam1DeviceBase11takePictureEv"))return(void*)&real_take;return(void*)&real_setter;}
+ if(same(name,"_ZN7android14Cam1DeviceBase11takePictureEv"))return(void*)&real_take;
+ if(same(name,"_ZN7android14Cam1DeviceBase22storeMetaDataInBuffersEb"))return(void*)&real_metadata;
+ return(void*)&real_setter;}
 int mock_log(int priority,const char *tag,const char *text, ...) __asm__("__wrap___android_log_print");
 int mock_log(int priority,const char *tag,const char *text, ...){return 0;}
 int main(void){
@@ -94,6 +101,13 @@ int main(void){
  before=notify_count[0];registered_notify[0](0x800,1,2,registered_user[0]);if(notify_count[0]!=before+1)goto done;
  if(call_take(device2)!=-61 || capture_bad)goto done;
  call_setter(device0,0,0,0,0,0);if(registered_notify[0])goto done;
+ if(call_metadata(device0,1)!=-38 || metadata_calls)goto done;
+ metadata_status=-51;
+ if(call_metadata(device0,0)!=-51 || metadata_calls!=1 || metadata_device!=device0 || metadata_enabled)goto done;
+ if(call_metadata(device1,1)!=-38 || metadata_calls!=1)goto done;
+ metadata_status=0;
+ if(call_metadata(device1,0)!=0 || metadata_calls!=2 || metadata_device!=device1 || metadata_enabled)goto done;
+ if(!flags_ok)goto done;
  rc=0;
 done:
  return rc;

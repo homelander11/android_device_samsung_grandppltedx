@@ -30,6 +30,8 @@ static pthread_mutex_t slot_lock = PTHREAD_MUTEX_INITIALIZER;
 static SetterFn original_setter;
 typedef int (*TakePictureFn)(void *);
 static TakePictureFn original_take_picture;
+typedef int (*StoreMetadataFn)(void *, _Bool);
+static StoreMetadataFn original_store_metadata;
 static int pq_unavailable_logged;
 
 static void lock_slots(void) {
@@ -137,6 +139,30 @@ int camera_take_picture(void *device) {
     --slots[id].capture_depth;
     unlock_slots();
     return result;
+}
+
+/* CameraSource falls back to DATA_CALLBACK_YUV when metadata is unsupported.
+ * The pinned HAL advertises native-handle metadata, which CCodec rejects:
+ * only ANW-buffer metadata is supported there. Never relabel those handles as
+ * ANW buffers. Preserve the HAL's explicit raw-mode transition and its status.
+ */
+int camera_store_metadata(void *, _Bool)
+    __asm__("_ZN7android14Cam1DeviceBase22storeMetaDataInBuffersEb");
+int camera_store_metadata(void *device, _Bool enable) {
+    if (enable) return -38;
+    lock_slots();
+    StoreMetadataFn store = original_store_metadata;
+    unlock_slots();
+    if (!store) {
+        void *handle = dlopen("libcam.device1.so", RTLD_NOW | RTLD_NOLOAD);
+        store = handle ? (StoreMetadataFn)dlsym(handle,
+            "_ZN7android14Cam1DeviceBase22storeMetaDataInBuffersEb") : 0;
+        if (!store || store == camera_store_metadata) return -38;
+        lock_slots();
+        original_store_metadata = store;
+        unlock_slots();
+    }
+    return store(device, 0);
 }
 
 void j2prime_camera_memory_compat_init(void) { }

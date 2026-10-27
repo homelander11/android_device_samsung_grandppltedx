@@ -1,8 +1,8 @@
 # Camera compatibility investigation (updated 2026-10-27)
 
 The user now confirms **rear/front live preview and photo saving** with the
-temporary v15 candidate. Video currently fails with "could not start media recorder" in the app; its
-cause is still under investigation. Flash, repeated reopen and reboot persistence
+temporary v15 candidate. A further raw-frame candidate starts video recording and saves an MP4 with
+encoded AVC and AAC tracks. User verification of picture/sound is pending. Flash, repeated reopen and reboot persistence
 remain separate test requirements. This branch records the compatibility work;
 it is not yet a permanent camera release. No camera update has been flashed.
 The original camera files are restored after each live test. Keep the stable
@@ -85,6 +85,26 @@ hardware-fixes branch and the paused GPS experiments separate from this work.
    depending on a separate public AF completion while capture is already in
    progress still needs compatibility testing.
 
+10. Video fails during CCodec configuration with `BAD_VALUE`: the selected
+    `c2.android.avc.encoder` only accepts ANW-buffer legacy metadata, whereas
+    this HAL offers native-handle metadata. The failure occurs at both 720p
+    and QVGA. `storeMetaDataInBuffers(true)` now reports `-ENOSYS` in the
+    camera-only helper. Android's existing CameraSource fallback then selects
+    raw YUV callbacks; `false` still reaches the original HAL, preserving its
+    return status and actual raw-mode transition. Handles are never relabeled
+    as ANW buffers. Isolated ARM tests verify that enabling metadata has no
+    HAL side effects, and disabling forwards the device and success/error
+    status for both cameras. A live candidate successfully starts and stops:
+    MPEG4Writer reports 509 encoded video frames and 1481 encoded audio
+    frames, both tracks stop with status zero, and the MP4 index is written.
+    Picture/sound quality, both-camera coverage and performance still need
+    user checks. This software encoder need not sustain 30 fps at 720p.
+
+The framework rejects the legacy metadata in
+[CCodec](https://github.com/LineageOS/android_frameworks_av/blob/lineage-18.1/media/codec2/sfplugin/CCodec.cpp),
+and [CameraSource](https://github.com/LineageOS/android_frameworks_av/blob/lineage-18.1/media/libstagefright/CameraSource.cpp)
+already implements the metadata-to-raw fallback used here.
+
 An earlier trial froze the UI after a capture request. All temporary files and
 device-node ownership were restored; a normal reboot recovered the UI. The user
 confirmed the recovery before the revised capture test. The final photo tests
@@ -147,7 +167,8 @@ write, NVRAM/calibration change, or GPS test was needed. Private diagnostics are
 not included in these repositories.
 
 User-confirmed in the combined temporary trial: rear/front preview and a saved
-photo from each camera. Video startup fails and is being investigated.
+photo from each camera. The raw-frame video candidate additionally passes
+encoder startup and MP4 finalization, with visual/audible playback unverified.
 Remaining device tests: repeated open/close and switching, video/audio recording, flash,
 background/resume, reboot persistence, memory lifetime and performance. Recheck
 Wi-Fi, microphone recording and power/home wake before releasing a fix ZIP.
