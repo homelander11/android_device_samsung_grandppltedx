@@ -272,3 +272,24 @@ playback comparison. Their generation uses the installed PC FFmpeg, without
 any Android/VPS build or user media export. The temporary codec test has
 automatically restored its original property and restarted only mediaserver.
 Its user-visible playback result remains pending.
+
+## Confirmed deep-buffer playback mismatch
+
+The later legacy-codec trial still gives mixed playback results. Focused logs
+then expose a separate audio failure: the HAL tries to open PCM device -1.
+Its isolated deep-buffer name `Deep_Buffer_PLayback` is absent from this kernel;
+the implemented DL2 stream is `MultiMedia2_PLayback` (card 0/device 24).
+`tools/fix_audio_deep_buffer.py` corrects only that same-length data string in
+the pinned primary HAL. See `AUDIO_DEEP_BUFFER_FIX.md` for hashes and ARM tests.
+
+The temporary correction successfully opens PCM 24. The user confirms moving
+patterns plus tone, the previously frozen front clip, another existing clip,
+and new rear/front camera recordings with moving playback and sound. Camera
+also closes/reopens successfully in that combined trial. These tests retain
+default codec selection and normal hardware composition. The earlier mixed
+codec/GPU results do not justify activating those experiments.
+
+Permanent camera/audio installation, production dependency names in a full
+camera session, reboot persistence and extended lifecycle tests remain pending.
+The separate gralloc null-cleanup issue is still documented above; this audio
+correction does not repair its error path or establish every graphics route.

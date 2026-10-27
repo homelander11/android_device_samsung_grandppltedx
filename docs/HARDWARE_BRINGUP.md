@@ -1,5 +1,13 @@
 # LineageOS 18.1 hardware bring-up
 
+October 27 playback follow-up: the primary audio HAL requests a nonexistent
+deep-buffer PCM name and opens device -1. A pinned string correction selects
+the kernel's existing DL2/device 24. Temporary tests now pass synthetic video
+with tone, previously frozen clips, and fresh rear/front camera recordings
+with sound and Camera reopening. See `AUDIO_DEEP_BUFFER_FIX.md`. Persistent
+installation/reboot and other audio routes remain pending; GPU and codec
+experiments are inactive.
+
 Recovery reboot follow-up: the existing TWRP image is intact. Android 11 refused
 software recovery requests because the active fstab has no `/misc` entry. A
 RAM-only boot-message/fstab workaround now reaches TWRP through normal init

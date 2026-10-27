@@ -1,0 +1,13 @@
+{
+  "original_sha256": "c4f37051f521c4fffd7eb13f9016cda9df528fdabdba42386e87f6b5e32419e6",
+  "patched_sha256": "59d5372430377c26724e24077b6ad70a3a3dc3272b82528da720958462debdb6",
+  "size": 1647865,
+  "offset": 1185255,
+  "original": "446565705f4275666665725f504c61796261636b00",
+  "patched": "4d756c74694d65646961325f504c61796261636b00",
+  "from_pcm": "Deep_Buffer_PLayback",
+  "to_pcm": "MultiMedia2_PLayback",
+  "kernel_pcm_card": 0,
+  "kernel_pcm_device": 24,
+  "reason": "The normal playback handler selects a missing PCM name for isolated deep-buffer output. This kernel exposes its DL2 stream as MultiMedia2_PLayback."
+}
