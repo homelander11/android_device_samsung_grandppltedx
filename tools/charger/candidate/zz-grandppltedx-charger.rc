@@ -1,0 +1,12 @@
+# SPDX-License-Identifier: Apache-2.0
+# INACTIVE CANDIDATE: keep outside configs/init until powered-off tests pass.
+# Parsed after init.mt6735.rc. Replace its incompatible Samsung executable;
+# retain one frontend, in the class stopped by sys.boot_from_charger_mode.
+service vendor.lpm /system/bin/charger
+    override
+    class charger
+    user root
+    group root system graphics input wakelock
+    capabilities SYS_BOOT WAKE_ALARM BLOCK_SUSPEND
+    seclabel u:r:charger:s0
+    file /dev/kmsg w

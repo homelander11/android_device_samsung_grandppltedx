@@ -1,0 +1,117 @@
+# Powered-off charging investigation
+
+The user reports a static battery/lightning icon for more than five minutes
+after the battery depleted. Rotation worked after the sensor update before
+shutdown. The following checks were performed locally with the phone off;
+there is no charging-mode log or measured charging-rate evidence yet.
+
+## Confirmed defects in the installed ROM's source image
+
+The pinned `lineage-18.1-20261025-UNOFFICIAL-grandppltedx.zip` has SHA-256
+`1a7670ccb03e1b22cf1a646b74a18d678c8e33fd71525bee1c86b5fb3691f445`.
+The full OTA's new-block stream was read as ext4 metadata and selected files,
+without writing a full system image. The retained metadata is about 3.9 MB.
+This checks the actual packaged filesystem, rather than assuming every library
+outside the proprietary tree is missing.
+
+* `vendor.lpm` is the only charging-UI service. It starts `/vendor/bin/lpm`
+  in `class sec-charger` and is marked `critical`.
+* That ARM32 executable has a mandatory `DT_NEEDED` entry for
+  `libpixelflinger.so`. No such library is present anywhere in the ROM's
+  ext4 directory entries. The dynamic linker cannot load this executable
+  from this filesystem as packaged. Actual charging-mode exit logs are pending.
+* The GUI-enabled Android 11 `/system/bin/charger` is present, together with
+  the Lineage battery animation. No service in the extracted system/vendor
+  init files launches this executable. The root init `on charger` action
+  starts `class charger`, which has no member service in this image.
+* The product animation has 22 frames, but no `percent_display` directive.
+  There is no PNG font in the ROM. Android 11 draws percentage text only
+  when its configured font loads; the old `BOARD_CHARGER_SHOW_PERCENTAGE`
+  setting does not supply that missing resource/configuration.
+
+The absent dependency is a concrete startup defect. It plausibly explains
+why the bootloader's static icon never gives way to a userspace charging UI;
+that exact screen transition still needs observing. The icon does not prove
+that the battery is or is not charging. Battery status, voltage/capacity change
+and cable/charger behavior require device checks.
+
+Some old LPM animation names also have no corresponding vendor asset, but
+their optional/fatal behavior has not been established. Adding a guessed
+`libpixelflinger` module or enabling generic MTK KPOC is not a validated fix.
+This kernel uses Samsung's S2MU005 charging/fuel-gauge path. No charging
+current, temperature threshold, calibration or kernel setting was changed.
+
+## Prepared, inactive candidate
+
+`tools/charger/candidate/` contains an Android 11 service override, an
+animation description with percentage text, and an unchanged upstream minui
+font with its SIL Open Font License and provenance. Nothing in `device.mk`,
+`BoardConfig.mk` or the init-copy directory activates these files. No update
+ZIP has been released or installed for this candidate.
+
+The proposed override replaces `vendor.lpm` with the existing
+`/system/bin/charger`. It uses `class charger`, so the normal init transition
+out of charging mode stops it. It has no `critical` flag and no trigger that
+starts it during normal Android boot. The old `class_start sec-charger`
+action then has no LPM member to start. Before activation, verify that the
+override is parsed after the original service on the actual device.
+
+The existing 22-frame image and failure image are retained. The new description
+adds an explicit font and places the percentage below the battery on the native
+540 x 960 display. The font is 1728 x 64, grayscale, giving the 96 x 2 glyph
+layout expected by minui. This is a static resource/layout check; framebuffer
+initialization, brightness and real screen orientation remain untested.
+
+The Android 11 charger has a built-in default health implementation when a
+2.1 health service is unavailable. The candidate therefore does not start the
+entire HAL class during charging. Actual fallback discovery of Samsung's battery
+and charger-online sysfs properties must be verified. The root init already
+starts the binder service managers during `on init`.
+
+### Intended deployment paths, after testing
+
+| Candidate file | Intended destination |
+| --- | --- |
+| `zz-grandppltedx-charger.rc` | `/vendor/etc/init/zz-grandppltedx-charger.rc` |
+| `animation.txt` | `/product/etc/res/values/charger/animation.txt` |
+| `font_charger_18x32.png` | `/product/etc/res/images/charger/font_charger_18x32.png` |
+
+The animation destination is currently supplied by a Lineage resource module.
+Future build integration must replace that module's configuration deliberately;
+do not introduce two build rules for the same destination. Keep a reversible
+backup of the original animation and remove only the added override/font on
+undo. Do not overwrite boot or recovery for a service/resource trial.
+
+## Validation and next device checks
+
+Local checks confirm the mandatory missing dependency, installed GUI executable,
+init service gap, unchanged 22-frame timing/ranges and valid upstream grayscale
+font/glyph dimensions. Candidate provenance and hashes are recorded in
+`tools/charger/investigation.json`. No full ROM build or VPS was used. The
+candidate has not run on the phone and is not a verified charging fix.
+
+Once the phone has enough charge and device testing resumes:
+
+1. Read Android's battery status/capacity/voltage/temperature and existing
+   charging-mode logs where available. Verify the sensor override's installed
+   hash, effective input group and physical rotation after this reboot.
+2. Check the exact installed charger binary, resources, boot mode, init import
+   order, framebuffer/input nodes and linker dependencies against this evidence.
+   Confirm the known recovery/undo path before installing a candidate.
+3. Test a reversible service/resource candidate with sufficient battery reserve.
+   Check animation, correct percentage, display blank/wake, power-button normal
+   boot and clean normal-boot service state. Check cable removal shutdown and
+   reconnect behavior, plus capacity/voltage rise with the charger attached.
+4. Recheck Wi-Fi association, power/home wake, microphone, camera photos/video
+   with sound/colour and rotation. Keep charging safety limits and calibration
+   unchanged. Only promote the candidate after these results are recorded.
+
+## Primary sources
+
+* [Android 11 charger build and GUI/recovery variants](https://github.com/LineageOS/android_system_core/blob/lineage-18.1/healthd/Android.bp)
+* [Health-service fallback](https://github.com/LineageOS/android_system_core/blob/lineage-18.1/healthd/charger_utils.cpp)
+* [Animation parser and percentage font field](https://github.com/LineageOS/android_system_core/blob/lineage-18.1/healthd/AnimationParser.cpp)
+* [Percentage drawing](https://github.com/LineageOS/android_system_core/blob/lineage-18.1/healthd/healthd_draw.cpp)
+* [Minui font layout](https://github.com/LineageOS/android_bootable_recovery/blob/lineage-18.1/minui/graphics.cpp)
+* [Unchanged upstream font, license and font README](https://github.com/LineageOS/android_bootable_recovery/tree/lineage-18.1/fonts)
+* [Android init override and service-class behavior](https://github.com/LineageOS/android_system_core/blob/lineage-18.1/init/README.md)

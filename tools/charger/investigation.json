@@ -1,0 +1,152 @@
+{
+  "scope": "grandppltedx / SM-G532G, LineageOS 18.1, current permissive build",
+  "status": "INACTIVE CANDIDATE; local checks only; no charger update installed or released",
+  "rom": {
+    "file": "lineage-18.1-20261025-UNOFFICIAL-grandppltedx.zip",
+    "sha256": "1a7670ccb03e1b22cf1a646b74a18d678c8e33fd71525bee1c86b5fb3691f445"
+  },
+  "evidence": {
+    "vendor_lpm": {
+      "sha256": "a750e396eb47505634cb761a0b54323d6122e20cba7ca976f7adbf5013214e36",
+      "bytes": 172840,
+      "needed": [
+        "libcutils.so",
+        "libbinder.so",
+        "libutils.so",
+        "libc.so",
+        "libsuspend.so",
+        "libhardware.so",
+        "libandroid.so",
+        "libmaet.so",
+        "libsxqk_skia.so",
+        "libpixelflinger.so",
+        "libc++.so",
+        "libdl.so",
+        "libm.so"
+      ]
+    },
+    "libpixelflinger_so": "ABSENT from actual full-ROM ext4 directory entries",
+    "charging_ui_services": [
+      {
+        "path": "/system/vendor/etc/init/hw/init.mt6735.rc",
+        "line": "service vendor.lpm /vendor/bin/lpm"
+      }
+    ],
+    "charger": {
+      "sha256": "191dbbe1340a2f644ca59b11164419489df3420be4e57be9d26c75a91d8f80f3",
+      "bytes": 155352,
+      "needed": [
+        "android.hardware.health@2.0.so",
+        "android.hardware.health@2.1.so",
+        "libbase.so",
+        "libcutils.so",
+        "libhidlbase.so",
+        "liblog.so",
+        "libutils.so",
+        "libpng.so",
+        "libc++.so",
+        "libc.so",
+        "libm.so",
+        "libdl.so"
+      ],
+      "init_service": "ABSENT"
+    },
+    "original_animation": {
+      "sha256": "b65e44a1d2dba6636350c1583d08df34ab8c55b6f63d942016238475caf0293f",
+      "frames": 22,
+      "percent_display": false
+    },
+    "original_battery_scale": {
+      "sha256": "8dc4969b9261fad8d8537c9b5b5f84718a0e03575d928103a819ea1493a14eec",
+      "width": 240,
+      "height": 5280,
+      "frames": 22
+    },
+    "png_font_directory_entries": [],
+    "method": "Stream OTA new blocks; inspect ext4 metadata and extract all system/vendor init files plus selected binaries/resources. No full image written; no phone access.",
+    "boot_ramdisk": {
+      "entries": 7,
+      "rc_files": 0,
+      "init": "first-stage executable; no additional charger service in ramdisk"
+    }
+  },
+  "candidate_files": {
+    "animation.txt": {
+      "sha256": "f1653eb5ca1e1c92dec0124feabbb9ecfef1959fd98fc2a2667935d1d5bd1e0e",
+      "bytes": 835
+    },
+    "FONT-README": {
+      "sha256": "b740c1074a05595a44f554080db1d512e55bb5f6b913a22ffee3371231c022f3",
+      "bytes": 216
+    },
+    "font_charger_18x32.png": {
+      "sha256": "9440c9f63c5cc03b90d8435b3e459a5dc499308b3120fd2aa7ec1735cd5a0be9",
+      "bytes": 24437
+    },
+    "OFL.txt": {
+      "sha256": "5ed858f86e9c84c9512bdc7873216505fc5fc74c5fab0a4b2ff625e564ce3fd2",
+      "bytes": 4407
+    },
+    "zz-grandppltedx-charger.rc": {
+      "sha256": "9c52e753f25372cecacdba4a576461dbd65d42a6029e6e55b5e4391a28923832",
+      "bytes": 497
+    }
+  },
+  "font_provenance": {
+    "repository": "https://github.com/LineageOS/android_bootable_recovery",
+    "branch": "lineage-18.1",
+    "unchanged_upstream_files": {
+      "font_charger_18x32.png": {
+        "source": "fonts/18x32.png",
+        "git_blob_sha1": "d95408a93dac15821ebdf2f20a4dcf51cd5b966b"
+      },
+      "OFL.txt": {
+        "source": "fonts/OFL.txt",
+        "git_blob_sha1": "b14edde76a3949d82be7c2ff76c828a627ea6827"
+      },
+      "FONT-README": {
+        "source": "fonts/README",
+        "git_blob_sha1": "d0748d2f78ad4b53b033dbef0d9c978200130180"
+      }
+    },
+    "license": "SIL Open Font License 1.1; retain OFL.txt and FONT-README",
+    "minui_layout": {
+      "mode": "L",
+      "width": 1728,
+      "height": 64,
+      "glyph_columns": 96,
+      "glyph_rows": 2,
+      "glyph_width": 18,
+      "glyph_height": 32
+    }
+  },
+  "android11_source_git_blobs": {
+    "Android.bp": {
+      "git_blob_sha1": "14d46b3d337348f1098f6cf2e7e64faef868daed"
+    },
+    "AnimationParser.cpp": {
+      "git_blob_sha1": "fde3b95e04b897233e8977b71da6250a37bf5999"
+    },
+    "charger_utils.cpp": {
+      "git_blob_sha1": "8bbfb4e7fd12833b2f565822208459d6ea43b55d"
+    },
+    "graphics.cpp": {
+      "git_blob_sha1": "959c11350398cb18e284a0e5a315342562f9d6b9"
+    },
+    "healthd_draw.cpp": {
+      "git_blob_sha1": "50eee198f4e43ee72ae517adec29264107514aa5"
+    },
+    "healthd_mode_charger.cpp": {
+      "git_blob_sha1": "386ba1a9bd64e070fc3b687a80f68402fa64e971"
+    }
+  },
+  "local_validation": [
+    "PASS LPM DT_NEEDED includes missing libpixelflinger.so; GUI charger binary exists",
+    "PASS actual system/vendor init services contain only Samsung LPM charger frontend",
+    "PASS candidate retains original 22 frame ranges/timing, covering capacities 0..100",
+    "PASS unchanged upstream grayscale PNG decodes with 96x2 minui glyph layout and nonempty digits/percent glyphs",
+    "PASS percentage glyphs fit below centered battery on 540x960 coordinates",
+    "PASS override uses charger class without critical; candidate is outside active product/init packaging"
+  ],
+  "device_validation": "NOT RUN. Phone discharged; user requested local checks. Actual charging status, UI, health fallback, suspend, cable removal, normal boot and regressions pending."
+}
