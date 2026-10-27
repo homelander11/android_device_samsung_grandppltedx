@@ -9,8 +9,11 @@ these changes; this ZIP updates the already-installed image.
 
 The user confirms both cameras' preview/photos, fresh rear/front video with
 moving playback and sound, and Camera close/reopen in the temporary combined
-trial. Default codecs and normal hardware composition are retained. These are
-live-test results, not yet post-reboot verification of the permanent package.
+trial. Default codecs and normal hardware composition are retained. The user
+subsequently installed the package in TWRP and booted Android. Library hashes
+and camera node ownership match after reboot. Both cameras record, but video
+has a red/blue colour inversion while photos look normal. See
+`VIDEO_COLOUR_INVESTIGATION.md`; this remains a development update.
 
 ## Files and installation
 
@@ -38,10 +41,10 @@ audio-HAL input and a symlink to the correct original HAL are rejected before
 any payload write. Only block/mount/verifier/shell paths differ in that fixture.
 The actual system partition is not used by this test.
 
-Production-name private library loading passes in isolation. Actual TWRP
-installation, a full camera session using those production names, reboot
-persistence, long playback, flash and extended lifecycle/performance remain
-pending. Calls, headphones and Bluetooth audio are unverified. The separate
+Production-name libraries are installed and camera operation is user-confirmed
+after reboot. Video colours, long playback, flash and extended
+lifecycle/performance remain pending. Calls, headphones and Bluetooth audio
+are unverified. The separate
 gralloc cleanup issue remains; its candidate guard, GPU-composition experiments
 and codec-selection experiments are not included. GPS work stays paused.
 

@@ -1,5 +1,11 @@
 # LineageOS 18.1 hardware bring-up
 
+Latest camera follow-up: TWRP installation and normal boot of the combined
+camera/audio update are user-confirmed, and installed hashes/node ownership
+match after reboot. Video works but has a red/blue colour inversion on both
+cameras; photos look normal. See `VIDEO_COLOUR_INVESTIGATION.md`. Earlier
+pending-install notes below describe the preceding stage of bring-up.
+
 October 27 playback follow-up: the primary audio HAL requests a nonexistent
 deep-buffer PCM name and opens device -1. A pinned string correction selects
 the kernel's existing DL2/device 24. Temporary tests now pass synthetic video
