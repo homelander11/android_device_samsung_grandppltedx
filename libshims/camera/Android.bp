@@ -3,7 +3,7 @@ cc_library_shared {
     name: "libcamcx",
     vendor: true,
     compile_multilib: "32",
-    srcs: ["memory_context.c", "preview_window.c", "thread_name.c"],
+    srcs: ["memory_context.c", "performance.c", "preview_window.c", "thread_name.c"],
     header_libs: ["libhardware_headers"],
     shared_libs: ["libdl", "liblog", "libutils"],
     stl: "none",
@@ -19,7 +19,7 @@ cc_test {
     vendor: true,
     compile_multilib: "32",
     gtest: false,
-    srcs: ["memory_context.c", "thread_name.c", "tests/context_test.c"],
+    srcs: ["memory_context.c", "performance.c", "thread_name.c", "tests/context_test.c"],
     stl: "none",
     cflags: ["-Wall", "-Wextra", "-Werror", "-Wno-unused-parameter"],
     ldflags: [

@@ -6,10 +6,19 @@ typedef void (*NotifyFn)(int,int,int,void*);
 typedef void (*DataFn)(int,const CameraMemory*,unsigned,void*,void*);
 typedef void (*TimestampFn)(long long,int,const CameraMemory*,unsigned,void*);
 extern int check_pq(const void*) __asm__("_ZNK7android8PQClient17assertStateLockedEv");
+extern int PerfServiceNative_userRegScn(void);
+extern void PerfServiceNative_userRegScnConfig(int,int,int,int,int,int);
+extern void PerfServiceNative_userEnable(int);
+extern void PerfServiceNative_userDisable(int);
+extern void PerfServiceNative_userUnregScn(int);
 extern _Bool check_cpu_init(void*) __asm__("_ZN10CpuCtrlImp4initEv");
 extern void call_setter(void*,NotifyFn,DataFn,TimestampFn,MemoryFn,void*) __asm__("_ZN7android14Cam1DeviceBase12setCallbacksEPFviiiPvEPFviPK13camera_memoryjP21camera_frame_metadataS1_EPFvxiS6_jS1_EPFPS4_ijjS1_ES1_");
 static unsigned device0[64],device1[64],device2[64];
 static MemoryFn registered[2],last_fn;
+static NotifyFn registered_notify[2];
+static int notify_count[2],notify_message[2],notify_ext1[2],notify_ext2[2],capture_bad,nest_test,in_nested;
+static void *notify_cookie[2];
+extern int call_take(void*) __asm__("_ZN7android14Cam1DeviceBase11takePictureEv");
 static void *registered_user[2],*seen_user;
 static int seen_fd,flags_ok=1;
 static unsigned seen_size,seen_count;
@@ -23,12 +32,34 @@ static CameraMemory *legacy_mem(int fd,unsigned size,unsigned count,void *user){
 }
 static void real_setter(void *device,NotifyFn n,DataFn d,TimestampFn t,MemoryFn mem,void *user){
  unsigned id=((unsigned*)device)[47];last_fn=mem;
- if(id<2){registered[id]=mem;registered_user[id]=user;}
+ if(id<2){registered[id]=mem;registered_user[id]=user;registered_notify[id]=n;}
+}
+static void notice0(int m,int a,int b,void*c){notify_count[0]++;notify_message[0]=m;notify_ext1[0]=a;notify_ext2[0]=b;notify_cookie[0]=c;}
+static void notice1(int m,int a,int b,void*c){notify_count[1]++;notify_message[1]=m;notify_ext1[1]=a;notify_ext2[1]=b;notify_cookie[1]=c;}
+static int real_take(void *device){
+ unsigned id=((unsigned*)device)[47];if(id>1)return -61;
+ int count=notify_count[id];
+ registered_notify[id](4,1,2,registered_user[id]);
+ registered_notify[id](0x800,3,4,registered_user[id]);
+ if(notify_count[id]!=count)capture_bad=1;
+ if(nest_test && !in_nested){
+  in_nested=1;if(call_take(device)!=-61)capture_bad=1;in_nested=0;
+  count=notify_count[id];registered_notify[id](4,5,6,registered_user[id]);
+  if(notify_count[id]!=count)capture_bad=1;
+ }
+ registered_notify[id](2,-3,7,registered_user[id]);
+ if(notify_message[id]!=2 || notify_ext1[id]!=-3 || notify_ext2[id]!=7 || notify_cookie[id]!=registered_user[id])capture_bad=1;
+ registered_notify[id](1,9,-8,registered_user[id]);
+ if(notify_message[id]!=1 || notify_ext1[id]!=9 || notify_ext2[id]!=-8)capture_bad=1;
+ unsigned other=id^1;count=notify_count[other];
+ registered_notify[other](4,11,12,registered_user[other]);if(notify_count[other]!=count+1)capture_bad=1;
+ return -61;
 }
 void *mock_open(const char *name,int flags) __asm__("__wrap_dlopen");
 void *mock_open(const char *name,int flags){if(flags!=4)flags_ok=0;return (void*)1;}
 void *mock_sym(void *handle,const char *name) __asm__("__wrap_dlsym");
-void *mock_sym(void *handle,const char *name){return same(name,"_ZN7android6Thread3runEPKcij") ? (void*)&thread_original : (void*)&real_setter;}
+void *mock_sym(void *handle,const char *name){if(same(name,"_ZN7android6Thread3runEPKcij"))return(void*)&thread_original;
+ if(same(name,"_ZN7android14Cam1DeviceBase11takePictureEv"))return(void*)&real_take;return(void*)&real_setter;}
 int mock_log(int priority,const char *tag,const char *text, ...) __asm__("__wrap___android_log_print");
 int mock_log(int priority,const char *tag,const char *text, ...){return 0;}
 int main(void){
@@ -50,6 +81,19 @@ int main(void){
  if(j2prime_camera_thread_run((void*)0x11112222,"",4,8192)!=-47 || !same(thread_name,"") || thread_priority!=4 || thread_stack!=8192)goto done;
  if(check_cpu_init(device0))goto done;
  if(check_pq(device0)!=-19 || device0[47]!=0)goto done;
+ if(PerfServiceNative_userRegScn()!=-1)goto done;
+ PerfServiceNative_userRegScnConfig(-1,2,3,4,5,6);
+ PerfServiceNative_userEnable(-1);PerfServiceNative_userDisable(-1);PerfServiceNative_userUnregScn(-1);
+ call_setter(device0,notice0,0,0,legacy_mem,(void*)0x11111111);
+ call_setter(device1,notice1,0,0,legacy_mem,(void*)0x22222222);
+ registered_notify[0](4,17,-19,registered_user[0]);
+ if(notify_count[0]!=1 || notify_message[0]!=4 || notify_ext1[0]!=17 || notify_ext2[0]!=-19 || notify_cookie[0]!=registered_user[0])goto done;
+ if(call_take(device0)!=-61 || capture_bad)goto done;
+ int before=notify_count[0];registered_notify[0](4,1,2,registered_user[0]);if(notify_count[0]!=before+1)goto done;
+ nest_test=1;if(call_take(device0)!=-61 || capture_bad)goto done;nest_test=0;
+ before=notify_count[0];registered_notify[0](0x800,1,2,registered_user[0]);if(notify_count[0]!=before+1)goto done;
+ if(call_take(device2)!=-61 || capture_bad)goto done;
+ call_setter(device0,0,0,0,0,0);if(registered_notify[0])goto done;
  rc=0;
 done:
  return rc;

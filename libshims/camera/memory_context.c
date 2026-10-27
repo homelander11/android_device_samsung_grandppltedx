@@ -20,11 +20,16 @@ static const char setter_symbol[] =
     "_ZN7android14Cam1DeviceBase12setCallbacksEPFviiiPvEPFviPK13camera_memoryjP21camera_frame_metadataS1_EPFvxiS6_jS1_EPFPS4_ijjS1_ES1_";
 static struct {
     MemoryFn memory;
+    NotifyFn notify;
     void *cookie;
     unsigned int fallbacks;
+    unsigned int capture_depth;
+    unsigned int capture_focus_events;
 } slots[2];
 static pthread_mutex_t slot_lock = PTHREAD_MUTEX_INITIALIZER;
 static SetterFn original_setter;
+typedef int (*TakePictureFn)(void *);
+static TakePictureFn original_take_picture;
 static int pq_unavailable_logged;
 
 static void lock_slots(void) {
@@ -50,6 +55,27 @@ static CameraMemory *memory0(int fd, unsigned int size, unsigned int count, void
 }
 static CameraMemory *memory1(int fd, unsigned int size, unsigned int count, void *cookie) {
     return memory_for(1, fd, size, count, cookie);
+}
+
+static void notify_for(unsigned int id, int message, int ext1, int ext2, void *cookie) {
+    lock_slots();
+    NotifyFn notify = slots[id].notify;
+    int internal_focus = slots[id].capture_depth && (message == 4 || message == 0x800);
+    int first = internal_focus && slots[id].capture_focus_events++ == 0;
+    unlock_slots();
+    if (first) __android_log_print(4, "J2PrimeCamCtx", "internal precapture focus notification omitted for camera %u", id);
+    /* takePicture holds CameraClient's lock while MTK waits for synchronous
+     * precapture. Public focus callbacks from that internal AF cycle wait for
+     * the same lock. Complete internal AF without re-entering the framework.
+     * Outside capture, forward focus normally; shutter/error/data are unchanged.
+     */
+    if (!internal_focus && notify) notify(message, ext1, ext2, cookie);
+}
+static void notify0(int message, int ext1, int ext2, void *cookie) {
+    notify_for(0, message, ext1, ext2, cookie);
+}
+static void notify1(int message, int ext1, int ext2, void *cookie) {
+    notify_for(1, message, ext1, ext2, cookie);
 }
 
 void camera_set_callbacks(void *, NotifyFn, DataFn, TimestampFn, MemoryFn, void *)
@@ -78,12 +104,39 @@ void camera_set_callbacks(void *device, NotifyFn notify, DataFn data,
     if (id > 1) { setter(device, notify, data, timestamp, memory, cookie); return; }
     lock_slots();
     slots[id].memory = memory;
+    slots[id].notify = notify;
     slots[id].cookie = cookie;
     slots[id].fallbacks = 0;
     unlock_slots();
     __android_log_print(4, "J2PrimeCamCtx", "registered callbacks for camera %u", id);
-    setter(device, notify, data, timestamp,
+    setter(device, notify ? (id ? notify1 : notify0) : notify, data, timestamp,
            memory ? (id ? memory1 : memory0) : memory, cookie);
+}
+
+int camera_take_picture(void *) __asm__("_ZN7android14Cam1DeviceBase11takePictureEv");
+int camera_take_picture(void *device) {
+    lock_slots();
+    TakePictureFn take = original_take_picture;
+    unlock_slots();
+    if (!take) {
+        void *handle = dlopen("libcam.device1.so", RTLD_NOW | RTLD_NOLOAD);
+        take = handle ? (TakePictureFn)dlsym(handle,
+            "_ZN7android14Cam1DeviceBase11takePictureEv") : 0;
+        if (!take || take == camera_take_picture) return -38;
+        lock_slots();
+        original_take_picture = take;
+        unlock_slots();
+    }
+    unsigned int id = *(const unsigned int *)((const char *)device + 0xbc);
+    if (id > 1) return take(device);
+    lock_slots();
+    if (slots[id].capture_depth++ == 0) slots[id].capture_focus_events = 0;
+    unlock_slots();
+    int result = take(device);
+    lock_slots();
+    --slots[id].capture_depth;
+    unlock_slots();
+    return result;
 }
 
 void j2prime_camera_memory_compat_init(void) { }

@@ -1,8 +1,10 @@
 # Camera compatibility investigation (2026-10-26)
 
-Camera preview is **still broken**: the app reached a black preview, and the
-latest trial stalls in a synchronous focus-completion callback. This branch records the compatibility work;
-it is not a verified camera release. No permanent camera update has been flashed.
+The user now confirms **rear/front live preview and photo saving** with the
+temporary v15 candidate. Video currently fails with "could not start media recorder" in the app; its
+cause is still under investigation. Flash, repeated reopen and reboot persistence
+remain separate test requirements. This branch records the compatibility work;
+it is not yet a permanent camera release. No camera update has been flashed.
 The original camera files are restored after each live test. Keep the stable
 hardware-fixes branch and the paused GPS experiments separate from this work.
 
@@ -30,7 +32,14 @@ hardware-fixes branch and the paused GPS experiments separate from this work.
    startup. The camera CPU-controller adapter reports initialization unavailable
    so its existing failure path skips that incompatible bridge. Kernel CPU
    frequency and thermal control continue normally; camera performance still
-   needs testing.
+   needs testing. Capture's noise-reduction algorithm also calls the legacy
+   bridge directly. Its register-save corruption caused a null object pointer
+   in `AppIIR::NRInit`, after precapture had completed. `performance.c` supplies
+   camera-only C entry points: registration returns the documented invalid
+   handle `-1`, and the void boost/configuration/cleanup calls do nothing.
+   ARM emulation of the actual NRInit failure branch confirms successful
+   algorithm initialization with no boost; noise reduction is not disabled.
+   The subsequent rear/front capture tests save photos successfully.
 5. The bundled SensorListener factory deliberately returns null. EIS startup
    dereferences it. A private candidate guards both EIS variants, clears their
    sensor-enabled flags when unavailable, and continues the image-processing
@@ -63,13 +72,25 @@ hardware-fixes branch and the paused GPS experiments separate from this work.
    system-group access, assigning its owner to cameraserver. Retain media
    ownership of SMI and use the camera group. Both changes are tested as exact
    temporary ownership changes with independent rollback. Preview startup
-   advances; complete frame delivery remains unverified.
-9. The latest native dump shows `3ATHREAD` blocked in HIDL's synchronous
-   `notifyCallback`, from `AfMgr::SingleAF_CallbackNotify`. The callback adapter
-   sends `CAMERA_MSG_FOCUS` (4). The provider's display thread now waits for
-   image buffers instead of crashing. The next step is to collect the framework
-   side of the transaction and resolve callback locking without dropping focus
-   completion or changing shutter/data ordering.
+   advances, and the subsequent combined trial delivers live frames on both cameras.
+9. Saved dumps from both processes confirm a photo-capture lock cycle:
+   CameraClient holds its lock in takePicture, MTK waits synchronously for
+   precapture, and internal AF completion waits for that same client lock in
+   `lockIfMessageWanted`. A capture-depth guard omits the redundant public focus
+   and focus-move notifications generated inside that synchronous capture scope.
+   Normal focus callbacks outside capture, other cameras, shutter, error, image
+   and timestamp callbacks retain their original arguments and ordering.
+   Isolated tests cover nested capture scopes, cleanup on an error return,
+   cross-camera delivery, null callbacks and unchanged cookies. A camera client
+   depending on a separate public AF completion while capture is already in
+   progress still needs compatibility testing.
+
+An earlier trial froze the UI after a capture request. All temporary files and
+device-node ownership were restored; a normal reboot recovered the UI. The user
+confirmed the recovery before the revised capture test. The final photo tests
+advance through precapture and noise reduction successfully. Keep the rollback
+monitor in place for additional bring-up; do not treat a live process alone as
+proof of a responsive camera.
 
 The Android 11 wrapper's `sDequeueBuffer`, `sEnqueueBuffer`, and `sCancelBuffer`
 are in [LineageOS hardware/interfaces](https://github.com/LineageOS/android_hardware_interfaces/blob/lineage-18.1/camera/device/1.0/default/CameraDevice.cpp).
@@ -111,7 +132,8 @@ and Android remained booted. No full ROM build, VPS use, kernel/boot/recovery
 write, NVRAM/calibration change, or GPS test was needed. Private diagnostics are
 not included in these repositories.
 
-Remaining device tests after the buffer fix: rear/front preview, repeated
-open/close and switching, still capture, video/audio recording, flash,
+User-confirmed in the combined temporary trial: rear/front preview and a saved
+photo from each camera. Video startup fails and is being investigated.
+Remaining device tests: repeated open/close and switching, video/audio recording, flash,
 background/resume, reboot persistence, memory lifetime and performance. Recheck
 Wi-Fi, microphone recording and power/home wake before releasing a fix ZIP.
