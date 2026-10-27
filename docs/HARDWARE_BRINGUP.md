@@ -1,10 +1,13 @@
 # LineageOS 18.1 hardware bring-up
 
-Third-party follow-up: `com.photo.android.camera` video preview can remain black
-and leave the default camera unavailable; a provider restart restores access.
-Compatibility is still unresolved. A temporary session experiment was withdrawn
-after the separate known gralloc cleanup crash recurred. No experimental camera
-helper is installed. See `THIRD_PARTY_CAMERA.md` and `GRALLOC_CRASH_GUARD.md`.
+Third-party follow-up: a session/rebind helper restores the Play Store camera's
+video preview, and an AF-move flag correction breaks the captured callback lock
+cycle on return from playback. The user confirms recording and returning to
+preview twice, with stable camera/media/composer services. The combined helper
+also passes built-in rear/front preview, photo and video/colour/sound checks.
+Permanent installation/reboot remains pending; see
+`CAMERA_SESSION_UPDATE.md` and `THIRD_PARTY_CAMERA.md`. The separately installed
+and reboot-tested gralloc cleanup guard is now activated in the vendor tree.
 
 Latest camera follow-up: combined camera/audio and video-colour updates are
 installed and user-confirmed working after reboot. The corrected helper is
@@ -221,7 +224,7 @@ Checks performed:
 | --- | --- | --- |
 | Bluetooth | Repeated `parse_read_local_extended_features_response` aborts; HCI status `0x30`. `BT_Addr` access also fails with errno 13. | Feature-page handling, stable enable/disable, classic pairing, BLE, A2DP, SCO, persistent factory address. |
 | Audio | Speaker and Recorder microphone work after ABI/calibration and recording-selector fixes (user confirmed). Deep-buffer correction restores moving video with sound, and the installed primary HAL hash is verified after reboot; see `AUDIO_DEEP_BUFFER_FIX.md`. | Test earpiece/headset, longer playback, rate/power transitions and calls. Calls remain untested. |
-| Camera | Rear/front preview/photos and video colours/sound pass live tests. Combined and colour updates are installed; the user confirms the colour fix works after reboot and the corrected helper mapping is verified. See `CAMERA_COLOUR_UPDATE.md`. | Other recording profiles, flash, long recordings, extended lifecycle/performance and normal Soong compilation remain pending. A separate gralloc error-path crash remains unresolved. |
+| Camera | Rear/front preview/photos and video colours/sound pass live tests. Combined and colour updates are installed; the user confirms the colour fix works after reboot and the corrected helper mapping is verified. See `CAMERA_COLOUR_UPDATE.md`. | Other recording profiles, flash, long recordings, extended lifecycle/performance and normal Soong compilation remain pending. The installed gralloc guard prevents its diagnosed null-module cleanup crash; preceding module/import errors and wider third-party compatibility still need testing. |
 | GNSS | The socket correction resolved the initialization boot gate; the user confirms normal boot and `sys.boot_completed=1`. See `GNSS_BOOT_FIX.md`. | Satellite acquisition outdoors, NMEA, time/location injection and SUPL. No satellite fix has been established. |
 | USB audio | `audio.usb.default.so` cannot resolve `profile_get_highest_sample_rate`. The old overwriting library is now excluded from packaging. | Verify the built library export; test USB playback/capture. |
 | Widevine | Legacy protobuf `empty_string_` symbol cannot resolve. | Check the existing v29 compatibility library mapping and encrypted playback. |

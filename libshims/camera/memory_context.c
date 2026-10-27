@@ -20,6 +20,7 @@ typedef void (*DataFn)(int, const CameraMemory *, unsigned int, void *, void *);
 typedef void (*TimestampFn)(long long, int, const CameraMemory *, unsigned int, void *);
 typedef void (*SetterFn)(void *, NotifyFn, DataFn, TimestampFn, MemoryFn, void *);
 extern int __android_log_print(int, const char *, const char *, ...);
+extern int j2prime_camera_preview_new_session(unsigned int);
 
 static const char setter_symbol[] =
     "_ZN7android14Cam1DeviceBase12setCallbacksEPFviiiPvEPFviPK13camera_memoryjP21camera_frame_metadataS1_EPFvxiS6_jS1_EPFPS4_ijjS1_ES1_";
@@ -129,6 +130,22 @@ static void notify1(int message, int ext1, int ext2, void *cookie) {
     notify_for(1, message, ext1, ext2, cookie);
 }
 
+/* Pinned CallBack3A::enableAFMove only stores this aligned 32-bit flag at
+ * offset 0xc, under the mutex at 0x8. doNotifyCb holds that mutex across a
+ * synchronous HIDL callback. CameraClient can hold its own lock while sending
+ * the enable command, then wait for this mutex while the callback waits for
+ * CameraClient: neither side can finish. Publish the independent flag with a
+ * lock-free word store. The legacy reader's aligned ARM LDR sees either value;
+ * callback registration, notification delivery and object lifetime stay owned
+ * by the original HAL. This is only valid for the pinned camadapter ABI.
+ */
+void camera_enable_af_move(void *, _Bool)
+    __asm__("_ZN10CallBack3A12enableAFMoveEb");
+void camera_enable_af_move(void *callback, _Bool enabled) {
+    __atomic_store_n((unsigned int *)((char *)callback + 0xc),
+                     (unsigned int)enabled, __ATOMIC_RELAXED);
+}
+
 static void timestamp_for(unsigned int id, long long time, int message,
                           const CameraMemory *memory, unsigned int index, void *cookie) {
     unsigned int converted = 0, first = 0, probe = 0, heap_size = 0, heap_count = 0, raw = 0;
@@ -220,6 +237,11 @@ void camera_set_callbacks(void *device, NotifyFn notify, DataFn data,
     }
     unsigned int id = *(const unsigned int *)((const char *)device + 0xbc);
     if (id > 1) { setter(device, notify, data, timestamp, memory, cookie); return; }
+    /* In the pinned HIDL wrapper, this non-null memory callback is registered
+     * once by open(), before the new client starts preview. It is the session
+     * boundary, not an ordinary preview-window replacement.
+     */
+    if (memory) j2prime_camera_preview_new_session(id);
     lock_slots();
     slots[id].memory = memory;
     slots[id].notify = notify;

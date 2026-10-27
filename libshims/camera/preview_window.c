@@ -90,6 +90,37 @@ static void clear_buffers(Window *w) {
     w->buffers = 0;
     while (b) { Buffer *next = b->next; free(b); b = next; }
 }
+
+/* HIDL CameraDevice::open calls set_callbacks for a newly opened HAL device
+ * after the previous session has closed. The pinned HAL
+ * can leave dequeued markers on our borrowed containers after that close.
+ * A new session may retire those map-only containers, but never live calls or
+ * external strong references. Do not call an old window or free its handles.
+ */
+int j2prime_camera_preview_new_session(unsigned int id) {
+    if (id > 1) return -22;
+    Window *w = &windows[id];
+    pthread_mutex_lock(&w->lock);
+    if (w->changing || w->in_flight) {
+        pthread_mutex_unlock(&w->lock); return -16;
+    }
+    unsigned int count = 0, stale = 0;
+    for (Buffer *b = w->buffers; b; b = b->next) {
+        if (b->refs != 1) {
+            __android_log_print(5, "J2PrimeCamWin", "new session retains referenced buffers for camera %u", id);
+            pthread_mutex_unlock(&w->lock); return -16;
+        }
+        ++count;
+        stale += !!b->dequeued;
+    }
+    clear_buffers(w);
+    w->original = 0;
+    w->width = w->height = w->format = w->usage = 0;
+    pthread_mutex_unlock(&w->lock);
+    if (count) __android_log_print(4, "J2PrimeCamWin",
+        "new session cleared %u containers (%u stale dequeues) for camera %u", count, stale, id);
+    return 0;
+}
 static int dequeue(Ops *ops, buffer_handle_t **handle, int *stride) {
     Window *w = (Window *)ops;
     if (!handle || !stride) return -22;
@@ -230,6 +261,16 @@ int camera_set_preview(void *device, Ops *ops) {
     if (id > 1) return setter(device, ops);
     Window *w = &windows[id];
     pthread_mutex_lock(&w->lock);
+    /* HIDL keeps this ops address fixed when changing its remote callback.
+     * Forward a quiescent rebind through the existing adapter; do not destroy
+     * containers the HAL can still reference. Any geometry/count/usage change
+     * still passes through configure() and its ownership checks.
+     */
+    if (ops && ops == w->original && !w->changing && !w->in_flight) {
+        pthread_mutex_unlock(&w->lock);
+        __android_log_print(4, "J2PrimeCamWin", "preview adapter rebound for camera %u", id);
+        return setter(device, &w->ops);
+    }
     if (busy(w)) {
         __android_log_print(5, "J2PrimeCamWin", "preview window busy for camera %u (same=%d, null=%d)",
                             id, ops == w->original, ops == 0);

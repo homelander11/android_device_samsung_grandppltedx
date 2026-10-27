@@ -3,12 +3,14 @@
 #include <hardware/camera.h>
 typedef preview_stream_ops_t Ops;
 extern int camera_set_preview(void*,Ops*) __asm__("_ZN7android14Cam1DeviceBase16setPreviewWindowEP18preview_stream_ops");
+extern int j2prime_camera_preview_new_session(unsigned);
 static unsigned dev0[64],dev1[64],dev2[64];
 static Ops real0,real1,*registered[2],*last_ops;
 static buffer_handle_t raw0=(buffer_handle_t)0x11110000,raw1=(buffer_handle_t)0x22220000;
 static unsigned pool[32][128],used[32];
 static int bad,alloc_fail,dequeue_error,buffer_error,cancels,alive,config_calls;
 static int setter_result,geometry[3],usage,crop[4],swap;
+static int test_session_during_dequeue;
 static long long timestamp;
 void *mock_memset(void*,int,unsigned) __asm__("__wrap_memset");
 void *mock_memset(void*p,int v,unsigned n){volatile unsigned char*b=p;for(unsigned i=0;i<n;i++)b[i]=(unsigned char)v;return p;}
@@ -28,7 +30,7 @@ void *mock_open(const char*n,int flags) __asm__("__wrap_dlopen");
 void *mock_open(const char*n,int flags){if(flags!=4||!same(n,"libcam.device1.so"))bad=1;return(void*)1;}
 void *mock_sym(void*h,const char*n) __asm__("__wrap_dlsym");
 void *mock_sym(void*h,const char*n){if(!same(n,"_ZN7android14Cam1DeviceBase16setPreviewWindowEP18preview_stream_ops"))bad=1;return(void*)&real_setter;}
-static int dq(Ops*w,buffer_handle_t**h,int*s){if(w!=&real0&&w!=&real1)bad=1;if(dequeue_error)return dequeue_error;*h=w==&real0?&raw0:&raw1;*s=672;return 0;}
+static int dq(Ops*w,buffer_handle_t**h,int*s){if(w!=&real0&&w!=&real1)bad=1;if(test_session_during_dequeue && j2prime_camera_preview_new_session(0)!=-16)bad=1;if(dequeue_error)return dequeue_error;*h=w==&real0?&raw0:&raw1;*s=672;return 0;}
 static int eq(Ops*w,buffer_handle_t*h){if(w==&real0?h!=&raw0:w==&real1?h!=&raw1:1)bad=1;return buffer_error;}
 static int cancel(Ops*w,buffer_handle_t*h){cancels++;return eq(w,h);}
 static int count(Ops*w,int n){if(w!=&real0&&w!=&real1)bad=1;config_calls++;return n==7?0:-77;}
@@ -49,9 +51,12 @@ int main(void){
  if(w->dequeue_buffer(w,&h0,&s)||h0==&raw0||*h0!=raw0||s!=672)goto done;
  b0=(unsigned*)((char*)h0-60);
  if(b0[0]!=0x5f626672||b0[1]!=96||b0[8]!=640||b0[9]!=480||b0[10]!=672||b0[11]!=17||b0[12]!=0x300)goto done;
+ int rebind_alive=alive;
+ if(camera_set_preview(dev0,&real0)||registered[0]!=w||alive!=rebind_alive||b0[8]!=640)goto done;
  if(w->set_buffer_count(w,7)!=-16||camera_set_preview(dev0,0)!=-16)goto done;
  ((void(*)(void*))b0[6])(b0);
  if(w->lock_buffer(w,h0)||w->enqueue_buffer(w,h0))goto done;
+ if(j2prime_camera_preview_new_session(0)!=-16)goto done;
  if(w->set_buffers_geometry(w,320,240,17)!=-16)goto done;
  ((void(*)(void*))b0[7])(b0);
  if(w->dequeue_buffer(w,&again,&s)||again!=h0)goto done;
@@ -68,6 +73,21 @@ int main(void){
  if(w->dequeue_buffer(w,0,&s)!=-22||w->dequeue_buffer(w,&again,0)!=-22)goto done;
  if(camera_set_preview(dev2,&real0)||last_ops!=&real0)goto done;
  setter_result=-51;if(camera_set_preview(dev0,&real0)!=-51)goto done;setter_result=0;
+ /* A new HAL session can clear map-only stale dequeues from a closed client.
+  * Ordinary live reconfiguration must still fail, and front state is isolated.
+  */
+ if(j2prime_camera_preview_new_session(2)!=-22)goto done;
+ if(camera_set_preview(dev0,&real0))goto done;
+ test_session_during_dequeue=1;
+ if(w->dequeue_buffer(w,&h0,&s))goto done;
+ test_session_during_dequeue=0;
+ int previous_alive=alive;
+ if(w->set_buffers_geometry(w,320,240,17)!=-16)goto done;
+ if(j2prime_camera_preview_new_session(0)||alive!=previous_alive-1)goto done;
+ if(w->dequeue_buffer(w,&again,&s)!=-19)goto done;
+ if(f->dequeue_buffer(f,&h1,&s)||f->cancel_buffer(f,h1))goto done;
+ if(camera_set_preview(dev0,&real0)||w->set_buffers_geometry(w,320,240,17))goto done;
+ if(w->dequeue_buffer(w,&h0,&s)||w->cancel_buffer(w,h0))goto done;
  if(camera_set_preview(dev0,0)||registered[0]||camera_set_preview(dev1,0)||registered[1]||alive||bad)goto done;
  rc=0;
 done:return rc;

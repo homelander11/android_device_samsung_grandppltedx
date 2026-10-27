@@ -1,0 +1,48 @@
+{
+  "original_sha256": "16938d52548fad5101abcb016f00e162a8f0c075b0b2fd3855e91525f3d81176",
+  "patched_sha256": "b429511d6937485a59e6332e78daa8fc5b7e045e4c5a7b2cbdf8d187f0ab3e8a",
+  "requires_gralloc_sha256": "970af7638d3e12d116c9171eae78a590ff9246169b30308ccfd2179cebb8c4cc",
+  "scope": "Pinned 32-bit MTK Camera HAL1 on SM-G532G/grandppltedx Android 11",
+  "changes": [
+    "Retire map-only stale preview containers at HIDL open/set_callbacks boundary, rejecting in-flight operations and external references",
+    "Forward same-ops preview callback rebinding through existing adapter without discarding its containers",
+    "Retain existing live geometry/count/usage ownership guards and video chroma correction",
+    "Publish the aligned AF-move enable flag without the vendor callback mutex to avoid the synchronous HIDL lock cycle"
+  ],
+  "validation": {
+    "native_contracts": "PASS on-device session boundary, external refs/in-flight rejection, camera isolation, retained rebind cache and existing callback/colour contracts",
+    "live_preview": "PASS user-confirmed Play Store Video preview and subsequent built-in preview; provider and composer PIDs unchanged; expected reset/rebind logs observed",
+    "recording": "PASS: session helper built-in recording/playback with colour/sound; combined AF correction third-party five-second record/playback/reopen twice user-confirmed",
+    "persistent_install": "Pending",
+    "af_move_candidate": "PASS isolated native flag/canary and existing callback/colour contracts; live GOT dispatch to corrected symbol verified; user-confirmed record/playback/return cycle twice; provider/media/composer unchanged and no health timeouts",
+    "remaining": "Permanent installation/reboot, longer recordings, other profiles/apps and normal Soong compilation remain pending",
+    "final_builtin": "PASS with combined AF helper: user confirms rear/front switching, photo, short clip/playback, correct colours and speech sound",
+    "rollback": "PASS: independent watchdog exercised on earlier stalled trials; final successful trial explicitly restored original helper hash/mapped system inode, with audio/mic/wake/graphics hashes and Wi-Fi force_connect_cmd=1 preserved"
+  },
+  "af_move_abi": {
+    "library": "libcam.camadapter.so",
+    "sha256": "db5f9acd14b061cbe3a381bc68b8d59651ae8ef222117fd1897e6725ea77a15f",
+    "symbol": "_ZN10CallBack3A12enableAFMoveEb",
+    "rva": "0x5c674",
+    "size": 28,
+    "flag_offset": "0xc",
+    "mutex_offset": "0x8",
+    "reader": "CallBack3A::doNotifyCb at 0x5c830; aligned flag LDR at 0x5c882 under mutex across synchronous notify callback",
+    "dispatch": "PASS live read-only GOT check at 0x72f2c resolves to corrected helper; vendor LOAD segment vaddr 0x3000 included in load-bias calculation",
+    "semantics": "Only the independent 0/1 enable flag changes; callback registration/lifetime and focus/shutter/error delivery remain original"
+  },
+  "installer_fixture": {
+    "status": "PASS",
+    "partition_writes": false,
+    "image": "64 MiB ext4 in /dev RAM; loop detached and image removed afterward",
+    "checks": [
+      "install",
+      "reinstall",
+      "exact helper-only undo",
+      "all other 29 seeded files unchanged",
+      "uid/gid0 mode0644 vendor_file label",
+      "unknown helper/audio dependency rejection",
+      "symlink rejection"
+    ]
+  }
+}

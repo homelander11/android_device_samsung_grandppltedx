@@ -34,6 +34,8 @@ static int notify_count[2],notify_message[2],notify_ext1[2],notify_ext2[2],captu
 static void *notify_cookie[2];
 extern int call_take(void*) __asm__("_ZN7android14Cam1DeviceBase11takePictureEv");
 extern int call_metadata(void*,_Bool) __asm__("_ZN7android14Cam1DeviceBase22storeMetaDataInBuffersEb");
+extern void call_af_move(void*,_Bool) __asm__("_ZN10CallBack3A12enableAFMoveEb");
+static unsigned af_callback[8];
 static int metadata_calls,metadata_status;
 static void *metadata_device;
 static _Bool metadata_enabled;
@@ -46,6 +48,8 @@ extern int j2prime_camera_thread_run(void*,const char*,int,unsigned);
 int thread_original(void*,const char*,int,unsigned) __asm__("_ZN7android6Thread3runEPKcij");
 int thread_original(void *self,const char *name,int priority,unsigned stack){thread_self=self;thread_name=name;thread_priority=priority;thread_stack=stack;return -47;}
 static int same(const char *a,const char *b){while(*a && *a==*b){a++;b++;}return *a==*b;}
+static int preview_session_calls[2];
+int j2prime_camera_preview_new_session(unsigned id){if(id>1)return -22;preview_session_calls[id]++;return 0;}
 static CameraMemory *legacy_mem(int fd,unsigned size,unsigned count,void *user){
  seen_fd=fd;seen_size=size;seen_count=count;seen_user=user;return memory_result?memory_result:&dummy_memory;
 }
@@ -85,8 +89,14 @@ int mock_log(int priority,const char *tag,const char *text, ...) __asm__("__wrap
 int mock_log(int priority,const char *tag,const char *text, ...){return 0;}
 int main(void){
  int rc=1;device0[47]=0;device1[47]=1;device2[47]=2;
+ for(unsigned i=0;i<8;i++)af_callback[i]=0x12340000+i;
+ call_af_move(af_callback,1);
+ for(unsigned i=0;i<8;i++)if(af_callback[i]!=(i==3?1:0x12340000+i))goto done;
+ call_af_move(af_callback,0);
+ for(unsigned i=0;i<8;i++)if(af_callback[i]!=(i==3?0:0x12340000+i))goto done;
  call_setter(device0,0,0,0,legacy_mem,(void*)0x11111111);
  call_setter(device1,0,0,0,legacy_mem,(void*)0x22222222);
+ if(preview_session_calls[0]!=1||preview_session_calls[1]!=1)goto done;
  if(!flags_ok || !registered[0] || !registered[1] || registered[0]==registered[1])goto done;
  if(registered_user[0]!=(void*)0x11111111 || registered_user[1]!=(void*)0x22222222)goto done;
  if(registered[0](-1,1234,7,0)!=&dummy_memory || seen_user!=(void*)0x11111111 || seen_fd!=-1 || seen_size!=1234 || seen_count!=7)goto done;
@@ -96,7 +106,8 @@ int main(void){
  registered[0](-1,1,1,0);if(seen_user!=(void*)0x44444444)goto done;
  registered[1](-1,1,1,0);if(seen_user!=(void*)0x22222222)goto done;
  call_setter(device2,0,0,0,legacy_mem,(void*)0x55555555);if(last_fn!=legacy_mem)goto done;
- call_setter(device0,0,0,0,0,0);if(registered[0] || registered_user[0])goto done;
+ int sessions=preview_session_calls[0];
+ call_setter(device0,0,0,0,0,0);if(registered[0] || registered_user[0] || preview_session_calls[0]!=sessions)goto done;
  if(j2prime_camera_thread_run((void*)0x11112222,"Given",-9,131072)!=-47 || thread_self!=(void*)0x11112222 || !same(thread_name,"Given") || thread_priority!=-9 || thread_stack!=131072)goto done;
  if(j2prime_camera_thread_run((void*)0x11112222,0,0,0)!=-47 || !same(thread_name,"MtkCam") || thread_priority!=0 || thread_stack!=0)goto done;
  if(j2prime_camera_thread_run((void*)0x11112222,"",4,8192)!=-47 || !same(thread_name,"") || thread_priority!=4 || thread_stack!=8192)goto done;
