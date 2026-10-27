@@ -24,7 +24,8 @@ ZIP in TWRP and booted Android. ADB confirms the exact corrected helper hash,
 its mapping from the installed system inode without a helper bind mount, the
 live corrected AF setter dispatch, and 0644 root:root vendor_file metadata.
 Graphics/audio/microphone/wake hashes and Wi-Fi's `force_connect_cmd=1` remain
-correct. A post-reboot user camera regression check is still pending.
+correct. The user confirms after reboot that the third-party record/playback/
+return cycle and subsequent built-in preview work, with normal colours and sound.
 See `THIRD_PARTY_CAMERA.md` for evidence and
 `tools/camera/preview-session.json` for exact hashes and ABI constraints.
 

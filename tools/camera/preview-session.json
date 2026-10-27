@@ -15,9 +15,10 @@
     "recording": "PASS: session helper built-in recording/playback with colour/sound; combined AF correction third-party five-second record/playback/reopen twice user-confirmed",
     "persistent_install": "PASS: user installed the session ZIP in TWRP and booted Android; installed helper hash and mapped system inode verified, no helper bind mount, live AF setter GOT resolves to corrected helper; 0644 root:root vendor_file metadata verified; graphics/audio/mic/wake hashes and Wi-Fi force_connect preserved",
     "af_move_candidate": "PASS isolated native flag/canary and existing callback/colour contracts; live GOT dispatch to corrected symbol verified; user-confirmed record/playback/return cycle twice; provider/media/composer unchanged and no health timeouts",
-    "remaining": "Post-reboot user camera regression pending; longer recordings, other profiles/apps and normal Soong compilation remain untested",
+    "remaining": "Long recordings, other recording profiles, other third-party apps, flash and normal Soong compilation remain untested",
     "final_builtin": "PASS with combined AF helper: user confirms rear/front switching, photo, short clip/playback, correct colours and speech sound",
-    "rollback": "PASS: independent watchdog exercised on earlier stalled trials; final successful trial explicitly restored original helper hash/mapped system inode, with audio/mic/wake/graphics hashes and Wi-Fi force_connect_cmd=1 preserved"
+    "rollback": "PASS: independent watchdog exercised on earlier stalled trials; final successful trial explicitly restored original helper hash/mapped system inode, with audio/mic/wake/graphics hashes and Wi-Fi force_connect_cmd=1 preserved",
+    "post_reboot_user": "PASS: user confirms short third-party video record/playback/return, subsequent built-in preview, normal colours and sound after permanent installation and reboot"
   },
   "af_move_abi": {
     "library": "libcam.camadapter.so",
