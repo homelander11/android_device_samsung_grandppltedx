@@ -1,5 +1,14 @@
 # Video colour inversion (2026-10-27)
 
+The correction now passes temporary device tests. The camera provider's mapped
+helper inode is verified, and logs confirm YV12-to-I420 conversion for camera
+IDs 0 and 1. The user confirms correct red, moving video and sound on both
+cameras, normal photo colours and a lower-resolution rear clip. Actual tested
+buffers are 1382400 bytes (1280x720) and 115200 bytes (320x240); the latter was
+reported by the UI test as a lower-quality option. Do not claim a device-verified
+640x480 test from that result. Permanent colour installation/reboot, other
+sizes, longer recording and normal Soong compilation remain pending.
+
 The user installed the combined camera/audio update in TWRP and booted Android.
 Installed helper, camera client, private Skia and primary-audio hashes match the
 package; camera node ownership also survives reboot. Both cameras record video,
@@ -43,5 +52,31 @@ The first trial never logged a conversion, so unchanged colours did not test
 U/V correction. Further temporary testing has an independent rollback timer.
 Require a conversion log and fresh correct-colour videos from both cameras,
 then preview/photo/audio and resolution/lifecycle checks before packaging.
-Existing ZIPs lack a colour correction; the candidate is still unverified on
-a live recording.
+The earlier combined camera/audio ZIP lacks this colour correction. The
+helper-only update will retain that installed update and replace only libcamcx.
+
+## Verified implementation
+
+The pinned raw video is Y/V/U while Android consumes the advertised Y/U/V.
+`memory_context.c` swaps the two chroma quarters only for registered raw-video
+heaps, known frame sizes and valid indices. Allocation size/count and the
+complete heap size must agree. It preserves luminance, descriptor, ownership,
+timestamps, cookies and non-video callbacks. Matching uses the data/handle
+identity because the HAL copies descriptors. Duplicate timestamps are not
+swapped twice, and unknown layouts pass unchanged.
+
+Before rejecting metadata, the adapter explicitly calls the original raw-mode
+setter and records its status. This covers Android retaining default YUV mode
+without an additional disable call; explicit disable callers still receive
+the real status. The isolated ARM test covers this sequence, copied memory,
+multi-buffer boundaries, invalid indices/heaps/modes, other-camera isolation,
+duplicate timestamps, unknown handles and unchanged callback arguments.
+The helper retains all thirteen previous exports and the same dependencies.
+`tools/camera/video-colour.json` pins the tested old/new helper hashes.
+
+A temporary watchdog restored the helper after one slow camera dump during
+capture. The final trial requires two consecutive dump timeouts; its front/
+lower-resolution test stays healthy. Test setup now forces a provider restart
+after binding and verifies its mapped inode. Restoration restarts it after
+unmounting, using scoped lazy detach when the file mapping is busy. File hashes
+alone do not establish which version an already-running process has mapped.
