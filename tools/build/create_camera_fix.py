@@ -20,6 +20,7 @@ DEVICE = TOOLS.parent
 META = json.loads((TOOLS / "camera/android11-metadata.json").read_text())
 SENSOR = json.loads((TOOLS / "camera/sensor-startup.json").read_text())
 AUDIO = json.loads((TOOLS / "audio/deep-buffer-pcm.json").read_text())
+COLOUR = json.loads((TOOLS / "camera/video-colour.json").read_text())
 MOUNT = "/tmp/j2prime-camera-system"
 VERIFY = "/tmp/j2prime-camera-verify.sh"
 NEW_FILES = ("lib/libcamcx.so", "lib/libicu60.so", "lib/libicui60.so",
@@ -74,7 +75,10 @@ def package(path, updater, original, modified, added, undo):
     for name in original:
         lines.append(check(vendor + name, base.sha(original[name]), base.sha(modified[name])))
     for name, data in added.items():
-        lines.append(check(vendor + name, "ABSENT", base.sha(data)))
+        accepted = ["ABSENT", base.sha(data)]
+        if name == "lib/libcamcx.so" and base.sha(data) == COLOUR["patched_sha256"]:
+            accepted.append(COLOUR["original_sha256"])
+        lines.append(check(vendor + name, *accepted))
     payload = original if undo else {**added, **modified}
     # Preflight is complete before any installed file is replaced.
     lines.append(f'assert(package_extract_dir("camera", "{vendor.rstrip("/")}"));')
