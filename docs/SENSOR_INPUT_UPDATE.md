@@ -74,8 +74,10 @@ It restores the original service selection by removing only the added override.
 Use the existing RAM recovery-reboot helper if needed. No ROM build or VPS is
 required.
 
-**Recovery installation, effective groups after reboot, framework event delivery
-and physical rotation/proximity remain pending.** After installation, check that
+**The user confirms recovery installation, Android boot and working rotation.**
+The battery then depleted and the phone shut down. Post-boot ADB verification of
+the installed override/effective service groups awaits reconnection; proximity
+and other physical regressions remain pending. After charging, check that
 the sensor service includes input and opens both sensor inputs. Enable Auto-rotate
 and use Gallery/browser: portrait, left landscape, portrait and right landscape.
 Check camera preview/icon and saved photo/video orientation, then camera recording
