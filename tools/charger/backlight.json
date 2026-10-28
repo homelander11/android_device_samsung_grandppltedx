@@ -15,7 +15,8 @@
     "runtime": "INSTALLED; exact init hash/root:root0644/vendor_configs_file, normal boot1 and unchanged Android brightness5 verified; USER PASS animation/percentage and two repeated short-press wake cycles; long Power boots Android without battery removal; user confirms unplug stops charging mode",
     "normal_boot": "on charger action is not dispatched during normal Android boot",
     "transfer": "PASS both ZIP CRCs and Download SHA-256; SAR/camera/audio/Light/sensor hashes unchanged; Android boot1, battery91%",
-    "logs": "PASS post-test native914865-byte and shell748042-byte logs saved privately with exact hashes; native init action runs and charger panel initializes at brightness102"
+    "logs": "PASS post-test native914865-byte and shell748042-byte logs saved privately with exact hashes; native init action runs and charger panel initializes at brightness102",
+    "after_diagnostic_removal": "USER/ADB PASS final animation/percentage, two short-Power wake cycles and long-Power Android boot with exact original boot; permanent init hashes retained and Android brightness5 unchanged"
   },
   "unchanged": [
     "charger binary/service/resources",

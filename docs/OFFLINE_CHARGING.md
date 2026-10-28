@@ -3,8 +3,9 @@
 **2026-10-28 update:** the installed SAR/UI/backlight fixes now pass the user's
 animation/percentage, repeated short-press wake, long-press Android boot and
 unplug checks. Source packaging is active for future builds; full build
-validation has not been run. Diagnostic removal is prepared, with a final
-charging regression still required afterward. See
+validation has not been run. Both diagnostics are removed and the exact
+original boot is restored; the final charging animation/percentage and short/
+long Power repeat passes. See
 [CHARGING_FINAL_UPDATE.md](CHARGING_FINAL_UPDATE.md) for the current state.
 The following sections retain the earlier investigation and trial results.
 

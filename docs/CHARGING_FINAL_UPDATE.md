@@ -40,7 +40,10 @@ Checks use the published Lineage 18.1
 (Git blob `1f1c2414f5468bf989c7eb70d12ac1ac9dfb215d`) and
 [image modules](https://github.com/LineageOS/android_vendor_lineage/blob/lineage-18.1/charger/Android.mk)
 (`2fce7c43937cf244ea035d28aa7a1dee6adbce38`). Static configuration, file paths,
-resource equivalence and destination checks pass. **The Android build graph
+resource equivalence and destination checks pass. The official hdpi battery
+scale/failure Git blobs (`92cd5b6e5a971e6cba510e729027d92d792df3ee` and
+`572d8eff563e722e98c519e430910408a17080e0`) match the actual tested ROM
+images exactly. **The Android build graph
 and a fresh ROM build have not been run.** No full build or VPS was used.
 
 A ROM built from this device tree includes the fixes; it does not require
@@ -70,13 +73,20 @@ The original full boot SHA-256 is
 `2fdd5db2a3e047ce8710771a668e0290ee81ae905fe94020d832f2b14a5849c8`.
 Kernel, DT and init are restored exactly; vendor/product fixes remain installed.
 
-**Removal is prepared and tested but not performed yet.** In TWRP leave System
-unmounted and signature verification off. Install the cleanup ZIP and then the
-early-boot undo, and reboot System without wiping. Verify original boot hash,
-absence of the two logger files and the retained hardware/charging hashes.
-Then repeat charging animation, short/long Power and cable behavior checks
-without diagnostics. Preserve private logs locally before removal; no raw log,
-recording, calibration or partition capture is committed.
+**Removal and final charging regression pass.** ADB verifies the exact full
+original boot hash, absence of both logger files including symlinks, ten retained
+charging/hardware hashes and unchanged Android brightness5. The user then
+repeats the animation/percentage check, two short-Power wake cycles and
+long-Power Android boot and reports that everything worked. After that cycle,
+ADB confirms `sys.boot_completed=1`, the original boot and permanent SAR/wake
+init hashes, brightness5 and battery97%.
+
+Cleanup used TWRP with System unmounted and signature verification off, installing
+the cleanup ZIP followed by the early-boot undo and rebooting without wiping.
+The two inactive cache log files were copied privately, checked against their
+on-phone SHA-256 values, and removed only after exact-hash verification. No raw
+log, recording, calibration or partition capture is committed. The original
+raw boot backup and undo packages remain available in Download.
 
 Low-battery startup, measured off-mode current/charge rate, thermal behavior
 and extended suspend testing remain unverified. Charge limits, calibration,

@@ -5,7 +5,8 @@ the obsolete `/system` remount creates a system-as-root path loop. See
 [CHARGER_SAR_FIX.md](CHARGER_SAR_FIX.md) for the evidence and scoped correction.
 Normal boot and actual charging-mode logging both pass. The permanent
 SAR/UI/brightness fixes now pass the user charging animation, percentage,
-short/long Power and unplug tests. Diagnostic removal is prepared; see
+short/long Power and unplug tests. Diagnostics are removed, the exact original
+boot is restored and the final charging/wake/boot repeat passes; see
 `CHARGING_FINAL_UPDATE.md`. The deployment procedure below describes the
 earlier diagnostic trial, not the current cleanup procedure.
 

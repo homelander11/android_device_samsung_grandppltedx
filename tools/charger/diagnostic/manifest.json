@@ -1,6 +1,6 @@
 {
   "scope": "SM-G532G/grandppltedx existing permissive debug ROM and installed first charging-UI trial",
-  "status": "INSTALLED; successful charging evidence saved privately; user animation/percentage, repeated short-press wake, long-press boot and unplug checks PASS with permanent fixes; tested removal ready, not performed",
+  "status": "REMOVED; exact original boot and logger absence verified; USER/ADB final original-boot charging animation/percentage, repeated short-Power wake and long-Power normal boot PASS; inactive cache logs preserved privately then removed",
   "canonical_lf_payload_sha256": {
     "init.rc": "b48c07a7550bd70ee89dd76a7b623997986bf3aaf39571f87300ec5495fcaae4",
     "debug.sh": "e8164797dd2f5b8b8fa0598244b34d619029bf3f2097542758ef6393da2922f1"

@@ -48,7 +48,9 @@ builds. The modern charger service/resources are now integrated too; see
   short-press wake cycles work. ADB verifies the exact init hash/metadata,
   normal boot and unchanged Android brightness5. The native log records the
   charger init action and brightness102. Long-press Android boot and unplug
-  stopping charging mode also pass. Post-diagnostic-removal regression remains.
+  stopping charging mode also pass. The final animation/percentage, two short-
+  press wake cycles and long-Power boot also pass after restoring the exact
+  original boot and removing both diagnostics.
 
 The recovery update adds only
 `/vendor/etc/init/zz-grandppltedx-charger-backlight.rc`; undo removes exactly

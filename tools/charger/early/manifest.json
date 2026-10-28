@@ -1,6 +1,6 @@
 {
   "scope": "Temporary SM-G532G/grandppltedx LineageOS 18.1 boot diagnostic; exact pinned boot only",
-  "status": "INSTALLED; successful charging evidence saved privately; user animation/percentage, repeated short-press wake, long-press boot and unplug checks PASS with permanent fixes; tested removal ready, not performed",
+  "status": "REMOVED; exact original boot and logger absence verified; USER/ADB final original-boot charging animation/percentage, repeated short-Power wake and long-Power normal boot PASS; inactive cache logs preserved privately then removed",
   "wrapper_sha256": "e7cfa5a4e113e8758941d6f9209bff54c1bd7724dd61a370ed2ca296722194b5",
   "wrapper_bytes": 9652,
   "original_init_sha256": "1397eb00b39fd461e405662e7e8bf22e09c6ebf403e9735cf87e6a720eec0fec",
@@ -25,10 +25,12 @@
     "USER/ADB PASS actual normal boot after installation: exact diagnostic boot hash, sys.boot_completed=1, no early log/logger on normal boot",
     "PASS actual charging boot: private 1282158-byte log, six snapshots; init reaches charger mode, shell exits127, charger exits1 then restart ELOOP following legacy remount; kernel battery work continues, no panic observed",
     "PASS after installed SAR fix: user confirms animation/percentage and long-press normal boot; native1768802-byte and shell1715914-byte cache logs hash-verified locally; key116 causes panel resume but brightness0",
-    "PASS user after installed brightness seed: repeated short-press charging wake, long-press Android boot and unplug stopping charger mode; native log confirms on-charger seed action and brightness102"
+    "PASS user after installed brightness seed: repeated short-press charging wake, long-press Android boot and unplug stopping charger mode; native log confirms on-charger seed action and brightness102",
+    "PASS actual boot undo: user normal boot, ADB exact full original16MiB boot SHA-2562fdd5db2a3e047ce8710771a668e0290ee81ae905fe94020d832f2b14a5849c8; ten retained charging/hardware hashes unchanged",
+    "PASS final charging regression after exact original boot restored: user confirms animation/percentage, two short-Power wake cycles and long-Power normal boot; ADB boot1/original boot/SAR/wake hashes and unchanged brightness5, battery97%"
   ],
   "limits": [
-    "Diagnostic removal and final charging regression pending; fresh ROM graph/build and off-mode current/thermal behavior untested",
+    "Post-removal charging animation/percentage and short/long Power verified. Fresh ROM graph/build, low-battery startup and off-mode current/thermal testing remain unrun.",
     "GNU Makefile is provided but the tested binary was built with the available SDK frontend, LLVM20 and ARM assembler; GNU cross-build still needs its own validation",
     "If cache cannot mount or the kernel never reaches PID1, a log may still be unavailable"
   ],

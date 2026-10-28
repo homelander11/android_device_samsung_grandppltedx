@@ -1,6 +1,6 @@
 {
   "scope": "grandppltedx / SM-G532G, LineageOS 18.1, current permissive build",
-  "status": "Installed SAR/UI/backlight fixes pass user animation/percentage, repeated short-press wake, long-press boot and unplug tests; full-build source packaging integrated; diagnostic removal prepared, post-removal validation pending",
+  "status": "CHARGING FIX VERIFIED: animation/percentage and repeated short-Power wake/long-Power normal boot pass after exact original boot restored and both diagnostics removed. Unplug stopping charger mode passed earlier. Source packaging active; fresh ROM graph/build and low-battery/current/thermal testing unrun.",
   "rom": {
     "file": "lineage-18.1-20261025-UNOFFICIAL-grandppltedx.zip",
     "sha256": "1a7670ccb03e1b22cf1a646b74a18d678c8e33fd71525bee1c86b5fb3691f445"
@@ -169,7 +169,9 @@
     "charging_diagnostic": "PASS actual charging cache log after SAR correction,1715914bytes; native early log1768802bytes; both hash-verified privately",
     "early_diagnostic": "PASS actual normal boot and charging log; exact diagnostic boot hash; six private snapshots over about31s",
     "sar_fix": "Installed exact init hash/metadata, normal boot PASS; actual charger startup/percentage and long-press boot PASS; unrelated backlight-cache issue diagnosed",
-    "charging_backlight": "Installed exact hash/metadata; normal boot and Android brightness5 unchanged; user confirms two short-press wake cycles; native init action and brightness102 captured"
+    "charging_backlight": "Installed exact hash/metadata; normal boot and Android brightness5 unchanged; user confirms two short-press wake cycles; native init action and brightness102 captured",
+    "diagnostic_cleanup": "COMPLETE USER/ADB PASS exact original boot, no diagnostic init/script, ten retained hashes before final test; final boot1/original boot/SAR/wake hashes, brightness5 unchanged and battery97% after successful charging repeat; private cache logs copied/verified and removed",
+    "final_original_boot_charging": "USER worked and booted after final animation/percentage, two short-Power wake cycles and long-Power boot; ADB verifies original boot and permanent fixes"
   },
   "packages": {
     "grandppltedx-20261027-charging-ui-fix.zip": "40e2cdaaf719700efeba3d42d9e20f2c5fd2df26e4c3029c1ce71b5df07d4880",
@@ -182,6 +184,11 @@
     "service": "configs/init/zz-grandppltedx-charger.rc",
     "font_and_license": "charger/; exact upstream bytes and explicit product copies",
     "diagnostics": "excluded from product packaging",
-    "validation": "PASS active/trial effective init+animation equivalence, font/license byte equality, unique copy destinations, supported switch ordering, XML/config/Wi-Fi checks"
+    "validation": "PASS active/trial effective init+animation equivalence, font/license byte equality, unique copy destinations, supported switch ordering, XML/config/Wi-Fi checks",
+    "image_fidelity": {
+      "battery_scale_git_blob": "92cd5b6e5a971e6cba510e729027d92d792df3ee",
+      "battery_fail_git_blob": "572d8eff563e722e98c519e430910408a17080e0",
+      "result": "PASS official Lineage18.1 hdpi image blobs exactly match actual pinned ROM images"
+    }
   }
 }
