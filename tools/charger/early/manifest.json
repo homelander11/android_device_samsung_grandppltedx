@@ -1,0 +1,47 @@
+{
+  "scope": "Temporary SM-G532G/grandppltedx LineageOS 18.1 boot diagnostic; exact pinned boot only",
+  "status": "PREPARED; not installed; real PID1/normal boot/charging boot require device testing",
+  "wrapper_sha256": "e7cfa5a4e113e8758941d6f9209bff54c1bd7724dd61a370ed2ca296722194b5",
+  "wrapper_bytes": 9652,
+  "original_init_sha256": "1397eb00b39fd461e405662e7e8bf22e09c6ebf403e9735cf87e6a720eec0fec",
+  "sources_canonical_lf_sha256": {
+    "init_wrapper.c": "1b9504dd8ed18d4553dd7ec94e730675240211ecc4accda2bb79b07ef1a97c2c",
+    "start.S": "62141d6cf82188f255e8e735d7bf0ca8733e05213a336abc5976ee9e2311a238"
+  },
+  "device_geometry": {
+    "boot": "/dev/block/mmcblk0p14; 16 MiB",
+    "cache": "/dev/block/mmcblk0p27; major179 minor27; existing ext4"
+  },
+  "normal_path": "Original init renamed init.real, bytes unchanged. Same PID, original argv/environment. No logging child on normal boot.",
+  "charging_path": "Static logger child in private mount namespace; bounded cache file /cache/j2prime-early-charger.log, six kernel snapshots over about 31 seconds; no Android libraries. Parent immediately execs original init.",
+  "tests": [
+    "PASS static ARM ELF, no PT_INTERP/PT_DYNAMIC and no fixture paths",
+    "PASS on-device self-test and non-PID1 refusal",
+    "PASS 8 production ARM Unicorn cases: argv/env handoff, correct charger-only fork, substring rejection, proc failure, fork failure and non-PID1 guard",
+    "PASS on-device fixture variants: normal exec without logger, fork/wait/logger and private namespace RAM ext4 log, mode0600; no real cache or boot writes",
+    "PASS real ROM updater on 16 MiB raw RAM loop: install/reinstall/undo/repeat-undo, low-battery and unknown-boot rejection, real boot hash unchanged",
+    "PASS public SDK builder reproduces reviewed production ELF exactly",
+    "PASS diagnostic/undo/original raw backup copied to Download with exact hashes"
+  ],
+  "limits": [
+    "Actual PID1/charger behavior not yet verified",
+    "GNU Makefile is provided but the tested binary was built with the available SDK frontend, LLVM20 and ARM assembler; GNU cross-build still needs its own validation",
+    "If cache cannot mount or the kernel never reaches PID1, a log may still be unavailable"
+  ],
+  "unchanged": [
+    "kernel",
+    "DT",
+    "boot addresses and board ID",
+    "boot header command line",
+    "original first-stage init bytes",
+    "system/vendor hardware fixes",
+    "recovery",
+    "charge controls/calibration/SELinux"
+  ],
+  "packages": {
+    "grandppltedx-20261028-early-charger-boot.zip": "a36e83828a65d826d0dae833fc747f5ae67bf7994686412b359b5110d50bf973",
+    "grandppltedx-20261028-early-charger-boot-undo.zip": "bee545efdbc690f4760d21b7a7cf331cd9d09ebcafa346866d9d7732efcaa9b7"
+  },
+  "original_partition_sha256": "2fdd5db2a3e047ce8710771a668e0290ee81ae905fe94020d832f2b14a5849c8",
+  "diagnostic_partition_sha256": "5ae57639452c4f93baca11b284cde490410bbca642a753c55b113ce7371229ee"
+}

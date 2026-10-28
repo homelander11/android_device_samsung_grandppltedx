@@ -181,6 +181,15 @@ the cache log. A missing cache log does not itself establish why init did not
 reach the diagnostic. Remove the diagnostic after the investigation; retain
 the UI undo until the powered-off charging behavior is verified.
 
+The user installed this diagnostic and booted. ADB confirms both exact hashes,
+mode 0644 and intended labels; the one-shot service is stopped during normal
+Android. A normal-mode explicit start exits successfully without writes. The
+subsequent charging test still shows the static icon; ADB never appears and
+the cache log/directory is absent after the required battery removal. Thus this
+trial is inconclusive about the failed boot stage. A static ramdisk diagnostic
+and exact boot undo have been prepared and validated separately; see
+`CHARGER_EARLY_BOOT.md`. They have not been flashed.
+
 Once the phone has enough charge and device testing resumes:
 
 1. Read Android's battery status/capacity/voltage/temperature and existing
