@@ -1,0 +1,7 @@
+# SPDX-License-Identifier: Apache-2.0
+# Seed MTK's cached resume brightness once in powered-off charging mode.
+# The initial bootloader brightness is visible, but pre_level otherwise stays
+# zero and mtkfb_blank_resume() turns the backlight off after the first blank.
+# The kernel continues to handle blanking and restoring this moderate level.
+on charger
+    write /sys/class/leds/lcd-backlight/brightness 102

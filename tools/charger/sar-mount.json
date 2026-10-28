@@ -14,7 +14,8 @@
     "runtime": "INSTALLED; user confirms normal boot; ADB verifies sys.boot_completed=1, exact corrected init SHA-256, root:root 0644 vendor_configs_file, unchanged modern service/animation/font and diagnostic boot hashes; battery90%; physical charging test pending",
     "installer": "PASS actual ROM updater on disposable 64 MiB RAM ext4: install/reinstall/undo/repeat-undo; exact target/uid/gid/mode/label; 15 unrelated baseline files unchanged; both ZIPs reject low battery, unknown target and symlink before mutation; real boot unchanged",
     "transfer": "PASS both final ZIP CRCs and Download SHA-256; 13 existing charging/hardware hashes unchanged; RAM fixture cleaned",
-    "probe": "PASS public SDK build and on-device private namespace ELOOP/restoration plus default refusal; original boot logger reproduced byte-identically"
+    "probe": "PASS public SDK build and on-device private namespace ELOOP/restoration plus default refusal; original boot logger reproduced byte-identically",
+    "physical": "USER PASS animation/percentage and long-press Android boot without battery removal. Short press leaves display dark; native/shell logs show panel resume but backlight0. Separate charging-only brightness seed prepared; unplug/reconnect pending."
   },
   "unchanged": [
     "boot/recovery",

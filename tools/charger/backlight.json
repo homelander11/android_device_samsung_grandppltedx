@@ -1,0 +1,31 @@
+{
+  "scope": "SM-G532G/grandppltedx LineageOS18.1; installed modern charging UI and corrected SAR mount",
+  "target": "/vendor/etc/init/zz-grandppltedx-charger-backlight.rc",
+  "payload_canonical_lf_sha256": "5fd82466fc07984f88e9fc71dccd8cdba15411c19f1b8f637e148f4ba2be9dba",
+  "payload_bytes": 411,
+  "behavior": "One brightness102 write to lcd-backlight LED only on charger event; seeds kernel pre_level for subsequent framebuffer resumes; no polling/helper/service",
+  "evidence": [
+    "USER: animation/percentage appear after SAR fix; short Power leaves screen dark; holding Power boots Android without battery removal",
+    "Native/shell charging logs: key116 events resume panel promptly but ktd3102 brightness remains0; charger continues health updates",
+    "Kernel mtkfb_set_backlight_level caches pre_level via lcd-backlight LED; mtkfb_blank_resume restores it after first wake",
+    "PASS on-device reversible framebuffer test: zero cache resumes at0, one LED102 write yields two subsequent blank/resume cycles at102, original LED/panel5 restored"
+  ],
+  "validation": {
+    "installer": "PASS real ROM updater on 64 MiB RAM ext4: install/reinstall/undo/repeat-undo; exact hash/metadata; all16 baseline files preserved; both ZIPs reject low battery, unknown target and symlink; real boot unchanged; RAM fixture cleaned",
+    "runtime": "NOT INSTALLED; physical powered-off short-press wake pending",
+    "normal_boot": "on charger action is not dispatched during normal Android boot",
+    "transfer": "PASS both ZIP CRCs and Download SHA-256; SAR/camera/audio/Light/sensor hashes unchanged; Android boot1, battery91%"
+  },
+  "unchanged": [
+    "charger binary/service/resources",
+    "SAR mount correction",
+    "boot/recovery",
+    "charging limits/calibration/EFS",
+    "normal Android brightness setting and Light HAL",
+    "Wi-Fi/camera/audio/microphone/sensors"
+  ],
+  "packages": {
+    "grandppltedx-20261028-charging-wake-fix.zip": "14e6c652f01e7c38003fbe4be7390d5dd1a8e9829312c84e5081547ca2b4b0e2",
+    "grandppltedx-20261028-charging-wake-undo.zip": "1c665206539743e651461d43a391095602338dc3b1df45e0d8a44e0c1ed88e2e"
+  }
+}

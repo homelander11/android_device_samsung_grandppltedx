@@ -1,12 +1,14 @@
 # Powered-off charging investigation
 
-**2026-10-28 update:** the installed native early logger captures the failure.
-The legacy charger-mode `/system` remount creates a SAR symlink loop and
-prevents the charger from running. The scoped source correction and tested
-recovery/undo ZIPs are documented in [CHARGER_SAR_FIX.md](CHARGER_SAR_FIX.md).
-The correction is installed and normal boot passes user/ADB checks; the
-physical charging UI test remains pending. The sections
-below retain the preceding UI/dependency investigation and trial results.
+**2026-10-28 update:** the native logger identifies the obsolete SAR remount.
+The installed correction restores the charging animation/percentage and
+long-press Android boot without a battery removal; see
+[CHARGER_SAR_FIX.md](CHARGER_SAR_FIX.md). Short-press wake resumes the panel but
+leaves its backlight at zero. The one-write charging-only cache initialization
+passes the driver and installer tests, but is not installed yet; see
+[CHARGER_BACKLIGHT_WAKE.md](CHARGER_BACKLIGHT_WAKE.md). Unplug/reconnect remains
+untested. The following sections retain earlier dependency investigation and
+trial results.
 
 The user reports a static battery/lightning icon for more than five minutes
 after the battery depleted. Rotation worked after the sensor update before

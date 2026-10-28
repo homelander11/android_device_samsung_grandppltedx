@@ -1,6 +1,6 @@
 {
   "scope": "SM-G532G/grandppltedx existing permissive debug ROM and installed first charging-UI trial",
-  "status": "INSTALLED; normal boot PASS; charging has no shell cache log; native early log establishes shell exit127 after legacy SAR remount",
+  "status": "INSTALLED; actual charging-mode1715914-byte private cache log now saved after SAR correction; normal boot no-op passes; charger runs and receives keys, panel resumes at brightness0",
   "canonical_lf_payload_sha256": {
     "init.rc": "b48c07a7550bd70ee89dd76a7b623997986bf3aaf39571f87300ec5495fcaae4",
     "debug.sh": "e8164797dd2f5b8b8fa0598244b34d619029bf3f2097542758ef6393da2922f1"

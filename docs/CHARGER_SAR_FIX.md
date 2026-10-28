@@ -73,11 +73,15 @@ Recovery must leave System unmounted before installation.
 **Installed; user and ADB confirm normal Android boot.** The runtime init hash,
 root:root ownership, mode 0644 and vendor-config label match. Modern charger
 service/animation/font and the diagnostic boot hash are unchanged; battery is
-90% and USB charging. Powered-off UI behavior remains unverified. No full ROM,
-kernel build or VPS was used. Install the SAR fix in TWRP with signature
-verification off, reboot System without wiping, and verify normal boot first.
-Then test animation/percentage, display blank/wake, Power boot, cable removal
-and reconnection. Verify battery readings and the working hardware again.
+90% and USB charging at the first verification. The user subsequently confirms
+an animated battery/percentage, normal blanking and long-press Android boot
+without removing the battery. The original startup failure is resolved.
+
+Short-press wake still leaves the display dark. Both saved logs now work and
+show key events and panel resume with brightness zero; the charger continues
+running. The separate brightness-cache initialization and its tests are in
+[CHARGER_BACKLIGHT_WAKE.md](CHARGER_BACKLIGHT_WAKE.md). Cable removal/reconnect
+remain untested. No full ROM/kernel build or VPS was used.
 
 Leave the early native logger installed for this next test so any remaining
 failure can be diagnosed. After success, restore the exact original boot with
