@@ -1,6 +1,6 @@
 {
   "scope": "grandppltedx / SM-G532G, LineageOS 18.1, current permissive build",
-  "status": "Installed SAR/UI corrections restore animation/percentage and long-press normal boot; short-press panel resumes but backlight0; one charging-only seed init prepared, installer/driver tests PASS, physical wake trial pending",
+  "status": "Installed SAR/UI/backlight fixes pass user animation/percentage, repeated short-press wake, long-press boot and unplug tests; full-build source packaging integrated; diagnostic removal prepared, post-removal validation pending",
   "rom": {
     "file": "lineage-18.1-20261025-UNOFFICIAL-grandppltedx.zip",
     "sha256": "1a7670ccb03e1b22cf1a646b74a18d678c8e33fd71525bee1c86b5fb3691f445"
@@ -161,7 +161,7 @@
     "linker_list": "PASS system charger dependency list resolves; old LPM fails on absent libsuspend.so. No charging frontend executed.",
     "battery": "Android charging at 2% then 3% on 2026-10-27; full at 100% on 2026-10-28",
     "sensor_update": "PASS installed override hash, input group and both evdev descriptors",
-    "charging_ui": "USER PASS initial animation/percentage and long-press normal boot without battery removal after SAR fix; short press leaves display dark. Logs show keys/panel resume and brightness0; charger continues battery updates.",
+    "charging_ui": "USER PASS after SAR+backlight seed: animation/percentage, blank/repeated short-press wake, long-press Android boot without battery removal; unplug stops charging mode",
     "installer_fixture": "PASS real ROM updater, disposable 64 MiB RAM ext4: install/reinstall/undo/repeat-undo; exact targets/metadata and unrelated baseline preserved; low battery, unknown target and symlink rejection before mutation. Fixture-only block/mount/interpreter/verifier/battery-text paths differ.",
     "transfer": "PASS both final ZIP hashes verified in Download; original charging targets unchanged before recovery",
     "recovery": "USER PASS installation and normal Android boot; ADB confirms all 3 installed hashes, intended metadata and sys.boot_completed=1, no userspace charger process on normal boot",
@@ -169,10 +169,19 @@
     "charging_diagnostic": "PASS actual charging cache log after SAR correction,1715914bytes; native early log1768802bytes; both hash-verified privately",
     "early_diagnostic": "PASS actual normal boot and charging log; exact diagnostic boot hash; six private snapshots over about31s",
     "sar_fix": "Installed exact init hash/metadata, normal boot PASS; actual charger startup/percentage and long-press boot PASS; unrelated backlight-cache issue diagnosed",
-    "charging_backlight": "PASS reversible framebuffer probe: seed102 survives two blank/resume cycles, original5 restored. One-file charging-only init fix/undo passes RAM installer tests and Download hashes; not installed."
+    "charging_backlight": "Installed exact hash/metadata; normal boot and Android brightness5 unchanged; user confirms two short-press wake cycles; native init action and brightness102 captured"
   },
   "packages": {
     "grandppltedx-20261027-charging-ui-fix.zip": "40e2cdaaf719700efeba3d42d9e20f2c5fd2df26e4c3029c1ce71b5df07d4880",
     "grandppltedx-20261027-charging-ui-undo.zip": "3fa21040d5714204a98f0a3c22f86ef701c18569881550f06888a00f8973f5cc"
+  },
+  "build_integration": {
+    "status": "ACTIVE source; full Android build graph/ROM unrun",
+    "resource_switch": "WITH_LINEAGE_CHARGER=false before common inheritance",
+    "module": "grandppltedx_charger_animation; requires lineage_charger_battery_scale and lineage_charger_battery_fail",
+    "service": "configs/init/zz-grandppltedx-charger.rc",
+    "font_and_license": "charger/; exact upstream bytes and explicit product copies",
+    "diagnostics": "excluded from product packaging",
+    "validation": "PASS active/trial effective init+animation equivalence, font/license byte equality, unique copy destinations, supported switch ordering, XML/config/Wi-Fi checks"
   }
 }

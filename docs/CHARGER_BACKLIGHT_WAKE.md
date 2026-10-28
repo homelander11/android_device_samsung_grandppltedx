@@ -26,8 +26,8 @@ not run on a normal Android boot, so the user's Android brightness setting
 and the already corrected Light HAL retain control there.
 
 The existing `device.mk` init-directory copy includes this file in future
-builds. The modern charger service/resources still need full-build integration
-after their remaining physical charging tests pass; see `OFFLINE_CHARGING.md`.
+builds. The modern charger service/resources are now integrated too; see
+`CHARGING_FINAL_UPDATE.md` for build selection and diagnostic removal.
 
 ## Verified and pending results
 
@@ -44,9 +44,11 @@ after their remaining physical charging tests pass; see `OFFLINE_CHARGING.md`.
   verifier and battery-text paths differ. The real boot hash stays unchanged.
 * Both final ZIP CRCs and transferred Download SHA-256 values pass. The RAM
   fixture is cleaned. No ROM/kernel build or VPS is used.
-* **Actual charging-mode initialization and repeated physical short-press wake
-  still need testing after installation.** Cable removal/reconnect also remain
-  untested. Long-press boot already passes with the installed SAR/UI corrections.
+* **Installed and user-verified:** animation/percentage and both repeated
+  short-press wake cycles work. ADB verifies the exact init hash/metadata,
+  normal boot and unchanged Android brightness5. The native log records the
+  charger init action and brightness102. Long-press Android boot and unplug
+  stopping charging mode also pass. Post-diagnostic-removal regression remains.
 
 The recovery update adds only
 `/vendor/etc/init/zz-grandppltedx-charger-backlight.rc`; undo removes exactly
@@ -64,8 +66,9 @@ Install the fix in TWRP with System unmounted and signature verification off.
 Reboot System without wiping, verify normal Android brightness/wake first,
 then power off with USB attached. Check the first animation, wait for blanking
 and test several short presses. Finally verify long-press boot, unplug shutdown
-and reconnect behavior. Keep diagnostics for this test; afterward restore the
-original boot and remove the temporary init/shell logger with their undo ZIPs.
+and reconnect behavior. These initial physical tests now pass. Follow
+`CHARGING_FINAL_UPDATE.md` for the current diagnostic cleanup and exact original
+boot restore; the older init/shell undo expects the pre-SAR configuration.
 
 When undoing development updates, remove this wake init before rolling back
 the SAR/UI prerequisites. Its undo expects those known prerequisite hashes.

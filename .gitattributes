@@ -4,3 +4,7 @@
 tools/charger/candidate/* -text
 tools/charger/candidate/OFL.txt whitespace=-blank-at-eol
 tools/charger/candidate/FONT-README whitespace=-blank-at-eof
+# Active charger font/license files retain the upstream bytes too.
+charger/font_charger_18x32.png -text
+charger/OFL.txt -text whitespace=-blank-at-eol
+charger/FONT-README -text whitespace=-blank-at-eof

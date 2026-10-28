@@ -1,14 +1,12 @@
 # Powered-off charging investigation
 
-**2026-10-28 update:** the native logger identifies the obsolete SAR remount.
-The installed correction restores the charging animation/percentage and
-long-press Android boot without a battery removal; see
-[CHARGER_SAR_FIX.md](CHARGER_SAR_FIX.md). Short-press wake resumes the panel but
-leaves its backlight at zero. The one-write charging-only cache initialization
-passes the driver and installer tests, but is not installed yet; see
-[CHARGER_BACKLIGHT_WAKE.md](CHARGER_BACKLIGHT_WAKE.md). Unplug/reconnect remains
-untested. The following sections retain earlier dependency investigation and
-trial results.
+**2026-10-28 update:** the installed SAR/UI/backlight fixes now pass the user's
+animation/percentage, repeated short-press wake, long-press Android boot and
+unplug checks. Source packaging is active for future builds; full build
+validation has not been run. Diagnostic removal is prepared, with a final
+charging regression still required afterward. See
+[CHARGING_FINAL_UPDATE.md](CHARGING_FINAL_UPDATE.md) for the current state.
+The following sections retain the earlier investigation and trial results.
 
 The user reports a static battery/lightning icon for more than five minutes
 after the battery depleted. Rotation worked after the sensor update before

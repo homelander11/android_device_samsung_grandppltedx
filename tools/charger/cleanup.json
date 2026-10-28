@@ -1,0 +1,21 @@
+{
+  "scope": "Current installed SM-G532G ROM with verified modern UI, SAR and wake corrections",
+  "status": "PREPARED; diagnostic removal and exact original boot restoration pending",
+  "init_shell_package": {
+    "file": "grandppltedx-20261028-charging-debug-cleanup.zip",
+    "sha256": "6b6e1c6472a814eaa9fcb66b6e33df31e60c3766b1aa696b853ac52ac0cef46f",
+    "changes": [
+      "remove known vendor diagnostic init",
+      "remove known vendor diagnostic shell script"
+    ],
+    "validation": "PASS actual ROM updater on disposable64MiB RAM ext4: cleanup/repeat, low battery/unknown second target/symlink second target/unknown prerequisite rejection; all15 non-diagnostic baseline files retained; real boot unchanged; loop/image/seed cleaned; Download hash PASS"
+  },
+  "boot_package": {
+    "file": "grandppltedx-20261028-early-charger-boot-undo.zip",
+    "sha256": "bee545efdbc690f4760d21b7a7cf331cd9d09ebcafa346866d9d7732efcaa9b7",
+    "original_boot_sha256": "2fdd5db2a3e047ce8710771a668e0290ee81ae905fe94020d832f2b14a5849c8",
+    "validation": "Unchanged previously tested RAM-block exact restore; Download hash reverified;40% min battery"
+  },
+  "preserved": "All permanent charging and hardware fixes; no calibration/EFS/charge-limit changes",
+  "remaining": "Install both in one recovery session, verify exact original boot and logger absence, repeat charging and hardware regression"
+}

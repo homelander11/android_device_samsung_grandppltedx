@@ -33,7 +33,8 @@ This package requires the **already installed Android 11 charging-UI trial**.
 The old Samsung LPM also has mandatory missing libraries; removing the remount
 does not make that old executable usable. The modern charger/service/font
 are described in [OFFLINE_CHARGING.md](OFFLINE_CHARGING.md). Their full-build
-activation remains deferred until powered-off behavior passes device testing.
+packaging is now active after the user wake/boot tests; see
+`CHARGING_FINAL_UPDATE.md`.
 
 The only runtime target is `/vendor/etc/init/hw/init.mt6735.rc`:
 
@@ -77,16 +78,16 @@ service/animation/font and the diagnostic boot hash are unchanged; battery is
 an animated battery/percentage, normal blanking and long-press Android boot
 without removing the battery. The original startup failure is resolved.
 
-Short-press wake still leaves the display dark. Both saved logs now work and
-show key events and panel resume with brightness zero; the charger continues
-running. The separate brightness-cache initialization and its tests are in
-[CHARGER_BACKLIGHT_WAKE.md](CHARGER_BACKLIGHT_WAKE.md). Cable removal/reconnect
-remain untested. No full ROM/kernel build or VPS was used.
+The separate brightness-cache initialization now also passes repeated
+short-press wake; see [CHARGER_BACKLIGHT_WAKE.md](CHARGER_BACKLIGHT_WAKE.md).
+The user confirms unplug stops charging mode. Diagnostic removal and the
+remaining validation are in `CHARGING_FINAL_UPDATE.md`. No full ROM/kernel
+build or VPS was used.
 
-Leave the early native logger installed for this next test so any remaining
-failure can be diagnosed. After success, restore the exact original boot with
-its early-boot undo and remove the separate init/shell diagnostic with its undo;
-neither diagnostic belongs in a release ROM. If rolling back the modern UI,
+The initial physical tests now pass. Follow `CHARGING_FINAL_UPDATE.md` to
+restore the exact original boot and remove the init/shell diagnostic with the
+new cleanup package; its older undo expects the pre-SAR configuration.
+Neither diagnostic belongs in a release ROM. If rolling back the modern UI,
 undo the SAR correction first: the older UI undo expects the original init
 hash. The SAR undo restores only that init file, including its old remount.
 

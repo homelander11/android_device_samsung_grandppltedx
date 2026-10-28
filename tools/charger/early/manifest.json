@@ -1,6 +1,6 @@
 {
   "scope": "Temporary SM-G532G/grandppltedx LineageOS 18.1 boot diagnostic; exact pinned boot only",
-  "status": "INSTALLED; actual normal/charging logs PASS; SAR correction restores charger startup, animation/percentage and long-press boot; short-press wake still dark with brightness0",
+  "status": "INSTALLED; successful charging evidence saved privately; user animation/percentage, repeated short-press wake, long-press boot and unplug checks PASS with permanent fixes; tested removal ready, not performed",
   "wrapper_sha256": "e7cfa5a4e113e8758941d6f9209bff54c1bd7724dd61a370ed2ca296722194b5",
   "wrapper_bytes": 9652,
   "original_init_sha256": "1397eb00b39fd461e405662e7e8bf22e09c6ebf403e9735cf87e6a720eec0fec",
@@ -24,10 +24,11 @@
     "PASS diagnostic/undo/original raw backup copied to Download with exact hashes",
     "USER/ADB PASS actual normal boot after installation: exact diagnostic boot hash, sys.boot_completed=1, no early log/logger on normal boot",
     "PASS actual charging boot: private 1282158-byte log, six snapshots; init reaches charger mode, shell exits127, charger exits1 then restart ELOOP following legacy remount; kernel battery work continues, no panic observed",
-    "PASS after installed SAR fix: user confirms animation/percentage and long-press normal boot; native1768802-byte and shell1715914-byte cache logs hash-verified locally; key116 causes panel resume but brightness0"
+    "PASS after installed SAR fix: user confirms animation/percentage and long-press normal boot; native1768802-byte and shell1715914-byte cache logs hash-verified locally; key116 causes panel resume but brightness0",
+    "PASS user after installed brightness seed: repeated short-press charging wake, long-press Android boot and unplug stopping charger mode; native log confirms on-charger seed action and brightness102"
   ],
   "limits": [
-    "Charger startup/percentage and long-press boot verified; short-press backlight remains0, separate seed-init trial pending; unplug/reconnect pending",
+    "Diagnostic removal and final charging regression pending; fresh ROM graph/build and off-mode current/thermal behavior untested",
     "GNU Makefile is provided but the tested binary was built with the available SDK frontend, LLVM20 and ARM assembler; GNU cross-build still needs its own validation",
     "If cache cannot mount or the kernel never reaches PID1, a log may still be unavailable"
   ],

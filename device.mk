@@ -240,9 +240,16 @@ $(call inherit-product, device/common/gps/gps_us_supl.mk)
 PRODUCT_COPY_FILES += \
 
 # Charger
-# Use cm/lineage images if available, aosp ones otherwise
+# Android 11 frontend and device percentage description. Its required modules
+# retain Lineage's density-selected battery images; avoid the obsolete alias.
 PRODUCT_PACKAGES += \
-	lineage_charger_res_images
+    charger \
+    grandppltedx_charger_animation
+
+PRODUCT_COPY_FILES += \
+    $(DEVICE_PATH)/charger/font_charger_18x32.png:$(TARGET_COPY_OUT_PRODUCT)/etc/res/images/charger/font_charger_18x32.png \
+    $(DEVICE_PATH)/charger/OFL.txt:$(TARGET_COPY_OUT_PRODUCT)/etc/res/images/charger/OFL.txt \
+    $(DEVICE_PATH)/charger/FONT-README:$(TARGET_COPY_OUT_PRODUCT)/etc/res/images/charger/FONT-README
 
 # Camera
 PRODUCT_PACKAGES += \
