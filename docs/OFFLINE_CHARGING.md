@@ -2,8 +2,9 @@
 
 The user reports a static battery/lightning icon for more than five minutes
 after the battery depleted. Rotation worked after the sensor update before
-shutdown. The following checks were performed locally with the phone off;
-there is no charging-mode log or measured charging-rate evidence yet.
+shutdown. The initial checks were performed locally with the phone off.
+An online read-only follow-up confirms the installed files and dependency
+failure. A charging-mode UI test and measured charging rate remain pending.
 
 ## Confirmed defects in the installed ROM's source image
 
@@ -19,7 +20,10 @@ outside the proprietary tree is missing.
 * That ARM32 executable has a mandatory `DT_NEEDED` entry for
   `libpixelflinger.so`. No such library is present anywhere in the ROM's
   ext4 directory entries. The dynamic linker cannot load this executable
-  from this filesystem as packaged. Actual charging-mode exit logs are pending.
+  from this filesystem as packaged. `libsuspend.so` is also absent. On the
+  connected phone, the linker's dependency-list mode fails first on
+  `libsuspend.so`; it succeeds for `/system/bin/charger`. This check does not
+  execute either charging frontend. Actual charging-mode exit logs are pending.
 * The GUI-enabled Android 11 `/system/bin/charger` is present, together with
   the Lineage battery animation. No service in the extracted system/vendor
   init files launches this executable. The root init `on charger` action
@@ -46,8 +50,9 @@ current, temperature threshold, calibration or kernel setting was changed.
 `tools/charger/candidate/` contains an Android 11 service override, an
 animation description with percentage text, and an unchanged upstream minui
 font with its SIL Open Font License and provenance. Nothing in `device.mk`,
-`BoardConfig.mk` or the init-copy directory activates these files. No update
-ZIP has been released or installed for this candidate.
+`BoardConfig.mk` or the init-copy directory activates these files. The
+reversible `tools/build/create_charger_fix.py` packages a fix and undo for a
+controlled recovery trial. No charging-UI update has been installed.
 
 The proposed override replaces `vendor.lpm` with the existing
 `/system/bin/charger`. It uses `class charger`, so the normal init transition
@@ -89,6 +94,38 @@ init service gap, unchanged 22-frame timing/ranges and valid upstream grayscale
 font/glyph dimensions. Candidate provenance and hashes are recorded in
 `tools/charger/investigation.json`. No full ROM build or VPS was used. The
 candidate has not run on the phone and is not a verified charging fix.
+
+On 2026-10-27 reconnection, Android and sysfs both report charging at 2%, 3631 mV,
+34.4 degrees C. This establishes the current Android status, not that capacity
+is rising or powered-off charging works. The charging executable, old LPM,
+both init files, animation and images match their pinned hashes. The sensor
+override also matches; the sensor service has input group 1004 and open
+accelerometer/proximity descriptors. The recovery installer refuses battery
+capacity below 15% before mounting/writing the system partition. Keep the
+charger attached and allow adequate charge before a recovery trial.
+
+On 2026-10-28, the phone reports 100% and Full. The previous aborted RAM test
+has cleared after reboot. The corrected installer passes with the actual ROM
+updater on a fresh, disposable 64 MiB RAM ext4 filesystem: install, reinstall,
+undo, repeat-undo, low-battery rejection, unknown-target rejection and symlink
+rejection. Exact target contents, ownership/modes/labels and unrelated baseline
+files are checked. The fixture substitutes only block/mount/interpreter,
+verifier and battery-text paths. It never writes the phone's system partition.
+The final archives contain the same tested installer/payload bytes plus the
+unchanged upstream font license and README. Their CRCs and on-phone hashes pass.
+
+| Development package in Download | SHA-256 |
+| --- | --- |
+| `grandppltedx-20261027-charging-ui-fix.zip` | `40e2cdaaf719700efeba3d42d9e20f2c5fd2df26e4c3029c1ce71b5df07d4880` |
+| `grandppltedx-20261027-charging-ui-undo.zip` | `3fa21040d5714204a98f0a3c22f86ef701c18569881550f06888a00f8973f5cc` |
+
+After the user confirmed recovery readiness, the verified RAM-only recovery
+reboot helper requested recovery through init. ADB disconnected as expected;
+that alone does not establish TWRP arrival or installation success. In TWRP,
+keep System unmounted and ZIP signature verification off, flash the fix, then
+reboot System without wiping. Keep undo available. Normal boot and installed
+file verification precede the physical powered-off charging test. Build/source
+activation remains deferred until those tests pass.
 
 Once the phone has enough charge and device testing resumes:
 

@@ -1,6 +1,6 @@
 {
   "scope": "grandppltedx / SM-G532G, LineageOS 18.1, current permissive build",
-  "status": "INACTIVE CANDIDATE; local checks only; no charger update installed or released",
+  "status": "INACTIVE IN FULL BUILD; reversible charging-UI fix/undo prepared and RAM-installer tested; not yet installed or tested in charging mode",
   "rom": {
     "file": "lineage-18.1-20261025-UNOFFICIAL-grandppltedx.zip",
     "sha256": "1a7670ccb03e1b22cf1a646b74a18d678c8e33fd71525bee1c86b5fb3691f445"
@@ -68,7 +68,8 @@
       "entries": 7,
       "rc_files": 0,
       "init": "first-stage executable; no additional charger service in ramdisk"
-    }
+    },
+    "libsuspend_so": "ABSENT from actual full-ROM ext4 directory entries; live linker --list LPM fails on this dependency"
   },
   "candidate_files": {
     "animation.txt": {
@@ -148,5 +149,18 @@
     "PASS percentage glyphs fit below centered battery on 540x960 coordinates",
     "PASS override uses charger class without critical; candidate is outside active product/init packaging"
   ],
-  "device_validation": "NOT RUN. Phone discharged; user requested local checks. Actual charging status, UI, health fallback, suspend, cable removal, normal boot and regressions pending."
+  "device_validation": {
+    "installed_inputs": "PASS charger, LPM, init files, animation and image hashes match diagnosed ROM; added override/font absent",
+    "linker_list": "PASS system charger dependency list resolves; old LPM fails on absent libsuspend.so. No charging frontend executed.",
+    "battery": "Android charging at 2% then 3% on 2026-10-27; full at 100% on 2026-10-28",
+    "sensor_update": "PASS installed override hash, input group and both evdev descriptors",
+    "charging_ui": "NOT RUN; powered-off animation, percent, health fallback, suspend/wake, cable removal and normal boot remain pending",
+    "installer_fixture": "PASS real ROM updater, disposable 64 MiB RAM ext4: install/reinstall/undo/repeat-undo; exact targets/metadata and unrelated baseline preserved; low battery, unknown target and symlink rejection before mutation. Fixture-only block/mount/interpreter/verifier/battery-text paths differ.",
+    "transfer": "PASS both final ZIP hashes verified in Download; original charging targets unchanged before recovery",
+    "recovery": "User ready; verified RAM-only helper requested recovery on 2026-10-28. ADB disconnected. Installation/normal boot/charging-mode UI await confirmation."
+  },
+  "packages": {
+    "grandppltedx-20261027-charging-ui-fix.zip": "40e2cdaaf719700efeba3d42d9e20f2c5fd2df26e4c3029c1ce71b5df07d4880",
+    "grandppltedx-20261027-charging-ui-undo.zip": "3fa21040d5714204a98f0a3c22f86ef701c18569881550f06888a00f8973f5cc"
+  }
 }

@@ -75,10 +75,10 @@ Use the existing RAM recovery-reboot helper if needed. No ROM build or VPS is
 required.
 
 **The user confirms recovery installation, Android boot and working rotation.**
-The battery then depleted and the phone shut down. Post-boot ADB verification of
-the installed override/effective service groups awaits reconnection; proximity
-and other physical regressions remain pending. After charging, check that
-the sensor service includes input and opens both sensor inputs. Enable Auto-rotate
+The battery then depleted and the phone shut down. After reconnection, ADB
+verifies the installed override's exact SHA-256, sensor service input group
+1004, and open accelerometer/proximity evdev descriptors. Proximity and other
+physical regressions remain pending. Enable Auto-rotate
 and use Gallery/browser: portrait, left landscape, portrait and right landscape.
 Check camera preview/icon and saved photo/video orientation, then camera recording
 with colour and sound, Wi-Fi, microphone and power/home wake. Proximity near/far

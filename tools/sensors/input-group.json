@@ -14,7 +14,7 @@
     "credential_probe": "PASS exact original service UID/GID/groups denies accelerometer/proximity evdev and poll_delay; adding input opens all. Open/close only, no writes.",
     "actual_hal_probe": "PASS isolated original HAL with input group: at least three acceleration events with gravity units and increasing timestamps. Running HAL and system_server unchanged.",
     "control_restore": "PASS original enable=0 and delay=200ms verified; cleanup accounts for BMA254 millisecond read/nanosecond write ABI. No calibration write.",
-    "framework_rotation": "USER PASS: recovery update installed, Android booted and rotation worked during user testing. Battery then depleted; post-boot ADB verification of installed file/effective groups and proximity testing await reconnection.",
+    "framework_rotation": "USER PASS: installed, booted and rotation worked. ADB now confirms exact installed override hash, supplementary input group 1004 and open accelerometer/proximity evdev descriptors. Physical proximity and enforcing mode remain untested.",
     "selinux": "Current project explicitly boots permissive. Enforcing-mode sensor/input/sysfs rules remain unvalidated.",
     "installer_fixture": "PASS real ROM updater on 64 MiB RAM ext4: install/reinstall/undo/repeat-undo, all 33 baseline files unchanged, uid/gid0 mode0644 vendor_configs_file, unknown target/dependencies and symlink rejection for fix/undo"
   },
