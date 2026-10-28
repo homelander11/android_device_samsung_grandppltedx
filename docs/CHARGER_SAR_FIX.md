@@ -70,7 +70,10 @@ Recovery must leave System unmounted before installation.
 | `grandppltedx-20261028-charging-sar-fix.zip` | `583936105bc8c4a345a6c4ece5a1666102f1ae0ec80c55506669b8696361e094` |
 | `grandppltedx-20261028-charging-sar-undo.zip` | `5700390dcd5d1b95c4629008af97ed0e0547c788d374eea4e5e044db4b3a619b` |
 
-**Not installed yet. Powered-off UI behavior is not verified.** No full ROM,
+**Installed; user and ADB confirm normal Android boot.** The runtime init hash,
+root:root ownership, mode 0644 and vendor-config label match. Modern charger
+service/animation/font and the diagnostic boot hash are unchanged; battery is
+90% and USB charging. Powered-off UI behavior remains unverified. No full ROM,
 kernel build or VPS was used. Install the SAR fix in TWRP with signature
 verification off, reboot System without wiping, and verify normal boot first.
 Then test animation/percentage, display blank/wake, Power boot, cable removal

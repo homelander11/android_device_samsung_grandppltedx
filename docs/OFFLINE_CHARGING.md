@@ -4,7 +4,8 @@
 The legacy charger-mode `/system` remount creates a SAR symlink loop and
 prevents the charger from running. The scoped source correction and tested
 recovery/undo ZIPs are documented in [CHARGER_SAR_FIX.md](CHARGER_SAR_FIX.md).
-Installation and the physical charging UI test remain pending. The sections
+The correction is installed and normal boot passes user/ADB checks; the
+physical charging UI test remains pending. The sections
 below retain the preceding UI/dependency investigation and trial results.
 
 The user reports a static battery/lightning icon for more than five minutes
