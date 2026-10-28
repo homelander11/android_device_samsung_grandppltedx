@@ -1,6 +1,6 @@
 {
   "scope": "grandppltedx / SM-G532G, LineageOS 18.1, current permissive build",
-  "status": "INACTIVE IN FULL BUILD; reversible charging-UI fix/undo prepared and RAM-installer tested; not yet installed or tested in charging mode",
+  "status": "UI TRIAL INSTALLED; normal boot verified; physical charging UI FAILED; diagnostic trial prepared outside full-build packaging",
   "rom": {
     "file": "lineage-18.1-20261025-UNOFFICIAL-grandppltedx.zip",
     "sha256": "1a7670ccb03e1b22cf1a646b74a18d678c8e33fd71525bee1c86b5fb3691f445"
@@ -154,10 +154,11 @@
     "linker_list": "PASS system charger dependency list resolves; old LPM fails on absent libsuspend.so. No charging frontend executed.",
     "battery": "Android charging at 2% then 3% on 2026-10-27; full at 100% on 2026-10-28",
     "sensor_update": "PASS installed override hash, input group and both evdev descriptors",
-    "charging_ui": "NOT RUN; powered-off animation, percent, health fallback, suspend/wake, cable removal and normal boot remain pending",
+    "charging_ui": "USER FAIL static lightning icon persists, Power cannot boot and cable removal does not clear the screen; battery removal required. Previous-boot RAM log unavailable afterward; cause unresolved.",
     "installer_fixture": "PASS real ROM updater, disposable 64 MiB RAM ext4: install/reinstall/undo/repeat-undo; exact targets/metadata and unrelated baseline preserved; low battery, unknown target and symlink rejection before mutation. Fixture-only block/mount/interpreter/verifier/battery-text paths differ.",
     "transfer": "PASS both final ZIP hashes verified in Download; original charging targets unchanged before recovery",
-    "recovery": "User ready; verified RAM-only helper requested recovery on 2026-10-28. ADB disconnected. Installation/normal boot/charging-mode UI await confirmation."
+    "recovery": "USER PASS installation and normal Android boot; ADB confirms all 3 installed hashes, intended metadata and sys.boot_completed=1, no userspace charger process on normal boot",
+    "health_lookup": "PASS isolated read-only Android lookups: 2.0 returns service, 2.1 returns null promptly; no lookup hang reproduced in normal Android"
   },
   "packages": {
     "grandppltedx-20261027-charging-ui-fix.zip": "40e2cdaaf719700efeba3d42d9e20f2c5fd2df26e4c3029c1ce71b5df07d4880",

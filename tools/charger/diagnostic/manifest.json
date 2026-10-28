@@ -1,0 +1,28 @@
+{
+  "scope": "SM-G532G/grandppltedx existing permissive debug ROM and installed first charging-UI trial",
+  "status": "Diagnostic prepared, tested and transferred; charging-mode execution pending",
+  "canonical_lf_payload_sha256": {
+    "init.rc": "b48c07a7550bd70ee89dd76a7b623997986bf3aaf39571f87300ec5495fcaae4",
+    "debug.sh": "e8164797dd2f5b8b8fa0598244b34d619029bf3f2097542758ef6393da2922f1"
+  },
+  "targets": {
+    "init.rc": "/vendor/etc/init/zzzz-grandppltedx-charger-debug.rc",
+    "debug.sh": "/vendor/bin/j2prime-charger-debug.sh"
+  },
+  "normal_boot": "PASS script exits without changes; no cache log directory created",
+  "installer": "PASS actual ROM updater on 64 MiB RAM ext4: install/reinstall/undo/repeat-undo, 14 baseline files unchanged, new hashes/uid/gid/modes/labels verified, low-battery/unknown-target/symlink rejection",
+  "packages": {
+    "grandppltedx-20261028-charging-debug.zip": "cabfb6eb601dc891a5071c6c8f5f177f042b01b7720ce85f090819550b936ab2",
+    "grandppltedx-20261028-charging-debug-undo.zip": "a324b5fd5dfda5e0aea50e677d2ef39bfaee1142477b45d2ed3364ac0389541f"
+  },
+  "cache_log": "/cache/j2prime-charger-debug/latest.txt; private, do not publish",
+  "unchanged": [
+    "boot/recovery",
+    "charging current/temperature limits",
+    "calibration",
+    "original UI trial",
+    "camera/audio/mic/wake/sensors",
+    "Wi-Fi force_connect setting",
+    "ADB authentication and persistent USB properties"
+  ]
+}

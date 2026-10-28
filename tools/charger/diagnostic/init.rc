@@ -1,0 +1,13 @@
+# SPDX-License-Identifier: Apache-2.0
+# Diagnostic only, outside product packaging. The script exits immediately
+# on normal boots; charging mode records a bounded private cache log.
+on init
+    start vendor.j2prime-charger-debug
+
+service vendor.j2prime-charger-debug /system/bin/sh /vendor/bin/j2prime-charger-debug.sh
+    class charger
+    disabled
+    oneshot
+    user root
+    group root system log
+    seclabel u:r:charger:s0

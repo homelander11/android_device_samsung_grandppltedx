@@ -52,7 +52,8 @@ animation description with percentage text, and an unchanged upstream minui
 font with its SIL Open Font License and provenance. Nothing in `device.mk`,
 `BoardConfig.mk` or the init-copy directory activates these files. The
 reversible `tools/build/create_charger_fix.py` packages a fix and undo for a
-controlled recovery trial. No charging-UI update has been installed.
+controlled recovery trial. The first UI trial is installed and boots normally,
+but it did not resolve the static powered-off screen.
 
 The proposed override replaces `vendor.lpm` with the existing
 `/system/bin/charger`. It uses `class charger`, so the normal init transition
@@ -92,8 +93,8 @@ undo. Do not overwrite boot or recovery for a service/resource trial.
 Local checks confirm the mandatory missing dependency, installed GUI executable,
 init service gap, unchanged 22-frame timing/ranges and valid upstream grayscale
 font/glyph dimensions. Candidate provenance and hashes are recorded in
-`tools/charger/investigation.json`. No full ROM build or VPS was used. The
-candidate has not run on the phone and is not a verified charging fix.
+`tools/charger/investigation.json`. No full ROM build or VPS was used.
+The files are now installed, but the charging UI is not a verified fix.
 
 On 2026-10-27 reconnection, Android and sysfs both report charging at 2%, 3631 mV,
 34.4 degrees C. This establishes the current Android status, not that capacity
@@ -119,13 +120,66 @@ unchanged upstream font license and README. Their CRCs and on-phone hashes pass.
 | `grandppltedx-20261027-charging-ui-fix.zip` | `40e2cdaaf719700efeba3d42d9e20f2c5fd2df26e4c3029c1ce71b5df07d4880` |
 | `grandppltedx-20261027-charging-ui-undo.zip` | `3fa21040d5714204a98f0a3c22f86ef701c18569881550f06888a00f8973f5cc` |
 
-After the user confirmed recovery readiness, the verified RAM-only recovery
-reboot helper requested recovery through init. ADB disconnected as expected;
-that alone does not establish TWRP arrival or installation success. In TWRP,
-keep System unmounted and ZIP signature verification off, flash the fix, then
-reboot System without wiping. Keep undo available. Normal boot and installed
-file verification precede the physical powered-off charging test. Build/source
-activation remains deferred until those tests pass.
+After the user confirmed recovery readiness, the verified RAM-only helper
+requested recovery. The user then confirmed installation and normal boot.
+ADB verifies all three installed SHA-256 values, uid/gid 0, mode 0644 and
+the intended SELinux labels. `sys.boot_completed=1`; no userspace charging
+frontend runs during normal boot. The user subsequently powered off with the
+charger attached and still observed the static lightning icon. ADB is absent
+in that mode. The first candidate therefore **fails the physical UI test**;
+whether the new service starts, blocks or fails before drawing remains unknown.
+The user was asked to boot Android so prior-boot logs can be collected. Keep
+undo available. Full-build activation remains deferred.
+
+The user reports that Power cannot boot from that static screen and unplugging
+does not shut it down. Booting requires removing USB and the battery, reinserting
+the battery and powering on. This indicates a broader startup/event-handling
+failure, rather than proving that only the drawing resources are wrong. After
+that cold start, `/proc/last_kmsg` contains only a 46-byte RAM-console header;
+pstore is empty. No failure cause can be extracted from those logs.
+
+Two standalone, six-second-bounded health lookup probes run in Android without
+starting a UI or modifying properties/sysfs/services. Health 2.0 returns a
+service and 2.1 returns null promptly. Thus a health-2.1 lookup hang was not
+reproduced in Android; the charging-mode service state still needs capturing.
+
+## Charging-only diagnostic trial
+
+`tools/build/create_charger_debug.py` packages only
+`zzzz-grandppltedx-charger-debug.rc` and `j2prime-charger-debug.sh`, plus undo.
+It requires the exact installed UI trial and its original dependencies. Both
+new targets are checked before either is changed. No full-build rule activates
+the diagnostics. Their canonical payload hashes and results are recorded in
+`tools/charger/diagnostic/manifest.json`.
+
+The diagnostic starts once during init. On normal boots, it reads the boot mode
+and Samsung LPM flag and exits immediately; this no-op path passes an actual
+on-device test. In charging mode, it reuses debug USB only when the existing
+build already has `ro.debuggable=1` and `ro.adb.secure=0`; it does not change
+authentication or persistent USB properties. It starts logd, mounts the existing
+cache filesystem if necessary, and saves bounded snapshots of boot/service
+properties, battery readings, process state, charger wait stacks and logs to
+`/cache/j2prime-charger-debug/latest.txt` (directory 0700, file 0600). Snapshots
+are synced so a battery removal has a better chance of retaining the evidence.
+These logs are private and must not be committed. No charge-control or
+calibration node is written, and the script does not request reboot/shutdown.
+
+The actual ROM updater passes a fresh 64 MiB RAM ext4 fixture: install,
+reinstall, undo, repeat-undo, low-battery/unknown-file/symlink rejection; exact
+new hashes and metadata are checked and all 14 baseline files stay unchanged.
+Both diagnostic ZIP hashes are verified after copying to Download.
+
+| Diagnostic package | SHA-256 |
+| --- | --- |
+| `grandppltedx-20261028-charging-debug.zip` | `cabfb6eb601dc891a5071c6c8f5f177f042b01b7720ce85f090819550b936ab2` |
+| `grandppltedx-20261028-charging-debug-undo.zip` | `a324b5fd5dfda5e0aea50e677d2ef39bfaee1142477b45d2ed3364ac0389541f` |
+
+After installing the diagnostic and confirming normal boot, perform one bounded
+charging-screen test with USB connected. Collect live ADB state if it appears;
+otherwise allow about one minute before returning to Android and collecting
+the cache log. A missing cache log does not itself establish why init did not
+reach the diagnostic. Remove the diagnostic after the investigation; retain
+the UI undo until the powered-off charging behavior is verified.
 
 Once the phone has enough charge and device testing resumes:
 
