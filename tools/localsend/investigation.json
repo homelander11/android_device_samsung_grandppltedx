@@ -1,0 +1,31 @@
+{
+  "scope": "SM-G532G grandppltedx, installed LineageOS18.1/API30, LocalSend1.18.2 versionCode64 ARM32",
+  "status": "DIAGNOSED; tested per-launch Impeller opt-out works; permanent ordinary-icon fix not installed",
+  "driver": {
+    "path": "/vendor/lib/egl/libGLES_mali.so",
+    "sha256": "eadb237efe044552d89f125c8b489a9ca195bcc43f9b0d632efd2b16f0d0ec22",
+    "build_id": "b7112c7926410cf5efd5b5d336408b11",
+    "crash_pc": "0x435c60",
+    "instruction": "ldrb r1, [r10] with captured r10=0",
+    "api_path": "glGetUniformLocation internal name lookup"
+  },
+  "flutter_build_id": "3a12dddeb7d927ffd59fafb25152aac811dd47d1",
+  "tests": {
+    "default": "FAIL repeated native SIGSEGV on raster thread",
+    "software_only": "FAIL SIGABRT: Impeller does not support software rendering",
+    "impeller_disabled": "PASS cold launch and user interface/Receive-Send switching; opt-out logged; later remove-task reason USER REQUESTED",
+    "ordinary_icon_relaunch": "FAIL original native crash returns, proves flag not persistent",
+    "final_state": "Reopened with enable-impeller=false"
+  },
+  "limits": [
+    "Why the preceding uniform reflection/query yields a null name is not established",
+    "No permanent GPU or APK modification",
+    "No discovery/file transfer test",
+    "No general guarantee for other Flutter apps or newer LocalSend engines"
+  ],
+  "references": [
+    "https://github.com/localsend/localsend/issues/3367",
+    "https://docs.flutter.dev/perf/impeller"
+  ],
+  "privacy": "Private logs and original app/driver copies stay outside Git"
+}
