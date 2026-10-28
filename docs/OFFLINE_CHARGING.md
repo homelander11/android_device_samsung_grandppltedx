@@ -1,10 +1,17 @@
 # Powered-off charging investigation
 
+**2026-10-28 update:** the installed native early logger captures the failure.
+The legacy charger-mode `/system` remount creates a SAR symlink loop and
+prevents the charger from running. The scoped source correction and tested
+recovery/undo ZIPs are documented in [CHARGER_SAR_FIX.md](CHARGER_SAR_FIX.md).
+Installation and the physical charging UI test remain pending. The sections
+below retain the preceding UI/dependency investigation and trial results.
+
 The user reports a static battery/lightning icon for more than five minutes
 after the battery depleted. Rotation worked after the sensor update before
 shutdown. The initial checks were performed locally with the phone off.
 An online read-only follow-up confirms the installed files and dependency
-failure. A charging-mode UI test and measured charging rate remain pending.
+failure. The first UI trial still failed; measured charging rate remains pending.
 
 ## Confirmed defects in the installed ROM's source image
 
@@ -23,7 +30,8 @@ outside the proprietary tree is missing.
   from this filesystem as packaged. `libsuspend.so` is also absent. On the
   connected phone, the linker's dependency-list mode fails first on
   `libsuspend.so`; it succeeds for `/system/bin/charger`. This check does not
-  execute either charging frontend. Actual charging-mode exit logs are pending.
+  execute either charging frontend. The later native log identifies a second
+  startup failure: the charger-mode SAR remount described above.
 * The GUI-enabled Android 11 `/system/bin/charger` is present, together with
   the Lineage battery animation. No service in the extracted system/vendor
   init files launches this executable. The root init `on charger` action
@@ -127,7 +135,7 @@ the intended SELinux labels. `sys.boot_completed=1`; no userspace charging
 frontend runs during normal boot. The user subsequently powered off with the
 charger attached and still observed the static lightning icon. ADB is absent
 in that mode. The first candidate therefore **fails the physical UI test**;
-whether the new service starts, blocks or fails before drawing remains unknown.
+the later native diagnostic establishes that the legacy mount breaks its paths.
 The user was asked to boot Android so prior-boot logs can be collected. Keep
 undo available. Full-build activation remains deferred.
 
@@ -186,9 +194,10 @@ mode 0644 and intended labels; the one-shot service is stopped during normal
 Android. A normal-mode explicit start exits successfully without writes. The
 subsequent charging test still shows the static icon; ADB never appears and
 the cache log/directory is absent after the required battery removal. Thus this
-trial is inconclusive about the failed boot stage. A static ramdisk diagnostic
-and exact boot undo have been prepared and validated separately; see
-`CHARGER_EARLY_BOOT.md`. They have not been flashed.
+trial alone was inconclusive about the failed boot stage. The subsequently
+installed static ramdisk diagnostic and exact boot undo are documented in
+`CHARGER_EARLY_BOOT.md`. Its charging log now confirms init was reached and
+the obsolete remount caused the path loop; this also explains shell exit 127.
 
 Once the phone has enough charge and device testing resumes:
 

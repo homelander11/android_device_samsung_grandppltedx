@@ -9,6 +9,9 @@ LDFLAGS := -nostdlib -static -no-pie -Wl,-e,_start,-z,noexecstack,--build-id=non
 init-wrapper: init_wrapper.c start.S
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^
 
+sar-mount-probe: sar_mount_probe.c start.S
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^
+
 .PHONY: clean
 clean:
-	rm -f init-wrapper
+	rm -f init-wrapper sar-mount-probe

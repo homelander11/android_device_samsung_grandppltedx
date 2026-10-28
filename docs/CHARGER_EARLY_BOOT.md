@@ -1,6 +1,12 @@
 # Temporary early-boot charging diagnostic
 
-Powered-off charging remains broken. The Android 11 UI trial boots normally,
+The native diagnostic is installed and has captured the charging failure:
+the obsolete `/system` remount creates a system-as-root path loop. See
+[CHARGER_SAR_FIX.md](CHARGER_SAR_FIX.md) for the evidence and scoped correction.
+Normal boot and actual charging-mode logging both pass. The charging UI still
+requires a device test after installing that correction.
+
+Before this diagnostic, the Android 11 UI trial booted normally,
 but the user still sees the static lightning icon and needs a battery/USB
 removal to boot again. The charging-only init/shell diagnostic is installed
 with verified hashes and labels. It starts and exits normally in Android, but
@@ -61,10 +67,14 @@ and vendor are not updated by these packages.
 * The public SDK component builder reproduces the tested ELF byte-for-byte.
   All transferred packages and the original backup match their local hashes.
 
-**Real PID 1 boot, normal Android boot and charging-mode logging with this
-ramdisk remain untested.** The ordinary init diagnostic's normal boot test is
-separate evidence. If cache cannot mount, policy later prevents writes, or the
-kernel never reaches PID 1, the early log may still be unavailable. This is a
+**The user installed this image and confirms normal Android boot.** ADB verifies
+the exact diagnostic boot-partition hash, `sys.boot_completed=1`, the correct
+device and a 94% charging battery. No early charging log or logger process is
+present during normal boot, as intended. The subsequent charging test captures
+a private 1,282,158-byte log with six snapshots. It confirms PID 1/init,
+charging mode, the legacy mount, shell exit 127, charger exit 1 and the
+`Too many symbolic links encountered` restart error. Kernel battery workers
+continue through the last snapshot; no kernel panic is observed. This is a
 diagnostic boot image, not a verified charging fix; it is outside product build
 packaging. No full ROM or kernel build and no VPS was used.
 

@@ -1012,8 +1012,8 @@ service vendor.guiext-server /vendor/bin/guiext-server
     group system graphics
 
 # LPM
-on property:ro.bootmode=charger
-    mount ext4 /dev/block/platform/mtk-msdc.0/11230000.msdc0/by-name/system /system support_scfs wait ro
+# First-stage init already mounted system-as-root. Remounting it on /system
+# creates /system/bin -> /system/bin symlink loops in charging mode.
 
 on property:ro.bootmode=charger
     wait /dev/block/platform/mtk-msdc.0/11230000.msdc0/by-name/EFS

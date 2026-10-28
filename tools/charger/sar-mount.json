@@ -1,0 +1,37 @@
+{
+  "scope": "SM-G532G/grandppltedx pinned LineageOS 18.1 and installed Android 11 charger service/resources",
+  "target": "system/vendor/etc/init/hw/init.mt6735.rc",
+  "original_sha256": "2bca24ad483f10b8a924fbc1a3d4ee69f417355a7b22413d8f45cab6badbf931",
+  "patched_sha256": "2ed14a42098c6ecc2f1738cb083c79043ca02e706bde073ef9229686d28652c6",
+  "change": "Remove only obsolete charger-mode system partition mount at /system; leave first-stage SAR mount in place. Runtime payload preserves all other original init bytes.",
+  "evidence": [
+    "Early native log confirms androidboot.mode=charger, init processing charger, modern vendor.lpm starts then exits, and restart fails with Cannot find /system/bin/charger: Too many symbolic links encountered",
+    "Shell diagnostic exits127 and no cache log is created after the same legacy remount",
+    "On-device static probe reproduces ELOOP by binding SAR root at /system in a private mount namespace; unmount restores charger path; real charger hashes and Android boot unchanged"
+  ],
+  "validation": {
+    "source": "Same scoped block removed from rootdir init; existing camera ownership fixes retained in source",
+    "runtime": "NOT INSTALLED; physical charging UI and behavior pending",
+    "installer": "PASS actual ROM updater on disposable 64 MiB RAM ext4: install/reinstall/undo/repeat-undo; exact target/uid/gid/mode/label; 15 unrelated baseline files unchanged; both ZIPs reject low battery, unknown target and symlink before mutation; real boot unchanged",
+    "transfer": "PASS both final ZIP CRCs and Download SHA-256; 13 existing charging/hardware hashes unchanged; RAM fixture cleaned",
+    "probe": "PASS public SDK build and on-device private namespace ELOOP/restoration plus default refusal; original boot logger reproduced byte-identically"
+  },
+  "unchanged": [
+    "boot/recovery",
+    "charging limits/calibration",
+    "EFS mount actions",
+    "charger service and UI resources",
+    "camera/audio/microphone/wake/sensors",
+    "Wi-Fi force_connect setting"
+  ],
+  "probe": {
+    "source": "early/sar_mount_probe.c",
+    "source_canonical_lf_sha256": "2f34d4f9e45faef2710e86651a318252e930dd0eb35dd7d273aae5af0c566127",
+    "elf_sha256": "13ca252f2b7813212a0f8eb35c0b4cd06d65e911928a4c7ae4a7e10e7e40b21f",
+    "elf_bytes": 9328
+  },
+  "packages": {
+    "grandppltedx-20261028-charging-sar-fix.zip": "583936105bc8c4a345a6c4ece5a1666102f1ae0ec80c55506669b8696361e094",
+    "grandppltedx-20261028-charging-sar-undo.zip": "5700390dcd5d1b95c4629008af97ed0e0547c788d374eea4e5e044db4b3a619b"
+  }
+}

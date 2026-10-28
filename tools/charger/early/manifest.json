@@ -1,6 +1,6 @@
 {
   "scope": "Temporary SM-G532G/grandppltedx LineageOS 18.1 boot diagnostic; exact pinned boot only",
-  "status": "PREPARED; not installed; real PID1/normal boot/charging boot require device testing",
+  "status": "INSTALLED; normal boot and actual charging-mode native logging PASS; log identifies legacy SAR remount and ELOOP; physical charger UI remains failed before correction",
   "wrapper_sha256": "e7cfa5a4e113e8758941d6f9209bff54c1bd7724dd61a370ed2ca296722194b5",
   "wrapper_bytes": 9652,
   "original_init_sha256": "1397eb00b39fd461e405662e7e8bf22e09c6ebf403e9735cf87e6a720eec0fec",
@@ -21,10 +21,12 @@
     "PASS on-device fixture variants: normal exec without logger, fork/wait/logger and private namespace RAM ext4 log, mode0600; no real cache or boot writes",
     "PASS real ROM updater on 16 MiB raw RAM loop: install/reinstall/undo/repeat-undo, low-battery and unknown-boot rejection, real boot hash unchanged",
     "PASS public SDK builder reproduces reviewed production ELF exactly",
-    "PASS diagnostic/undo/original raw backup copied to Download with exact hashes"
+    "PASS diagnostic/undo/original raw backup copied to Download with exact hashes",
+    "USER/ADB PASS actual normal boot after installation: exact diagnostic boot hash, sys.boot_completed=1, no early log/logger on normal boot",
+    "PASS actual charging boot: private 1282158-byte log, six snapshots; init reaches charger mode, shell exits127, charger exits1 then restart ELOOP following legacy remount; kernel battery work continues, no panic observed"
   ],
   "limits": [
-    "Actual PID1/charger behavior not yet verified",
+    "Actual charger UI still needs physical verification after separate SAR remount correction",
     "GNU Makefile is provided but the tested binary was built with the available SDK frontend, LLVM20 and ARM assembler; GNU cross-build still needs its own validation",
     "If cache cannot mount or the kernel never reaches PID1, a log may still be unavailable"
   ],

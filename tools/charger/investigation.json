@@ -1,6 +1,6 @@
 {
   "scope": "grandppltedx / SM-G532G, LineageOS 18.1, current permissive build",
-  "status": "UI and init diagnostic installed, normal boot verified; physical charging remains FAILED; early ramdisk diagnostic prepared, not flashed",
+  "status": "UI/init/native diagnostics installed; normal boot PASS; early log confirms legacy charger remount causes SAR path loop; scoped source and tested SAR ZIP ready, not installed; physical charging still unverified after correction",
   "rom": {
     "file": "lineage-18.1-20261025-UNOFFICIAL-grandppltedx.zip",
     "sha256": "1a7670ccb03e1b22cf1a646b74a18d678c8e33fd71525bee1c86b5fb3691f445"
@@ -69,7 +69,14 @@
       "rc_files": 0,
       "init": "first-stage executable; no additional charger service in ramdisk"
     },
-    "libsuspend_so": "ABSENT from actual full-ROM ext4 directory entries; live linker --list LPM fails on this dependency"
+    "libsuspend_so": "ABSENT from actual full-ROM ext4 directory entries; live linker --list LPM fails on this dependency",
+    "sar_remount": {
+      "path": "rootdir/init.mt6735.rc",
+      "action": "ro.bootmode=charger mounts system partition at /system despite first-stage SAR",
+      "observed_error": "Cannot find '/system/bin/charger': Too many symbolic links encountered",
+      "reproduction": "On-device static probe in private mount namespace returns ELOOP; unmount restores path, real charger unchanged",
+      "correction": "Remove obsolete system mount only; see sar-mount.json and docs/CHARGER_SAR_FIX.md"
+    }
   },
   "candidate_files": {
     "animation.txt": {
@@ -154,12 +161,14 @@
     "linker_list": "PASS system charger dependency list resolves; old LPM fails on absent libsuspend.so. No charging frontend executed.",
     "battery": "Android charging at 2% then 3% on 2026-10-27; full at 100% on 2026-10-28",
     "sensor_update": "PASS installed override hash, input group and both evdev descriptors",
-    "charging_ui": "USER FAIL static lightning icon persists, Power cannot boot and cable removal does not clear the screen; battery removal required. Previous-boot RAM log unavailable afterward; cause unresolved.",
+    "charging_ui": "USER FAIL before SAR correction: static icon, Power cannot boot, unplug ineffective; native log now establishes legacy mount breaks charger paths",
     "installer_fixture": "PASS real ROM updater, disposable 64 MiB RAM ext4: install/reinstall/undo/repeat-undo; exact targets/metadata and unrelated baseline preserved; low battery, unknown target and symlink rejection before mutation. Fixture-only block/mount/interpreter/verifier/battery-text paths differ.",
     "transfer": "PASS both final ZIP hashes verified in Download; original charging targets unchanged before recovery",
     "recovery": "USER PASS installation and normal Android boot; ADB confirms all 3 installed hashes, intended metadata and sys.boot_completed=1, no userspace charger process on normal boot",
     "health_lookup": "PASS isolated read-only Android lookups: 2.0 returns service, 2.1 returns null promptly; no lookup hang reproduced in normal Android",
-    "charging_diagnostic": "USER/ADB: installed exact script/RC, normal boot PASS, normal explicit service start exits0. Charging still static/no ADB; no cache directory/log after battery pull. Stage/cause unresolved."
+    "charging_diagnostic": "Installed init/shell diagnostic exits127 in actual charging mode after legacy remount; native log captures cause",
+    "early_diagnostic": "PASS actual normal boot and charging log; exact diagnostic boot hash; six private snapshots over about31s",
+    "sar_fix": "NOT INSTALLED; real ROM updater RAM filesystem tests and final ZIP transfer PASS; physical charging UI pending"
   },
   "packages": {
     "grandppltedx-20261027-charging-ui-fix.zip": "40e2cdaaf719700efeba3d42d9e20f2c5fd2df26e4c3029c1ce71b5df07d4880",

@@ -17,6 +17,7 @@ parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--build-tools', type=Path, required=True)
 parser.add_argument('--out-dir', type=Path, required=True)
 parser.add_argument('--fixtures', action='store_true', help='also build RAM-only test variants')
+parser.add_argument('--sar-probe', action='store_true', help='also build the private-namespace mount probe')
 args = parser.parse_args()
 src = Path(__file__).resolve().parent
 out = args.out_dir.resolve()
@@ -73,26 +74,30 @@ obj.extend(b''.join(headers))
 ident = b'\x7fELF\x01\x01\x01' + b'\0' * 9
 obj[:52] = struct.pack('<16sHHIIIIIHHHHHH', ident, 1, 40, 1, 0, 0, sho, 0x05000000, 52, 0, 0, 40, len(headers), 6)
 (out / 'start.o').write_bytes(obj)
-source = (src / 'init_wrapper.c').read_text()
-for fixture in ((0, 1, 2) if args.fixtures else (0,)):
-    c = '#pragma version(1)\n#pragma rs java_package_name(j2prime.diagnostics)\n#define J2PRIME_RS_FRONTEND 1\n#define DIAG_FIXTURE ' + str(fixture) + '\n' + source
-    (out / 'wrapper.c').write_bytes(c.encode())
+jobs = [('wrapper', 'init_wrapper.c', 'init-wrapper' if f == 0 else f'init-fixture-{f}',
+         '#define DIAG_FIXTURE ' + str(f) + '\n')
+        for f in ((0, 1, 2) if args.fixtures else (0,))]
+if args.sar_probe:
+    jobs.append(('sar_mount_probe', 'sar_mount_probe.c', 'sar-mount-probe', ''))
+for stem, source_name, binary_name, defines in jobs:
+    c = '#pragma version(1)\n#pragma rs java_package_name(j2prime.diagnostics)\n#define J2PRIME_RS_FRONTEND 1\n' + defines + (src / source_name).read_text()
+    (out / (stem + '.c')).write_bytes(c.encode())
     r = subprocess.run([str(sdk / 'llvm-rs-cc.exe'), '-emit-llvm', '-O2', '-target-api', '18',
                         '-I', str(sdk / 'renderscript/include'), '-I', str(sdk / 'renderscript/clang-include'),
-                        '-o', '.', 'wrapper.c'], cwd=out, capture_output=True, text=True)
+                        '-o', '.', stem + '.c'], cwd=out, capture_output=True, text=True)
     if r.returncode:
         print(r.stdout, r.stderr)
         r.check_returncode()
-    m = llvm.parse_assembly((out / 'wrapper.ll').read_text())
+    m = llvm.parse_assembly((out / (stem + '.ll')).read_text())
     m.triple = 'armv7-none-linux-gnueabi'
     m.data_layout = str(tm.target_data)
     m.get_function('wrapper_start').linkage = 'external'
     m.verify()
-    (out / 'wrapper.o').write_bytes(tm.emit_object(m))
-    dest = out / ('init-wrapper' if fixture == 0 else f'init-fixture-{fixture}')
+    (out / (stem + '.o')).write_bytes(tm.emit_object(m))
+    dest = out / binary_name
     r = subprocess.run([str(sdk / 'lld-bin/lld.exe'), '-flavor', 'gnu', '-m', 'armelf_linux_eabi',
                         '-static', '-e', '_start', '-z', 'noexecstack', '--build-id=none',
-                        str(out / 'start.o'), str(out / 'wrapper.o'), '-o', str(dest)], capture_output=True, text=True)
+                        str(out / 'start.o'), str(out / (stem + '.o')), '-o', str(dest)], capture_output=True, text=True)
     if r.returncode:
         print(r.stdout, r.stderr)
         r.check_returncode()
